@@ -1,0 +1,12 @@
+//
+//  CitiesListViewControllerDelegate.swift
+//  Weather 2
+//
+//  Created by Вадим on 18.01.2022.
+//
+
+import Foundation
+
+protocol CitiesListViewControllerDelegate: AnyObject {
+    func citiesListViewController(didSelectRowAt indexPath: IndexPath)
+}
