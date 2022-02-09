@@ -11,8 +11,6 @@ class HourlyForecast: WeatherInfo {
     
     // MARK: Properties
     
-//    var 
-    
     let forecastTime: Date
     
     // MARK: Initializers

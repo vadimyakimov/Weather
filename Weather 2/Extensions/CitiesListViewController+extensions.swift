@@ -17,10 +17,10 @@ extension CitiesListViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: self.citiesListCellId, for: indexPath) as? CityTableViewCell else { return UITableViewCell() }
-        cell.configure(withSize: CGSize(width: self.view.frame.width,
-                                        height: self.citiesListRowHeight),
-                       text: Manager.shared.citiesArray[indexPath.row].name)
+        let cell = CityTableViewCell.instanceFronNib()
+        cell.configure(width: self.view.frame.width,
+                       text: Manager.shared.citiesArray[indexPath.row].name,
+                       isLocation: Manager.shared.citiesArray[indexPath.row].isLocated)
         return cell
     }
     

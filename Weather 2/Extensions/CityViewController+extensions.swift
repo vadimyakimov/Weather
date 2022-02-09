@@ -11,7 +11,9 @@ import UIKit
 extension CityViewController: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        self.setScrollViewFade()
+        UIView.animate(withDuration: 1) {            
+            self.addFade(to: scrollView)
+        }
         let fontSize = self.nameLabelFontSize - scrollView.contentOffset.y
         if fontSize < self.nameLabelFontSize * 2 &&
            fontSize > self.nameLabelMinimumFontSize {

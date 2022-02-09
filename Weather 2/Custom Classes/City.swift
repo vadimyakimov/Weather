@@ -7,18 +7,19 @@
 
 import Foundation
 //
-class City: Codable {
+class City: Codable, Equatable {
+      
     
     // MARK: Properties
     
     var id: String
     let name: String
-    
-    var lastUpdated: Date?
-    
+        
     var currentWeather: CurrentWeather?
     var hourlyForecast: [HourlyForecast]?
     var dailyForecast: [DailyForecast]?
+    
+    var lastUpdated: LastUpdated
     
     let isLocated: Bool
     
@@ -28,6 +29,17 @@ class City: Codable {
         self.id = id
         self.name = name
         self.isLocated = isLocated
+        self.lastUpdated = LastUpdated()
+    }
+    
+    // MARK: Equatable
+    
+    static func == (lhs: City, rhs: City) -> Bool {
+        if lhs.id == rhs.id {
+            return true
+        } else {
+            return false
+        }
     }
     
 }

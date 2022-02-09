@@ -25,15 +25,13 @@ extension SearchScreenViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: self.searchCellId, for: indexPath) as? CityTableViewCell else { return UITableViewCell() }
+//        guard let cell = tableView.dequeueReusableCell(withIdentifier: self.searchCellId) as? CityTableViewCell else { return UITableViewCell() }
+        let cell = CityTableViewCell.instanceFronNib()
+        let width = self.view.frame.width
         if indexPath.section == 0 {
-            cell.configure(withSize: CGSize(width: self.view.frame.width,
-                                            height: self.searchRowHeight),
-                           text: "My location", isLocation: true)
+            cell.configure(width: width, text: "My location", isLocation: true)
         } else {
-            cell.configure(withSize: CGSize(width: self.view.frame.width,
-                                            height: self.searchRowHeight),
-                           text: Manager.shared.citiesAutocompleteArray[indexPath.row].name)
+            cell.configure(width: width, text: Manager.shared.citiesAutocompleteArray[indexPath.row].name)
         }
         return cell
     }
@@ -43,11 +41,11 @@ extension SearchScreenViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 0 {
-            self.getLocation {
-                self.delegate?.searchScreenViewController(didSelectRowAt: indexPath)
-            }
+//            self.getLocation {
+//                self.delegate?.searchScreenViewController(didSelectRowAt: indexPath)
+//            }
         } else {
-            self.delegate?.searchScreenViewController(didSelectRowAt: indexPath)            
+            self.delegate?.searchScreenViewController(didSelectRowAt: indexPath) 
         }
     }
     
@@ -60,7 +58,7 @@ extension SearchScreenViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         self.autocompleteTimer?.invalidate()
         self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false, block: { _ in
-            Manager.shared.autocomplete(for: searchText) {
+            self.autocomplete(for: searchText) {
                 DispatchQueue.main.async {
                     self.autocompleteTimer?.invalidate()
                     self.searchTableView.reloadData()
@@ -73,9 +71,8 @@ extension SearchScreenViewController: UISearchBarDelegate {
 
 extension SearchScreenViewController: CLLocationManagerDelegate {
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-         
-    }
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {}
+    
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {  let alert = UIAlertController(title: "Location error", message: nil, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)

@@ -17,8 +17,6 @@ class CitiesListViewController: UIViewController {
     
     let searchScreen = SearchScreenViewController()
     
-    let citiesListRowHeight: CGFloat = 60
-    let citiesListCellId = "citiesListCell"
     
     // MARK: - Lifecycle
 
@@ -29,8 +27,6 @@ class CitiesListViewController: UIViewController {
         self.citiesListTableView.delegate = self
         self.citiesListTableView.dragDelegate = self
         self.citiesListTableView.dropDelegate = self
-        self.citiesListTableView.register(CityTableViewCell.self, forCellReuseIdentifier: self.citiesListCellId)
-        
         
         let searchButton = UIBarButtonItem(barButtonSystemItem: .search,
                                    target: self,
@@ -51,16 +47,12 @@ class CitiesListViewController: UIViewController {
         
         
         self.setCitiesListTableViewFrame()
-        self.citiesListTableView.rowHeight = self.citiesListRowHeight
+        self.citiesListTableView.rowHeight = CityTableViewCell.cellHeight
         self.citiesListTableView.separatorStyle = .none
         self.view.addSubview(self.citiesListTableView)
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        
-    }
     
     // MARK: - IBActions
         

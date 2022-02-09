@@ -18,75 +18,137 @@ class CitiesPageViewController: UIPageViewController {
     }
     let pageControl = UIPageControl()
     let pageControlHeight: CGFloat = 20
+    
+    let gradient = CAGradientLayer()
         
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                                
+        
         self.dataSource = self
         self.delegate = self
         
-//        self.createListButton()
-//        self.defaultNavigationBarBackground()
-    
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        self.navigationController?.isNavigationBarHidden = true
         
         if Manager.shared.citiesArray.count > 0 {
-            self.createCityViewController()
+            self.showCityViewController(withIndex: 0)
         } else {
             let searchScreen = SearchScreenViewController()
             searchScreen.delegate = self
             self.navigationController?.pushViewController(searchScreen, animated: false)
         }
+        
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        
+        self.navigationController?.isNavigationBarHidden = true
+        
+        self.createListButton()
+        self.defaultNavigationBarBackground()
+        
+        self.view.layer.insertSublayer(gradient, at: 0)
+        
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        if Manager.shared.citiesArray.count > 1 {
-            self.pageControl.frame = CGRect(x: 0,
-                                            y: self.view.safeAreaInsets.top,
-                                            width: self.view.frame.width,
-                                            height: self.pageControlHeight)
-            self.pageControl.numberOfPages = Manager.shared.citiesArray.count
-            self.pageControl.isUserInteractionEnabled = false //================================
-            self.view.addSubview(pageControl)
-        }
+        
+    }
+    
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        self.configurePageControl()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     
     // MARK: - IBActions
     
-//    @IBAction func listButtonPressed() {
-//        let list = CitiesListViewController()
-//        list.searchScreen.delegate = self
-//        list.delegate = self
-//        self.navigationController?.pushViewController(list, animated: true)
-//    }
+    @IBAction func listButtonPressed() {
+        let list = CitiesListViewController()
+        list.searchScreen.delegate = self
+        list.delegate = self
+        self.navigationController?.pushViewController(list, animated: true)
+    }
     
     
     // MARK: - Flow funcs
     
-    func createCityViewController() {
-        let newCityViewController = CityViewController(index: self.currentCityIndex)
-        newCityViewController.delegate = self
-        self.setViewControllers([newCityViewController],
-                                direction: .forward, animated: true, completion: nil)
+    func showCityViewController(withIndex index: Int) {
+        guard let controller = self.cityViewController(withIndex: index) else { return }
+        
+        
+        //==========================================
+        if let previous = pageViewController(self, viewControllerBefore: controller) {
+            self.setViewControllers([previous], direction: .forward, animated: true)
+        }
+        
+        self.setViewControllers([controller], direction: .forward, animated: true)
     }
     
-//    private func createListButton() {
-//        let listButton = UIButton(frame: CGRect(x: 0, y: 50, width: 60, height: 60))
-//        listButton.backgroundColor = .black
-//        let recognizer = UITapGestureRecognizer(target: self,
-//                                                action: #selector(self.listButtonPressed))
-//        listButton.addGestureRecognizer(recognizer)
-//        self.view.addSubview(listButton)
-//    }
+    func cityViewController(withIndex i: Int) -> CityViewController? {
+        
+        var index = i
+        let citiesCount = Manager.shared.citiesArray.count
+        
+        guard citiesCount > 1 else { return nil }
+        
+        if index < 0 {
+            if citiesCount > 3 {
+                index += citiesCount
+            } else {
+                return nil
+            }
+        } else if index >= citiesCount {
+            if citiesCount > 3 {
+                index -= citiesCount
+            } else {
+                return nil
+            }
+        }
+                
+        let cityViewController = CityViewController(Manager.shared.citiesArray[index])
+        cityViewController.delegate = self
+        return cityViewController
+    }
+    
+    func backToPageViewController(withIndex index: Int) {
+//        self.currentCityIndex = index
+        self.pageControl.currentPage = index
+        self.navigationController?.popToRootViewController(animated: true)
+        self.showCityViewController(withIndex: index)
+    }
+    
+    func configurePageControl() {
+        self.pageControl.frame = CGRect(x: 0,
+                                        y: self.view.safeAreaInsets.top,
+                                        width: self.view.frame.width,
+                                        height: self.pageControlHeight) //=================================================================
+        self.pageControl.numberOfPages = Manager.shared.citiesArray.count
+        self.pageControl.isUserInteractionEnabled = false //=====================================================================================
+        self.pageControl.hidesForSinglePage = true
+        self.view.addSubview(pageControl)
+    }
+    
+    func updatePageControl(index: Int) {
+        
+    }
+    
+    private func createListButton() { //====================
+        let listButton = UIButton(frame: CGRect(x: 0, y: 50, width: 60, height: 60))
+        listButton.backgroundColor = .yellow
+        let recognizer = UITapGestureRecognizer(target: self,
+                                                action: #selector(self.listButtonPressed))
+        listButton.addGestureRecognizer(recognizer)
+        self.view.addSubview(listButton)
+    }
     
     private func defaultNavigationBarBackground() {
 //        self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
@@ -98,23 +160,20 @@ class CitiesPageViewController: UIPageViewController {
         }
     }
     
-    func addGradient(isDayTime: Bool) {
-        
-        let gradient = CAGradientLayer()
+    func addGradient(isDayTime: Bool) {        
         if isDayTime {
-            gradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
+            self.gradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
                                UIColor(red: 1, green: 0.49, blue: 0.49, alpha: 1).cgColor,
                                UIColor(red: 1, green: 0.82, blue: 0.24, alpha: 1).cgColor]
         } else {
-            gradient.colors = [UIColor(red: 0.02, green: 0, blue: 0.36, alpha: 1).cgColor,
+            self.gradient.colors = [UIColor(red: 0.02, green: 0, blue: 0.36, alpha: 1).cgColor,
                                UIColor(red: 0.15, green: 0, blue: 0.37, alpha: 1).cgColor,
                                UIColor(red: 0, green: 0.45, blue: 0.53, alpha: 1).cgColor]
         }
-        gradient.opacity = 1
-        gradient.startPoint = CGPoint(x: 0, y: 0)
-        gradient.endPoint = CGPoint(x: 0, y: 1)            
-        gradient.frame = self.view.bounds
-        self.view.layer.insertSublayer(gradient, at: 0)
+        self.gradient.opacity = 1
+        self.gradient.startPoint = CGPoint(x: 0, y: 0)
+        self.gradient.endPoint = CGPoint(x: 0, y: 1)
+        self.gradient.frame = self.view.bounds
     }
 
 }
