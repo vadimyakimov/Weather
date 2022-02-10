@@ -73,10 +73,9 @@ class WeatherInfoView: UIView {
     
     private func configure() {
         self.frame.size.height += self.verticalSpacing
-//        self.configureCurrentWearher()
-//        self.configureHourlyForecast()
-//        self.configureDailyForecast()
-        
+        self.configureCurrentWearher()
+        self.configureHourlyForecast()
+        self.configureDailyForecast()
     }
     
     private func configureCurrentWearher() {
@@ -260,7 +259,7 @@ class WeatherInfoView: UIView {
     }
     
     private func getHourlyForecast(for id: String, complete: @escaping([HourlyForecast]) -> () ) {
-        let urlString = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(id)?apikey=\(self.keyAccuAPI)&\(language)"
+        let urlString = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(id)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
         guard let url = URL(string: urlString) else { return }
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let d = data, error == nil else { return }
@@ -278,7 +277,7 @@ class WeatherInfoView: UIView {
     }
     
     private func getDailyForecast(for id: String, complete: @escaping([DailyForecast]) -> () ) {
-        let urlString = "\(self.baseURL)/forecasts/v1/daily/5day/\(id)?apikey=\(self.keyAccuAPI)&\(language)"
+        let urlString = "\(self.baseURL)/forecasts/v1/daily/5day/\(id)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
         guard let url = URL(string: urlString) else { return }
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let d = data, error == nil else { return }

@@ -17,10 +17,10 @@ class CitiesPageViewController: EMPageViewController {
     //            self.pageControl.currentPage = self.currentCityIndex
     //        }
     //    }
-    let gradient = CAGradientLayer()
+    private let gradient = CAGradientLayer()
     
-    let pageControl = UIPageControl()
-    let pageControlHeight: CGFloat = 20
+    private let pageControl = UIPageControl()
+    private let pageControlHeight: CGFloat = 20
         
     // MARK: - Lifecycle
     
@@ -34,7 +34,6 @@ class CitiesPageViewController: EMPageViewController {
         self.defaultNavigationBarBackground()
         
         self.createListButton()
-        
         self.view.addSubview(pageControl)
         self.addGradient()
         
@@ -63,12 +62,12 @@ class CitiesPageViewController: EMPageViewController {
     
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
+        
         self.configurePageControl()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
     }
     
     
@@ -89,6 +88,7 @@ class CitiesPageViewController: EMPageViewController {
         guard let controller = self.cityViewController(withIndex: index) else { return }
         
         self.selectViewController(controller, direction: .forward, animated: true, completion: nil)
+        
     }
     
     func cityViewController(withIndex i: Int) -> CityViewController? {
@@ -122,6 +122,7 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     func checkDeletedViewControllers() {
+        
         guard let controller = self.selectedViewController as? CityViewController else { return }
         let city = controller.city
         var index: Int
@@ -132,8 +133,16 @@ class CitiesPageViewController: EMPageViewController {
             index = self.pageControl.currentPage
         }
         
+        self.updateFrame()
+        
         self.updatePageControl(index: index)
-        self.showCityViewController(withIndex: self.pageControl.currentPage) //=============================
+        self.showCityViewController(withIndex: self.pageControl.currentPage)
+        
+    }
+    
+    func updateFrame() {
+        self.view.frame.size.height += self.view.frame.origin.y
+        self.view.frame.origin.y = 0
     }
     
     func configurePageControl() {
@@ -164,9 +173,9 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     private func defaultNavigationBarBackground() {
-        //        self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-        //        self.navigationController?.navigationBar.shadowImage = UIImage()
-        //        self.navigationController?.navigationBar.isTranslucent = false
+//                self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+//                self.navigationController?.navigationBar.shadowImage = UIImage()
+//                self.navigationController?.navigationBar.isTranslucent = false
         
         if #available(iOS 13.0, *) {
             self.navigationController?.view.backgroundColor = .systemBackground

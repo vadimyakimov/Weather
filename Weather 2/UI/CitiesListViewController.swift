@@ -19,9 +19,7 @@ class CitiesListViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-                
-        
-        
+              
         let searchButton = UIBarButtonItem(barButtonSystemItem: .search,
                                            target: self,
                                            action: #selector(goToSearchScreen))
@@ -34,6 +32,7 @@ class CitiesListViewController: UIViewController {
         } else {
             self.view.backgroundColor = .white
         }
+        
     }
     
     override func viewDidLayoutSubviews() {

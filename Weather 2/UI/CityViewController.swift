@@ -101,8 +101,7 @@ class CityViewController: UIViewController {
                                       y: self.view.safeAreaInsets.top + topBound,
                                       width: self.view.frame.size.width,
                                       height: self.view.frame.size.height - self.view.safeAreaInsets.top - topBound)
-        cityScrollView.contentSize = CGSize(width: self.view.frame.width,
-                                                 height: weatherInfoView.frame.height)
+        cityScrollView.contentSize = weatherInfoView.frame.size
         cityScrollView.showsVerticalScrollIndicator = false
 //        self.addFade(to: cityScrollView)
         
