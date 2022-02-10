@@ -42,8 +42,10 @@ extension SearchScreenViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("selectRow")
         if indexPath.section == 0 {
+            if let cell = tableView.cellForRow(at: indexPath)  as? CityTableViewCell {
+//                cell.
+            }
             self.requestLocation()
-            //====================================================
         } else {
             self.delegate?.searchScreenViewController(didSelectRowAt: indexPath) 
         }
@@ -71,32 +73,36 @@ extension SearchScreenViewController: UISearchBarDelegate {
 
 extension SearchScreenViewController: CLLocationManagerDelegate {
     
-    
-    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        guard let location = manager.location else { return }
-        self.geopositionCity(for: location.coordinate) {city in 
-            self.locationManager.stopUpdatingLocation()
+        print("didUpdateLocations")
+        
+        guard let location = manager.location else {
+            showLocationErrorAlert()
+            return
+        }
+        self.geopositionCity(for: location.coordinate) {city in
             self.delegate?.searchScreenViewController(didLoadLocaleCity: city)
         }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         
-        let alert = UIAlertController(title: error.localizedDescription, message: nil, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        if #available(iOS 14.0, *) {
+            if locationManager.authorizationStatus == .denied {
+                showLocationErrorAlert()
+            }
+        } else {
+            showLocationErrorAlert()
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
         print(status.rawValue)
         
-        
-        if status == .denied {
-            
-        } else {
+        if status == .authorizedAlways || status == .authorizedWhenInUse {
+            manager.requestLocation()
         }
         
     }

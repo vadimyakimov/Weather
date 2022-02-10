@@ -101,7 +101,24 @@ class SearchScreenViewController: UIViewController {
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
         self.locationManager.desiredAccuracy = kCLLocationAccuracyKilometer   
-        self.locationManager.startUpdatingLocation()
+        self.locationManager.requestLocation()
+    }
+    
+    func showLocationErrorAlert() {
+        let alert = UIAlertController(title: "Нельзя", message: "Иди в настройки", preferredStyle: .actionSheet)
+        
+        let settingsAction = UIAlertAction(title: "Настройки", style: .default) { action in
+            if let bundleId = Bundle.main.bundleIdentifier,
+               let url = URL(string: "\(UIApplication.openSettingsURLString)&path=LOCATION/\(bundleId)") {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
+        alert.addAction(settingsAction)
+        
+        let okAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+        alert.addAction(okAction)
+        
+        self.present(alert, animated: true)
     }
     
     private func registerForKeyboardNotifications() {
