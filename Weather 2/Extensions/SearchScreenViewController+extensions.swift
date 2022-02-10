@@ -40,11 +40,8 @@ extension SearchScreenViewController: UITableViewDataSource {
 extension SearchScreenViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("selectRow")
         if indexPath.section == 0 {
-            if let cell = tableView.cellForRow(at: indexPath)  as? CityTableViewCell {
-//                cell.
-            }
+            self.startLoadingAnimation()
             self.requestLocation()
         } else {
             self.delegate?.searchScreenViewController(didSelectRowAt: indexPath) 
@@ -75,8 +72,6 @@ extension SearchScreenViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        print("didUpdateLocations")
-        
         guard let location = manager.location else {
             showLocationErrorAlert()
             return
@@ -88,10 +83,10 @@ extension SearchScreenViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         
-        if #available(iOS 14.0, *) {
-            if locationManager.authorizationStatus == .denied {
-                showLocationErrorAlert()
-            }
+        self.stopLoadingAnimation()
+        
+        if #available(iOS 14.0, *), locationManager.authorizationStatus == .notDetermined {
+                return
         } else {
             showLocationErrorAlert()
         }
@@ -99,12 +94,10 @@ extension SearchScreenViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
-        print(status.rawValue)
-        
         if status == .authorizedAlways || status == .authorizedWhenInUse {
+            self.startLoadingAnimation()
             manager.requestLocation()
-        }
-        
+        }        
     }
     
 }

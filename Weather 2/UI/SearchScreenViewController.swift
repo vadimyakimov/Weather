@@ -105,9 +105,13 @@ class SearchScreenViewController: UIViewController {
     }
     
     func showLocationErrorAlert() {
-        let alert = UIAlertController(title: "Нельзя", message: "Иди в настройки", preferredStyle: .actionSheet)
         
-        let settingsAction = UIAlertAction(title: "Настройки", style: .default) { action in
+        let errorTitle = "Failed to find your location".localized()
+        let errorMessage = "Check if your location is allowed in the settings, or try again later".localized()
+        
+        let alert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        
+        let settingsAction = UIAlertAction(title: "Settings".localized(), style: .default) { action in
             if let bundleId = Bundle.main.bundleIdentifier,
                let url = URL(string: "\(UIApplication.openSettingsURLString)&path=LOCATION/\(bundleId)") {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -115,10 +119,20 @@ class SearchScreenViewController: UIViewController {
         }
         alert.addAction(settingsAction)
         
-        let okAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
-        alert.addAction(okAction)
+        let cancelAction = UIAlertAction(title: "Cancel".localized(), style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
         
         self.present(alert, animated: true)
+    }
+    
+    func startLoadingAnimation() {
+        guard let cell = searchTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? CityTableViewCell else { return }
+        cell.startLoading()
+    }
+    
+    func stopLoadingAnimation() {
+        guard let cell = searchTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? CityTableViewCell else { return }
+        cell.stopLoading() 
     }
     
     private func registerForKeyboardNotifications() {

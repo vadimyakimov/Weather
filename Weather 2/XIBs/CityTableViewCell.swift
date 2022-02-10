@@ -15,6 +15,7 @@ class CityTableViewCell: UITableViewCell {
     @IBOutlet private weak var nameLabel: UILabel!
     @IBOutlet private weak var viewWidthConstraint: NSLayoutConstraint!
     @IBOutlet private weak var viewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var loadingActivityIndicator: UIActivityIndicatorView!
     
     static let cellHeight: CGFloat = 60
     
@@ -31,6 +32,16 @@ class CityTableViewCell: UITableViewCell {
         self.viewWidthConstraint.constant = width
         self.locationIcon.isHidden = !isLocation
         self.nameLabel.text = text
+    }
+    
+    func startLoading() {
+        self.locationIcon.isHidden = true
+        self.loadingActivityIndicator.startAnimating()
+    }
+    
+    func stopLoading() {
+        self.locationIcon.isHidden = false
+        self.loadingActivityIndicator.stopAnimating()
     }
     
 }
