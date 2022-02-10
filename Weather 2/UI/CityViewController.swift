@@ -31,28 +31,28 @@ class CityViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        self.view.backgroundColor = .blue
+        
     }
         
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        delegate?.cityViewController(willAppear: self)
         
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
     }
     
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
-        
-        if !self.isConfigured {
+        if !isConfigured {
             self.configure()
         }
     }
@@ -93,6 +93,7 @@ class CityViewController: UIViewController {
         self.configureHeader(startAt: topBound)
         
         let weatherInfoView = WeatherInfoView(for: city, width: self.view.frame.width)
+        weatherInfoView.delegate = self
                 
         let cityScrollView = UIScrollView()
         cityScrollView.delegate = self

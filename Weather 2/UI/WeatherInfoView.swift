@@ -11,12 +11,21 @@ class WeatherInfoView: UIView {
     
     // MARK: - Properties
     
+    weak var delegate: WeatherInfoViewDelegate?
+    
     private let city: City
     private let verticalSpacing: CGFloat = 30
     
     // API keys
     
     private let baseURL = "https://dataservice.accuweather.com"
+    private let language = "language=" + "en-us".localized()
+    private let keyAccuAPI = "pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ"
+    //pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ
+    //YyRHncuTlsidjyS4YVziEZPChV4sPDVA
+    //dcXaSaOT2bTNKzDiMD37dnGlZXGEeTxG
+    //WaP8kp90kGrPCypoU4Tp7mmQKcnG9YUe
+    //aclG15Tu7dG0kikCCAYWL2TiCgNp6I6y
     
     private let keyCityName = "LocalizedName"
     private let keyCityID = "Key"
@@ -42,12 +51,6 @@ class WeatherInfoView: UIView {
     private let keyHourlyDate = "EpochDateTime"
     private let keyDailyDate = "EpochDate"
     
-    private let keyAccuAPI = "YyRHncuTlsidjyS4YVziEZPChV4sPDVA"
-    //pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ
-    //YyRHncuTlsidjyS4YVziEZPChV4sPDVA
-    //dcXaSaOT2bTNKzDiMD37dnGlZXGEeTxG
-    //WaP8kp90kGrPCypoU4Tp7mmQKcnG9YUe
-    //aclG15Tu7dG0kikCCAYWL2TiCgNp6I6y
     
     // MARK: - Initializers
     
@@ -98,8 +101,10 @@ class WeatherInfoView: UIView {
             self.getCurrentWeather(for: self.city.id) { currentWeather in
                 self.city.currentWeather = currentWeather
                 self.updateDataInView(currentWeatherView, data: currentWeather)
+                self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
             }
         }
+        
     }
     
     
@@ -236,7 +241,7 @@ class WeatherInfoView: UIView {
     // MARK: - Server connection functions
         
     private func getCurrentWeather(for id: String, complete: @escaping(CurrentWeather) -> () ) {
-        let urlString = "\(self.baseURL)/currentconditions/v1/\(id)?apikey=\(self.keyAccuAPI)"
+        let urlString = "\(self.baseURL)/currentconditions/v1/\(id)?apikey=\(self.keyAccuAPI)&\(self.language)"
         guard let url = URL(string: urlString) else { return }
                 
         URLSession.shared.dataTask(with: url) { data, response, error in
@@ -255,7 +260,7 @@ class WeatherInfoView: UIView {
     }
     
     private func getHourlyForecast(for id: String, complete: @escaping([HourlyForecast]) -> () ) {
-        let urlString = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(id)?apikey=\(self.keyAccuAPI)&metric=true"
+        let urlString = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(id)?apikey=\(self.keyAccuAPI)&\(language)"
         guard let url = URL(string: urlString) else { return }
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let d = data, error == nil else { return }
@@ -273,7 +278,7 @@ class WeatherInfoView: UIView {
     }
     
     private func getDailyForecast(for id: String, complete: @escaping([DailyForecast]) -> () ) {
-        let urlString = "\(self.baseURL)/forecasts/v1/daily/5day/\(id)?apikey=\(self.keyAccuAPI)&metric=true"
+        let urlString = "\(self.baseURL)/forecasts/v1/daily/5day/\(id)?apikey=\(self.keyAccuAPI)&\(language)"
         guard let url = URL(string: urlString) else { return }
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let d = data, error == nil else { return }

@@ -29,7 +29,7 @@ extension SearchScreenViewController: UITableViewDataSource {
         let cell = CityTableViewCell.instanceFronNib()
         let width = self.view.frame.width
         if indexPath.section == 0 {
-            cell.configure(width: width, text: "My location", isLocation: true)
+            cell.configure(width: width, text: "My location".localized(), isLocation: true)
         } else {
             cell.configure(width: width, text: Manager.shared.citiesAutocompleteArray[indexPath.row].name)
         }
@@ -40,10 +40,10 @@ extension SearchScreenViewController: UITableViewDataSource {
 extension SearchScreenViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("selectRow")
         if indexPath.section == 0 {
-//            self.getLocation {
-//                self.delegate?.searchScreenViewController(didSelectRowAt: indexPath)
-//            }
+            self.requestLocation()
+            //====================================================
         } else {
             self.delegate?.searchScreenViewController(didSelectRowAt: indexPath) 
         }
@@ -71,11 +71,35 @@ extension SearchScreenViewController: UISearchBarDelegate {
 
 extension SearchScreenViewController: CLLocationManagerDelegate {
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {}
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {  let alert = UIAlertController(title: "Location error", message: nil, preferredStyle: .alert)
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        guard let location = manager.location else { return }
+        self.geopositionCity(for: location.coordinate) {city in 
+            self.locationManager.stopUpdatingLocation()
+            self.delegate?.searchScreenViewController(didLoadLocaleCity: city)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        
+        let alert = UIAlertController(title: error.localizedDescription, message: nil, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        
+        print(status.rawValue)
+        
+        
+        if status == .denied {
+            
+        } else {
+        }
+        
+    }
+    
 }
 

@@ -12,10 +12,7 @@ class CitiesListViewController: UIViewController {
     // MARK: - Properties
     
     weak var delegate: CitiesListViewControllerDelegate?
-    
-    var citiesListTableView = UITableView()
-    
-    let searchScreen = SearchScreenViewController()
+        
     
     
     // MARK: - Lifecycle
@@ -23,14 +20,11 @@ class CitiesListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
                 
-        self.citiesListTableView.dataSource = self
-        self.citiesListTableView.delegate = self
-        self.citiesListTableView.dragDelegate = self
-        self.citiesListTableView.dropDelegate = self
+        
         
         let searchButton = UIBarButtonItem(barButtonSystemItem: .search,
-                                   target: self,
-                                   action: #selector(goToSearchScreen))
+                                           target: self,
+                                           action: #selector(goToSearchScreen))
         self.navigationItem.rightBarButtonItem = searchButton
         
         
@@ -45,28 +39,45 @@ class CitiesListViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        
-        self.setCitiesListTableViewFrame()
-        self.citiesListTableView.rowHeight = CityTableViewCell.cellHeight
-        self.citiesListTableView.separatorStyle = .none
-        self.view.addSubview(self.citiesListTableView)
-        
     }
+    
+    override func viewSafeAreaInsetsDidChange() {
+        self.addCitiesListTableView(frame: CGRect(x: 0,
+                                                  y: self.view.safeAreaInsets.top,
+                                                  width: self.view.frame.size.width,
+                                                  height: self.view.frame.size.height - self.view.safeAreaInsets.top - self.view.safeAreaInsets.bottom))
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.delegate?.citiesListViewControllerWillDisappear()
+    }
+    
+    
     
     
     // MARK: - IBActions
         
     @IBAction func goToSearchScreen() {
-        self.navigationController?.pushViewController(self.searchScreen, animated: true)
+        let searchScreen = SearchScreenViewController()
+        searchScreen.delegate = self
+        self.navigationController?.pushViewController(searchScreen, animated: true)
     }
     
     // MARK: - Flow funcs
 
-    private func setCitiesListTableViewFrame() {
-        self.citiesListTableView.frame = CGRect(x: 0,
-                                                y: self.view.safeAreaInsets.top,
-                                                width: self.view.frame.size.width,
-                                                height: self.view.frame.size.height - self.view.safeAreaInsets.top - self.view.safeAreaInsets.bottom)
+    private func addCitiesListTableView(frame: CGRect) {
+        let citiesListTableView = UITableView(frame: frame)
+        citiesListTableView.rowHeight = CityTableViewCell.cellHeight
+        citiesListTableView.separatorStyle = .none
+        
+        citiesListTableView.dataSource = self
+        citiesListTableView.delegate = self
+        citiesListTableView.dragDelegate = self
+        citiesListTableView.dropDelegate = self
+        
+        self.view.addSubview(citiesListTableView)
     }
+    
 
 }

@@ -6,20 +6,21 @@
 //
 
 import UIKit
+import EMPageViewController
 
-class CitiesPageViewController: UIPageViewController {
+class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Properties
     
-    var currentCityIndex = 0 {
-        didSet {
-            self.pageControl.currentPage = self.currentCityIndex
-        }
-    }
+    //    var currentCityIndex = 0 {
+    //        didSet {
+    //            self.pageControl.currentPage = self.currentCityIndex
+    //        }
+    //    }
+    let gradient = CAGradientLayer()
+    
     let pageControl = UIPageControl()
     let pageControlHeight: CGFloat = 20
-    
-    let gradient = CAGradientLayer()
         
     // MARK: - Lifecycle
     
@@ -28,7 +29,14 @@ class CitiesPageViewController: UIPageViewController {
         
         self.dataSource = self
         self.delegate = self
+        self.scrollView.contentInsetAdjustmentBehavior = .never
         
+        self.defaultNavigationBarBackground()
+        
+        self.createListButton()
+        
+        self.view.addSubview(pageControl)
+        self.addGradient()
         
         if Manager.shared.citiesArray.count > 0 {
             self.showCityViewController(withIndex: 0)
@@ -46,17 +54,11 @@ class CitiesPageViewController: UIPageViewController {
         
         self.navigationController?.isNavigationBarHidden = true
         
-        self.createListButton()
-        self.defaultNavigationBarBackground()
-        
-        self.view.layer.insertSublayer(gradient, at: 0)
-        
+        self.updatePageControl()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
-        
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -66,6 +68,7 @@ class CitiesPageViewController: UIPageViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
     }
     
     
@@ -73,7 +76,6 @@ class CitiesPageViewController: UIPageViewController {
     
     @IBAction func listButtonPressed() {
         let list = CitiesListViewController()
-        list.searchScreen.delegate = self
         list.delegate = self
         self.navigationController?.pushViewController(list, animated: true)
     }
@@ -81,25 +83,19 @@ class CitiesPageViewController: UIPageViewController {
     
     // MARK: - Flow funcs
     
+    
+    
     func showCityViewController(withIndex index: Int) {
         guard let controller = self.cityViewController(withIndex: index) else { return }
         
-        
-        //==========================================
-        if let previous = pageViewController(self, viewControllerBefore: controller) {
-            self.setViewControllers([previous], direction: .forward, animated: true)
-        }
-        
-        self.setViewControllers([controller], direction: .forward, animated: true)
+        self.selectViewController(controller, direction: .forward, animated: true, completion: nil)
     }
     
     func cityViewController(withIndex i: Int) -> CityViewController? {
         
         var index = i
         let citiesCount = Manager.shared.citiesArray.count
-        
-        guard citiesCount > 1 else { return nil }
-        
+                
         if index < 0 {
             if citiesCount > 3 {
                 index += citiesCount
@@ -113,17 +109,31 @@ class CitiesPageViewController: UIPageViewController {
                 return nil
             }
         }
-                
+        
         let cityViewController = CityViewController(Manager.shared.citiesArray[index])
         cityViewController.delegate = self
         return cityViewController
     }
     
     func backToPageViewController(withIndex index: Int) {
-//        self.currentCityIndex = index
-        self.pageControl.currentPage = index
+        self.updatePageControl(index: index)
         self.navigationController?.popToRootViewController(animated: true)
         self.showCityViewController(withIndex: index)
+    }
+    
+    func checkDeletedViewControllers() {
+        guard let controller = self.selectedViewController as? CityViewController else { return }
+        let city = controller.city
+        var index: Int
+        
+        if let i = Manager.shared.citiesArray.firstIndex(of: city) {
+            index = i
+        } else {
+            index = self.pageControl.currentPage
+        }
+        
+        self.updatePageControl(index: index)
+        self.showCityViewController(withIndex: self.pageControl.currentPage) //=============================
     }
     
     func configurePageControl() {
@@ -134,11 +144,14 @@ class CitiesPageViewController: UIPageViewController {
         self.pageControl.numberOfPages = Manager.shared.citiesArray.count
         self.pageControl.isUserInteractionEnabled = false //=====================================================================================
         self.pageControl.hidesForSinglePage = true
-        self.view.addSubview(pageControl)
+        
     }
     
-    func updatePageControl(index: Int) {
-        
+    func updatePageControl(index: Int? = nil) {
+        pageControl.numberOfPages = Manager.shared.citiesArray.count
+        if let index = index {
+            self.pageControl.currentPage = index
+        }
     }
     
     private func createListButton() { //====================
@@ -151,31 +164,36 @@ class CitiesPageViewController: UIPageViewController {
     }
     
     private func defaultNavigationBarBackground() {
-//        self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-//        self.navigationController?.navigationBar.shadowImage = UIImage()
-//        self.navigationController?.navigationBar.isTranslucent = false
-                
+        //        self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+        //        self.navigationController?.navigationBar.shadowImage = UIImage()
+        //        self.navigationController?.navigationBar.isTranslucent = false
+        
         if #available(iOS 13.0, *) {
             self.navigationController?.view.backgroundColor = .systemBackground
         }
     }
     
-    func addGradient(isDayTime: Bool) {        
-        if isDayTime {
-            self.gradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
-                               UIColor(red: 1, green: 0.49, blue: 0.49, alpha: 1).cgColor,
-                               UIColor(red: 1, green: 0.82, blue: 0.24, alpha: 1).cgColor]
-        } else {
-            self.gradient.colors = [UIColor(red: 0.02, green: 0, blue: 0.36, alpha: 1).cgColor,
-                               UIColor(red: 0.15, green: 0, blue: 0.37, alpha: 1).cgColor,
-                               UIColor(red: 0, green: 0.45, blue: 0.53, alpha: 1).cgColor]
-        }
+    private func addGradient() {
         self.gradient.opacity = 1
         self.gradient.startPoint = CGPoint(x: 0, y: 0)
         self.gradient.endPoint = CGPoint(x: 0, y: 1)
         self.gradient.frame = self.view.bounds
+        self.view.layer.insertSublayer(gradient, at: 0)
+        self.changeGradientColor()
     }
-
+    
+    func changeGradientColor(isDayTime: Bool = true) {
+        if isDayTime {
+            self.gradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
+                                    UIColor(red: 1, green: 0.49, blue: 0.49, alpha: 1).cgColor,
+                                    UIColor(red: 1, green: 0.82, blue: 0.24, alpha: 1).cgColor]
+        } else {
+            self.gradient.colors = [UIColor(red: 0.25, green: 0, blue: 0.57, alpha: 1).cgColor,
+                                    UIColor(red: 0, green: 0.35, blue: 0.53, alpha: 1).cgColor,
+                                    UIColor(red: 0.02, green: 0, blue: 0.36, alpha: 1).cgColor]
+        }
+    }
+    
 }
 
 

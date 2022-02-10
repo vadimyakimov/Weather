@@ -9,4 +9,8 @@ import Foundation
 
 protocol CitiesListViewControllerDelegate: AnyObject {
     func citiesListViewController(didSelectRowAt indexPath: IndexPath)
+    func citiesListViewControllerWillDisappear()
+    
+    func searchScreenViewController(didSelectRowAt indexPath: IndexPath)
+    func searchScreenViewController(didLoadLocaleCity city: City)
 }

@@ -17,10 +17,10 @@ class SearchScreenViewController: UIViewController {
     weak var delegate: SearchScreenViewControllerDelegate?
     
     var searchTableView = UITableView()
-    
-    var autocompleteTimer: Timer?
-    
     var autocompleteSearchBar = UISearchBar()
+    lazy var locationManager = CLLocationManager()
+    
+    var autocompleteTimer: Timer?    
     
     private let autocompleteSearchBarHeight: CGFloat = 60
     let searchCellId = "autocompleteCell"
@@ -28,11 +28,12 @@ class SearchScreenViewController: UIViewController {
     // API keys
     
     private let baseURL = "https://dataservice.accuweather.com"
+    private let language = "language=" + "en-us".localized()
+    private let keyAccuAPI = "aclG15Tu7dG0kikCCAYWL2TiCgNp6I6y"
     
     private let keyCityName = "LocalizedName"
     private let keyCityID = "Key"
     
-    private let keyAccuAPI = "aclG15Tu7dG0kikCCAYWL2TiCgNp6I6y"
     
     
     // MARK: - Lifecycle
@@ -56,12 +57,9 @@ class SearchScreenViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        self.setSearchBarFrame()
+        self.addSearchBar()
+        self.addSearchTableView()
         
-        self.setSearchTableViewFrame(keyboardShown: nil)
-        self.searchTableView.rowHeight = CityTableViewCell.cellHeight
-        self.searchTableView.separatorStyle = .none
-        self.view.addSubview(self.searchTableView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -88,27 +86,22 @@ class SearchScreenViewController: UIViewController {
            let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
             switch notification.name {
             case UIResponder.keyboardWillShowNotification:
-                setSearchTableViewFrame(keyboardShown: true,
-                                        keyboardHeight: keyboardRectangle.height,
-                                        withDuration: animationDuration)
+                updateSearchTableViewFrame(keyboardShown: true,
+                                           keyboardHeight: keyboardRectangle.height,
+                                           withDuration: animationDuration)
             default:
-                setSearchTableViewFrame(keyboardShown: false)
+                updateSearchTableViewFrame(keyboardShown: false)
             }
         }
     }
     
     // MARK: - Flow funcs
     
-    func getLocation(complete: @escaping() -> ()) {
-        let locationManager = CLLocationManager()
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
-        locationManager.requestLocation()
-        guard let location = locationManager.location else { return }
-        self.geopositionCity(for: location.coordinate) {
-            complete()
-        }
+    func requestLocation() {
+        self.locationManager.delegate = self
+        self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.desiredAccuracy = kCLLocationAccuracyKilometer   
+        self.locationManager.startUpdatingLocation()
     }
     
     private func registerForKeyboardNotifications() {
@@ -116,7 +109,7 @@ class SearchScreenViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(handle(keyboardNotification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    private func setSearchBarFrame() {
+    private func addSearchBar() {
         self.autocompleteSearchBar.frame = CGRect(x: 0,
                                                   y: self.view.safeAreaInsets.top,
                                                   width: self.view.frame.size.width,
@@ -124,7 +117,14 @@ class SearchScreenViewController: UIViewController {
         self.view.addSubview(self.autocompleteSearchBar)
     }
     
-    private func setSearchTableViewFrame(keyboardShown: Bool?,
+    private func addSearchTableView() {
+        self.updateSearchTableViewFrame(keyboardShown: nil)
+        self.searchTableView.rowHeight = CityTableViewCell.cellHeight
+        self.searchTableView.separatorStyle = .none
+        self.view.addSubview(self.searchTableView)
+    }
+    
+    private func updateSearchTableViewFrame(keyboardShown: Bool?,
                                          keyboardHeight: CGFloat = 0,
                                          withDuration duration: TimeInterval = 0) {
         var height: CGFloat = self.view.frame.size.height - self.autocompleteSearchBarHeight - self.view.safeAreaInsets.top
@@ -147,7 +147,11 @@ class SearchScreenViewController: UIViewController {
     // MARK: - Server connection functions
     
     func autocomplete(for text: String, complete: @escaping () -> ()) {
-        let urlString = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(text)"
+        guard !text.isEmpty,
+              let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        else { return }
+            
+        let urlString = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
         guard let url = URL(string: urlString) else { return }
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else { return }
@@ -160,19 +164,20 @@ class SearchScreenViewController: UIViewController {
         }.resume()
     }
     
-    private func geopositionCity(for location: CLLocationCoordinate2D, complete: @escaping () -> ()) {
-        let urlString = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)"
+    func geopositionCity(for location: CLLocationCoordinate2D, complete: @escaping (City) -> ()) {
+        let urlString = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.language)"
         guard let url = URL(string: urlString) else { return }
+        
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else { return }
+            
             let newCity = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String : Any]
             guard let parsedCity = self.parseGeopositionCity(from: newCity) else { return }
-            if Manager.shared.citiesArray.first?.isLocated == true {
-                Manager.shared.citiesArray.removeFirst()
-            }
-            Manager.shared.citiesArray.insert(parsedCity, at: 0)
+            
+//            Manager.shared.locatedCity = parsedCity
+            
             DispatchQueue.main.async {
-                complete()
+                complete(parsedCity)
             }
         }.resume()
     }

@@ -37,11 +37,11 @@ extension CitiesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             Manager.shared.citiesArray.remove(at: indexPath.row)
-            self.citiesListTableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
         }
         if Manager.shared.citiesArray.count == 0 {
             self.goToSearchScreen()
-            self.searchScreen.navigationController?.isNavigationBarHidden = true
+            self.navigationController?.isNavigationBarHidden = true
         }
     }
     
@@ -57,6 +57,10 @@ extension CitiesListViewController: UITableViewDragDelegate {
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         
+        if Manager.shared.citiesArray.first?.isLocated == true, indexPath.row == 0 {
+            return []
+        }
+        
         let dragItem = UIDragItem(itemProvider: NSItemProvider())
         return [dragItem]
     }
@@ -68,6 +72,9 @@ extension CitiesListViewController: UITableViewDragDelegate {
 extension CitiesListViewController: UITableViewDropDelegate {
     
     func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+        if Manager.shared.citiesArray.first?.isLocated == true, destinationIndexPath?.row == 0 {
+            return UITableViewDropProposal(operation: .forbidden)
+        }
         return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
     }
     
@@ -89,6 +96,20 @@ extension CitiesListViewController: UITableViewDropDelegate {
                 tableView.reloadData()
             }
         }
+    }
+    
+}
+
+// MARK: - Search Screen View Controller Delegate
+
+extension CitiesListViewController: SearchScreenViewControllerDelegate {
+    
+    func searchScreenViewController(didSelectRowAt indexPath: IndexPath) {
+        delegate?.searchScreenViewController(didSelectRowAt: indexPath)
+    }
+    
+    func searchScreenViewController(didLoadLocaleCity city: City) {
+        delegate?.searchScreenViewController(didLoadLocaleCity: city)
     }
     
 }

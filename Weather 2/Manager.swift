@@ -34,6 +34,7 @@ class Manager {
     }
     
     var citiesAutocompleteArray: [CityAutocomplete] = []
+//    var locatedCity: City?
     
     private let keyCitiesArrayUserDefaults = "CitiesArray"
     

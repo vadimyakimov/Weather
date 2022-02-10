@@ -6,6 +6,7 @@ target 'Weather 2' do
   use_frameworks!
 
   # Pods for Weather
-  pod 'SkeletonView'  
+  pod 'SkeletonView'
+  pod 'EMPageViewController'
 
 end

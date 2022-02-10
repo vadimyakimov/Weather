@@ -8,5 +8,6 @@
 import Foundation
 
 protocol SearchScreenViewControllerDelegate: AnyObject {
-    func searchScreenViewController(didSelectRowAt indexPathRow: IndexPath)
+    func searchScreenViewController(didSelectRowAt indexPath: IndexPath)
+    func searchScreenViewController(didLoadLocaleCity city: City)
 }

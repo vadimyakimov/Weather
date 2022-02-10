@@ -8,5 +8,6 @@
 import Foundation
 
 protocol CityViewControllerDelegate: AnyObject {
-    func cityViewController(willAppear controller: CityViewController)
+    func cityViewController(didUpdateCurrentWeatherFor city: City)
+    
 }
