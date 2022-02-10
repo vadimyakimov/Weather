@@ -17,10 +17,8 @@ class CityViewController: UIViewController {
     let nameLabelFontSize: CGFloat = 60
     let nameLabelMinimumFontSize: CGFloat = 30
     
-    var city: City
-    
-//    private var cityScrollView = UIScrollView()
-    
+    let city: City
+        
     private var isConfigured = false
     
     weak var delegate: CityViewControllerDelegate?
@@ -30,6 +28,8 @@ class CityViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
         
 //        self.view.backgroundColor = .blue
         
@@ -60,20 +60,7 @@ class CityViewController: UIViewController {
     // MARK: - Initializers
     
     init(_ city: City) {
-                
-//        var i = index
-//
-//        let citiesCount = Manager.shared.citiesArray.count
-//
-//        if i < 0 {
-//            i += citiesCount
-//        } else if i >= citiesCount {
-//            i -= citiesCount
-//        }
-        
         self.city = city
-//        self.cityIndex = i
-//        self.isDayTime = self.city.currentWeather?.isDayTime ?? true
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -81,10 +68,7 @@ class CityViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
-    
     // MARK: - Flow funcs
-    
     
     private func configure() {
         

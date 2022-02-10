@@ -95,8 +95,10 @@ class WeatherInfoView: UIView {
         
         if let currentWeather = self.city.currentWeather,
            self.city.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
+            print("OLD")
             self.updateDataInView(currentWeatherView, data: currentWeather)
         } else {
+            print("NEW")
             self.getCurrentWeather(for: self.city.id) { currentWeather in
                 self.city.currentWeather = currentWeather
                 self.updateDataInView(currentWeatherView, data: currentWeather)

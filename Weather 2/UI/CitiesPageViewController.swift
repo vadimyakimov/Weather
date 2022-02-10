@@ -17,6 +17,25 @@ class CitiesPageViewController: EMPageViewController {
     //            self.pageControl.currentPage = self.currentCityIndex
     //        }
     //    }
+    
+    var citiesArray: [City] {
+        get {
+            if let data = UserDefaults.standard.data(forKey: self.citiesArrayKeyUserDefaults),
+               let decoded = try? JSONDecoder().decode([City].self, from: data) {
+                return decoded
+            }
+
+            return []
+        }
+        set {
+            if let encoded = try? JSONEncoder().encode(newValue) {
+                UserDefaults.standard.set(encoded, forKey: self.citiesArrayKeyUserDefaults)
+            }
+        }
+    }
+    
+    private let citiesArrayKeyUserDefaults = "CitiesArray"
+    
     private let gradient = CAGradientLayer()
     
     private let pageControl = UIPageControl()
@@ -37,7 +56,7 @@ class CitiesPageViewController: EMPageViewController {
         self.view.addSubview(pageControl)
         self.addGradient()
         
-        if Manager.shared.citiesArray.count > 0 {
+        if self.citiesArray.count > 0 {
             self.showCityViewController(withIndex: 0)
         } else {
             let searchScreen = SearchScreenViewController()
@@ -74,7 +93,7 @@ class CitiesPageViewController: EMPageViewController {
     // MARK: - IBActions
     
     @IBAction func listButtonPressed() {
-        let list = CitiesListViewController()
+        let list = CitiesListViewController(citiesList: self.citiesArray)
         list.delegate = self
         self.navigationController?.pushViewController(list, animated: true)
     }
@@ -94,7 +113,7 @@ class CitiesPageViewController: EMPageViewController {
     func cityViewController(withIndex i: Int) -> CityViewController? {
         
         var index = i
-        let citiesCount = Manager.shared.citiesArray.count
+        let citiesCount = self.citiesArray.count
                 
         if index < 0 {
             if citiesCount > 3 {
@@ -110,7 +129,7 @@ class CitiesPageViewController: EMPageViewController {
             }
         }
         
-        let cityViewController = CityViewController(Manager.shared.citiesArray[index])
+        let cityViewController = CityViewController(self.citiesArray[index] )
         cityViewController.delegate = self
         return cityViewController
     }
@@ -127,7 +146,7 @@ class CitiesPageViewController: EMPageViewController {
         let city = controller.city
         var index: Int
         
-        if let i = Manager.shared.citiesArray.firstIndex(of: city) {
+        if let i = self.citiesArray.firstIndex(of: city) {
             index = i
         } else {
             index = self.pageControl.currentPage
@@ -140,7 +159,12 @@ class CitiesPageViewController: EMPageViewController {
         
     }
     
-    func updateFrame() {
+    func updateCity(_ city: City) {
+        guard let index = self.citiesArray.firstIndex(of: city) else { return }
+        self.citiesArray[index] = city
+    }
+    
+    private func updateFrame() {
         self.view.frame.size.height += self.view.frame.origin.y
         self.view.frame.origin.y = 0
     }
@@ -150,14 +174,14 @@ class CitiesPageViewController: EMPageViewController {
                                         y: self.view.safeAreaInsets.top,
                                         width: self.view.frame.width,
                                         height: self.pageControlHeight) //=================================================================
-        self.pageControl.numberOfPages = Manager.shared.citiesArray.count
+        self.pageControl.numberOfPages = self.citiesArray.count
         self.pageControl.isUserInteractionEnabled = false //=====================================================================================
         self.pageControl.hidesForSinglePage = true
         
     }
     
     func updatePageControl(index: Int? = nil) {
-        pageControl.numberOfPages = Manager.shared.citiesArray.count
+        pageControl.numberOfPages = self.citiesArray.count
         if let index = index {
             self.pageControl.currentPage = index
         }

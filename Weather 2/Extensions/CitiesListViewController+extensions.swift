@@ -13,14 +13,14 @@ import UIKit
 extension CitiesListViewController: UITableViewDataSource {
         
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Manager.shared.citiesArray.count
+        return self.citiesArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = CityTableViewCell.instanceFronNib()
         cell.configure(width: self.view.frame.width,
-                       text: Manager.shared.citiesArray[indexPath.row].name,
-                       isLocation: Manager.shared.citiesArray[indexPath.row].isLocated)
+                       text: self.citiesArray[indexPath.row].name,
+                       isLocation: self.citiesArray[indexPath.row].isLocated)
         return cell
     }
     
@@ -36,10 +36,10 @@ extension CitiesListViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            Manager.shared.citiesArray.remove(at: indexPath.row)
+            self.citiesArray.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
-        if Manager.shared.citiesArray.count == 0 {
+        if self.citiesArray.count == 0 {
             self.goToSearchScreen()
             self.navigationController?.isNavigationBarHidden = true
         }
@@ -57,7 +57,7 @@ extension CitiesListViewController: UITableViewDragDelegate {
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         
-        if Manager.shared.citiesArray.first?.isLocated == true, indexPath.row == 0 {
+        if self.citiesArray.first?.isLocated == true, indexPath.row == 0 {
             return []
         }
         
@@ -72,7 +72,7 @@ extension CitiesListViewController: UITableViewDragDelegate {
 extension CitiesListViewController: UITableViewDropDelegate {
     
     func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
-        if Manager.shared.citiesArray.first?.isLocated == true, destinationIndexPath?.row == 0 {
+        if self.citiesArray.first?.isLocated == true, destinationIndexPath?.row == 0 {
             return UITableViewDropProposal(operation: .forbidden)
         }
         return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
@@ -90,9 +90,9 @@ extension CitiesListViewController: UITableViewDropDelegate {
         
         for item in coordinator.items {
             if let sourceIndexPath = item.sourceIndexPath {
-                let city = Manager.shared.citiesArray[sourceIndexPath.row]
-                Manager.shared.citiesArray.remove(at: sourceIndexPath.row)
-                Manager.shared.citiesArray.insert(city, at: destinationIndexPath.row)
+                let city = self.citiesArray[sourceIndexPath.row]
+                self.citiesArray.remove(at: sourceIndexPath.row)
+                self.citiesArray.insert(city, at: destinationIndexPath.row)
                 tableView.reloadData()
             }
         }

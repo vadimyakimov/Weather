@@ -12,7 +12,7 @@ class CitiesListViewController: UIViewController {
     // MARK: - Properties
     
     weak var delegate: CitiesListViewControllerDelegate?
-        
+    var citiesArray: [City]
     
     
     // MARK: - Lifecycle
@@ -53,6 +53,16 @@ class CitiesListViewController: UIViewController {
     }
     
     
+    // MARK: - Initializers
+    
+    init(citiesList: [City]) {
+        self.citiesArray = citiesList
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     
     // MARK: - IBActions

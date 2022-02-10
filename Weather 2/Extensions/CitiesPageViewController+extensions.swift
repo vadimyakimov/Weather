@@ -17,18 +17,18 @@ extension CitiesPageViewController: UIPageViewControllerDataSource {
     // viewControllerBefore
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let controller = (viewController as? CityViewController) else { return nil }
-//        guard Manager.shared.citiesArray.count > 2, controller.cityIndex != 0 else { return nil }
+//        guard self.citiesArray.count > 2, controller.cityIndex != 0 else { return nil }
         
-        guard let index = Manager.shared.citiesArray.firstIndex(of: controller.city) else { return nil }
+        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return nil }
         return self.cityViewController(withIndex: index - 1)
     }
 
     // viewControllerAfter
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         guard let controller = (viewController as? CityViewController) else { return nil }
-//        guard Manager.shared.citiesArray.count > 2, controller.cityIndex != Manager.shared.citiesArray.count - 1 else { return nil }
+//        guard self.citiesArray.count > 2, controller.cityIndex != self.citiesArray.count - 1 else { return nil }
         
-        guard let index = Manager.shared.citiesArray.firstIndex(of: controller.city) else { return nil }
+        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return nil }
         return self.cityViewController(withIndex: index + 1)
     }
 }*/
@@ -36,17 +36,17 @@ extension CitiesPageViewController: UIPageViewControllerDataSource {
 extension CitiesPageViewController: EMPageViewControllerDataSource {
     func em_pageViewController(_ pageViewController: EMPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
         guard let controller = (viewController as? CityViewController) else { return nil }
-//        guard Manager.shared.citiesArray.count > 2, controller.cityIndex != 0 else { return nil }
+//        guard self.citiesArray.count > 2, controller.cityIndex != 0 else { return nil }
         
-        guard let index = Manager.shared.citiesArray.firstIndex(of: controller.city) else { return nil }
+        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return nil }
         return self.cityViewController(withIndex: index - 1)
     }
     
     func em_pageViewController(_ pageViewController: EMPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController? {
         guard let controller = (viewController as? CityViewController) else { return nil }
-//        guard Manager.shared.citiesArray.count > 2, controller.cityIndex != Manager.shared.citiesArray.count - 1 else { return nil }
+//        guard self.citiesArray.count > 2, controller.cityIndex != self.citiesArray.count - 1 else { return nil }
         
-        guard let index = Manager.shared.citiesArray.firstIndex(of: controller.city) else { return nil }
+        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return nil }
         return self.cityViewController(withIndex: index + 1)
     }
     
@@ -57,7 +57,7 @@ extension CitiesPageViewController: UIPageViewControllerDelegate {
     
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
         guard let controller = (pageViewController.viewControllers?.first as? CityViewController) else { return }
-        guard let index = Manager.shared.citiesArray.firstIndex(of: controller.city) else { return }
+        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return }
         
         self.updatePageControl(index: index)
     }
@@ -77,7 +77,7 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
         }
 
         guard let controller = visibleController else { return }
-        guard let index = Manager.shared.citiesArray.firstIndex(of: controller.city) else { return }
+        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return }
 
         self.updatePageControl(index: index)
 
@@ -87,7 +87,7 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
     
 //    func em_pageViewController(_ pageViewController: EMPageViewController, didFinishScrollingFrom startingViewController: UIViewController?, destinationViewController: UIViewController, transitionSuccessful: Bool) {
 //        guard let controller = destinationViewController as? CityViewController else { return }
-//        guard let index = Manager.shared.citiesArray.firstIndex(of: controller.city) else { return }
+//        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return }
 //
 //        self.updatePageControl(index: index)
 //
@@ -108,20 +108,20 @@ extension CitiesPageViewController: SearchScreenViewControllerDelegate, CitiesLi
         let name = Manager.shared.citiesAutocompleteArray[indexPath.row].name
         let city = City(id: id, name: name)
 
-        if let index = Manager.shared.citiesArray.firstIndex(of: city) {
+        if let index = self.citiesArray.firstIndex(of: city) {
             self.backToPageViewController(withIndex: index)
         } else {
-            Manager.shared.citiesArray.append(city)
-            self.backToPageViewController(withIndex: Manager.shared.citiesArray.count - 1)
+            self.citiesArray.append(city)
+            self.backToPageViewController(withIndex: self.citiesArray.count - 1)
         }
     }
     
     func searchScreenViewController(didLoadLocaleCity city: City) {
         
-        if Manager.shared.citiesArray.first?.isLocated == true {
-            Manager.shared.citiesArray.removeFirst()
+        if self.citiesArray.first?.isLocated == true {
+            self.citiesArray.removeFirst()
         }
-        Manager.shared.citiesArray.insert(city, at: 0)
+        self.citiesArray.insert(city, at: 0)
         
         self.backToPageViewController(withIndex: 0)
     }
@@ -142,9 +142,19 @@ extension CitiesPageViewController: SearchScreenViewControllerDelegate, CitiesLi
 extension CitiesPageViewController: CityViewControllerDelegate {
     
     func cityViewController(didUpdateCurrentWeatherFor city: City) {
+        
+        self.updateCity(city)
+        
         guard let controller = self.selectedViewController as? CityViewController else { return }
         let isDayTime = controller.city.currentWeather?.isDayTime ?? true
         self.changeGradientColor(isDayTime: isDayTime)
     }
     
+    func cityViewController(didUpdateHourlyForecastFor city: City) {
+        self.updateCity(city)
+    }
+    
+    func cityViewController(didUpdateDailyForecastFor city: City) {
+        self.updateCity(city)
+    }  
 }

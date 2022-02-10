@@ -33,4 +33,12 @@ extension CityViewController: WeatherInfoViewDelegate {
         self.delegate?.cityViewController(didUpdateCurrentWeatherFor: self.city)
     }
     
+    func weatherInfoView(didUpdateHourlyForecastFor city: City) {
+        self.delegate?.cityViewController(didUpdateHourlyForecastFor: self.city)
+    }
+    
+    func weatherInfoView(didUpdateDailyForecastFor city: City) {
+        self.delegate?.cityViewController(didUpdateDailyForecastFor: self.city)        
+    }
+    
 }
