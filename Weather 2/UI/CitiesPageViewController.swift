@@ -30,6 +30,8 @@ class CitiesPageViewController: EMPageViewController {
     
     private let citiesArrayKeyUserDefaults = "CitiesArray"
     
+    override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
+    
     private let gradient = CAGradientLayer()
     
     private let pageControl = UIPageControl()
