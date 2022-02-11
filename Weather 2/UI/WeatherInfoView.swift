@@ -25,7 +25,7 @@ class WeatherInfoView: UIView {
     
     private let baseURL = "https://dataservice.accuweather.com"
     private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "YyRHncuTlsidjyS4YVziEZPChV4sPDVA0"
+    private let keyAccuAPI = "pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ0"
     //pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ
     //YyRHncuTlsidjyS4YVziEZPChV4sPDVA
     //dcXaSaOT2bTNKzDiMD37dnGlZXGEeTxG

@@ -70,6 +70,14 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
             
             self.nameLabel.layer.opacity = Float(oldLabelOpacityGraph)
             self.newNameLabel.layer.opacity = Float(newLabelOpacityGraph)
+        case 1:
+            self.nameLabel.text = destinationViewController.city.name
+            self.nameLabel.frame.origin.x = self.horizontalOffset
+            self.nameLabel.layer.opacity = 1
+
+//            self.newNameLabel.text = ""
+            self.newNameLabel.frame.origin.x = self.view.frame.width
+            self.newNameLabel.layer.opacity = 0
         default:
             break
         }

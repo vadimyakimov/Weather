@@ -231,20 +231,19 @@ class CitiesPageViewController: EMPageViewController {
     private func addNameLabel() {
         
         guard let controller = self.selectedViewController as? CityViewController else { return }
+                
+        self.configureNameLabel(self.newNameLabel)
+        self.view.addSubview(self.newNameLabel)
         
         self.configureNameLabel(self.nameLabel, text: controller.city.name)
         self.view.addSubview(self.nameLabel)
         
-        self.configureNameLabel(self.newNameLabel)
-        self.view.addSubview(self.newNameLabel)
-        
         let recognizer = UITapGestureRecognizer(target: self,
                                                 action: #selector(self.listButtonPressed))
         self.nameLabel.addGestureRecognizer(recognizer)
-        self.newNameLabel.addGestureRecognizer(recognizer)
     }
     
-    private func configureNameLabel(_ nameLabel: UILabel, text: String = "") {
+    private func configureNameLabel(_ nameLabel: UILabel, text: String? = nil) {
         
         let screen = self.view.frame.size
         
@@ -252,8 +251,8 @@ class CitiesPageViewController: EMPageViewController {
                                  y: self.view.safeAreaInsets.top + self.pageControlHeight,
                                  width: screen.width - (self.horizontalOffset * 2),
                                  height: self.nameLabelHeight)
-        nameLabel.textColor = .white
         nameLabel.text = text
+        nameLabel.textColor = .white
         nameLabel.textAlignment = .center
         nameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
         nameLabel.layer.zPosition = 100
