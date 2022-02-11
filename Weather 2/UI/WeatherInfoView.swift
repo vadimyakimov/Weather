@@ -14,13 +14,18 @@ class WeatherInfoView: UIView {
     weak var delegate: WeatherInfoViewDelegate?
     
     private let city: City
+    
     private let verticalSpacing: CGFloat = 30
     
+    private let currentWeatherView = CurrentWeatherView.instanceFromNib()
+    private var hourlyForecastViews = [OneHourView](repeating: OneHourView(), count: 12)
+    private var dailyForecastViews = [OneDayView](repeating: OneDayView(), count: 5)
+        
     // API keys
     
     private let baseURL = "https://dataservice.accuweather.com"
     private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ"
+    private let keyAccuAPI = "YyRHncuTlsidjyS4YVziEZPChV4sPDVA"
     //pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ
     //YyRHncuTlsidjyS4YVziEZPChV4sPDVA
     //dcXaSaOT2bTNKzDiMD37dnGlZXGEeTxG
@@ -51,18 +56,14 @@ class WeatherInfoView: UIView {
     private let keyHourlyDate = "EpochDateTime"
     private let keyDailyDate = "EpochDate"
     
+//    enum
+    
     
     // MARK: - Initializers
     
-    init(for city: City, width: CGFloat) {
+    init(for city: City) {
         self.city = city
-        
-        super.init(frame: CGRect(x: 0, y: 0, width: width, height: 0))
-        
-        self.frame.size.width = width
-        
-        self.configure()
-        
+        super.init(frame: CGRect.zero)
     }
     
     required init(coder: NSCoder) {
@@ -71,43 +72,84 @@ class WeatherInfoView: UIView {
     
     // MARK: - Configure functions
     
-    private func configure() {
+    func configure() {
         self.frame.size.height += self.verticalSpacing
         self.configureCurrentWearher()
         self.configureHourlyForecast()
         self.configureDailyForecast()
     }
     
+    @IBAction func refreshWeather() {
+        let tasks = DispatchGroup()
+        
+        tasks.enter()
+        self.currentWeatherView.startSkeleton(isDayTime: city.currentWeather?.isDayTime)
+        self.getCurrentWeather(for: self.city.id) { currentWeather in
+            if let currentWeather = currentWeather {
+                self.updateData(currentWeather)
+            }
+            self.updateView(self.currentWeatherView)
+            tasks.leave()
+        }
+        
+        tasks.enter()
+        let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
+        self.getHourlyForecast(for: self.city.id) { dailyForecast in
+            if let dailyForecast = dailyForecast {
+                self.updateData(data: dailyForecast)
+            }
+            self.updateView(self.dailyForecastViews)
+            tasks.leave()
+        }
+        
+        tasks.enter()
+        let _ = self.dailyForecastViews.map({ $0.startSkeleton() })
+        self.getDailyForecast(for: self.city.id) { hourlyForecast in
+            if let hourlyForecast = hourlyForecast {
+                self.updateData(data: hourlyForecast)
+            }
+            self.updateView(self.hourlyForecastViews)
+            tasks.leave()
+        }
+        
+        tasks.notify(queue: .main) {
+            self.delegate?.weatherInfoView(didUpdateWeatherInfoFor: self.city)
+            print("done")
+        }
+        
+//        DispatchGroup().
+//
+//        DispatchQueue.global().
+//
+//        UIView.anima
+        
+    }
+    
     private func configureCurrentWearher() {
                
         let top = self.frame.height
         let width = self.frame.width
+        let currentWeatherViewSide = self.currentWeatherView.frame.width
         
-        let currentWeatherView = CurrentWeatherView.instanceFromNib()
-        let currentWeatherViewSide = currentWeatherView.frame.width
+        self.currentWeatherView.configure()
+        self.currentWeatherView.frame.origin = CGPoint(x: (width - currentWeatherViewSide) / 2, y: top)
         
-        currentWeatherView.configure()
-        currentWeatherView.frame.origin = CGPoint(x: (width - currentWeatherViewSide) / 2, y: top)
-        
-        self.addSubview(currentWeatherView)
+        self.addSubview(self.currentWeatherView)
         
         self.frame.size.height += currentWeatherViewSide + self.verticalSpacing
         
-        if let currentWeather = self.city.currentWeather,
-           self.city.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
-            print("OLD")
-            self.updateDataInView(currentWeatherView, data: currentWeather)
+        if self.city.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
+            self.updateView(self.currentWeatherView)
         } else {
-            print("NEW")
             self.getCurrentWeather(for: self.city.id) { currentWeather in
-                self.city.currentWeather = currentWeather
-                self.updateDataInView(currentWeatherView, data: currentWeather)
-                self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
+                if let currentWeather = currentWeather {
+                    self.updateData(currentWeather)
+                }
+                self.updateView(self.currentWeatherView)
             }
         }
         
     }
-    
     
     private func configureHourlyForecast() {
         
@@ -118,7 +160,6 @@ class WeatherInfoView: UIView {
         let oneHourViewSize = OneHourView.instanceFromNib().frame.size
         var contentWidth = offsetBetween
         
-        var oneHourViewsArray = [OneHourView](repeating: OneHourView(), count: 12)
         
         let hourlyScrollView = UIScrollView(frame: CGRect(x: 0,
                                                           y: top,
@@ -128,13 +169,13 @@ class WeatherInfoView: UIView {
         self.addSubview(hourlyScrollView)
         
         
-        for index in 0..<oneHourViewsArray.count {
+        for index in 0..<self.hourlyForecastViews.count {
             let oneHourView = OneHourView.instanceFromNib()
             oneHourView.configure()
             oneHourView.frame.origin = CGPoint(x: contentWidth, y: 0)
             hourlyScrollView.addSubview(oneHourView)
             
-            oneHourViewsArray[index] = oneHourView
+            self.hourlyForecastViews[index] = oneHourView
             
             contentWidth += oneHourViewSize.width + offsetBetween            
         }
@@ -144,13 +185,14 @@ class WeatherInfoView: UIView {
         self.frame.size.height += hourlyScrollView.frame.height + self.verticalSpacing
         
         
-        if let hourlyForecast = self.city.hourlyForecast,
-           self.city.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
-            self.updateDataInView(oneHourViewsArray, data: hourlyForecast)
+        if self.city.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
+            self.updateView(self.hourlyForecastViews)
         } else {
             self.getHourlyForecast(for: self.city.id) { hourlyForecast in
-                self.city.hourlyForecast = hourlyForecast
-                self.updateDataInView(oneHourViewsArray, data: hourlyForecast)
+                if let hourlyForecast = hourlyForecast {
+                    self.updateData(data: hourlyForecast)
+                }
+                self.updateView(self.hourlyForecastViews)
             }
         }
         
@@ -163,44 +205,67 @@ class WeatherInfoView: UIView {
         
         let horizontalOffset: CGFloat = 20
         let dailyViewCornerRadius: CGFloat = 20
-        
-        var oneDayViewsArray = [OneDayView](repeating: OneDayView(), count: 5)
-        
         let oneDayViewHeight = OneDayView.instanceFronNib().frame.height
         
         let dailyView = UIView(frame: CGRect(x: horizontalOffset,
                                              y: top,
                                              width: width - (horizontalOffset * 2),
-                                             height: oneDayViewHeight * CGFloat(oneDayViewsArray.count)))
+                                             height: oneDayViewHeight * CGFloat(self.dailyForecastViews.count)))
         dailyView.clipsToBounds = true
         dailyView.layer.cornerRadius = dailyViewCornerRadius
         self.addSubview(dailyView)
         
-        for index in 0..<oneDayViewsArray.count {
+        for index in 0..<self.dailyForecastViews.count {
             let oneDayView = OneDayView.instanceFronNib()
             oneDayView.configure()
             oneDayView.frame.origin = CGPoint(x: 0, y: oneDayViewHeight * CGFloat(index))
             oneDayView.frame.size.width = dailyView.frame.width
-            oneDayViewsArray[index] = oneDayView
+            self.dailyForecastViews[index] = oneDayView
             dailyView.addSubview(oneDayView)
         }
         
         self.frame.size.height += dailyView.frame.height + self.verticalSpacing
         
-        if let dailyForecast = self.city.dailyForecast,
-           self.city.lastUpdated.dailyForecast.timeIntervalSinceNow > -600 {
-            self.updateDataInView(oneDayViewsArray, data: dailyForecast)
+        if self.city.lastUpdated.dailyForecast.timeIntervalSinceNow > -600 {
+            self.updateView(self.dailyForecastViews)
         } else {
             self.getDailyForecast(for: self.city.id) { dailyForecast in
-                self.city.dailyForecast = dailyForecast
-                self.updateDataInView(oneDayViewsArray, data: dailyForecast)
+                if let dailyForecast = dailyForecast {
+                    self.updateData(data: dailyForecast)
+                }
+                self.updateView(self.dailyForecastViews)
             }
         }
     }
     
     // MARK: - View's data update functions
     
-    private func updateDataInView(_ view: CurrentWeatherView, data: CurrentWeather) {
+    private func updateData(_ data: CurrentWeather) {
+        
+        self.city.currentWeather = data
+        self.city.lastUpdated.currentWeather = Date()
+        self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
+    }
+    
+    private func updateData(data: [HourlyForecast]) {
+        
+        self.city.hourlyForecast = data
+        self.city.lastUpdated.hourlyForecast = Date()
+        self.delegate?.weatherInfoView(didUpdateHourlyForecastFor: self.city)
+        
+    }
+    
+    private func updateData(data: [DailyForecast]) {
+        
+        self.city.dailyForecast = data
+        self.city.lastUpdated.dailyForecast = Date()
+        self.delegate?.weatherInfoView(didUpdateDailyForecastFor: self.city)
+    }
+    
+    private func updateView(_ view: CurrentWeatherView) {
+        
+        guard let data = self.city.currentWeather else { return }
+        
         view.configure(isDayTime: data.isDayTime,
                        temperature: data.temperatureCelsius,
                        weatherText: data.weatherText)
@@ -209,9 +274,11 @@ class WeatherInfoView: UIView {
         }
     }
     
-    private func updateDataInView(_ views: [OneHourView], data: [HourlyForecast]?) {
-        guard let data = data else { return }
-        guard data.count == views.count else { return }
+    private func updateView(_ views: [OneHourView]) {
+        
+        guard let data = self.city.hourlyForecast,
+                data.count == views.count else { return }
+        
         for (index, view) in views.enumerated() {
             view.configure(time: data[index].forecastTime,
                            temperature: data[index].temperatureCelsius,
@@ -222,9 +289,10 @@ class WeatherInfoView: UIView {
         }
     }
     
-    private func updateDataInView(_ views: [OneDayView], data: [DailyForecast]?) {
-        guard let data = data else { return }
-        guard data.count == views.count else { return }
+    private func updateView(_ views: [OneDayView]) {
+        
+        guard let data = self.city.dailyForecast,
+                data.count == views.count else { return }
         
         for (index, view) in views.enumerated() {
             view.configure(date: data[index].forecastDate,
@@ -241,62 +309,93 @@ class WeatherInfoView: UIView {
     
     // MARK: - Server connection functions
         
-    private func getCurrentWeather(for id: String, complete: @escaping(CurrentWeather) -> () ) {
+    private func getCurrentWeather(for id: String, complete: @escaping(CurrentWeather?) -> ()) {
+                
         let urlString = "\(self.baseURL)/currentconditions/v1/\(id)?apikey=\(self.keyAccuAPI)&\(self.language)"
-        guard let url = URL(string: urlString) else { return }
+        guard let url = URL(string: urlString) else {
+            DispatchQueue.main.async { complete(nil) }
+            return
+        }
                 
         URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let d = data, error == nil else { return }
-            let currentWeather = try? JSONSerialization.jsonObject(with: d, options: .mutableContainers) as? [[String : Any]]
+            guard let data = data, error == nil else {
+                DispatchQueue.main.async { complete(nil) }
+                return
+            }
             
-            guard let parsedCurrentWeather = self.parseCurrentWearher(from: currentWeather) else { return }
+            let currentWeather = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [[String : Any]]
             
-            self.city.currentWeather = parsedCurrentWeather
-            self.city.lastUpdated.currentWeather = Date()
+            guard let parsedCurrentWeather = self.parseCurrentWearher(from: currentWeather) else {
+                DispatchQueue.main.async { complete(nil) }
+                return
+            }
             
             DispatchQueue.main.async {
                 complete(parsedCurrentWeather)
             }
+            
         }.resume()
     }
     
-    private func getHourlyForecast(for id: String, complete: @escaping([HourlyForecast]) -> () ) {
+    private func getHourlyForecast(for id: String, complete: @escaping([HourlyForecast]?) -> ()) {
+                
         let urlString = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(id)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
-        guard let url = URL(string: urlString) else { return }
+        
+        guard let url = URL(string: urlString) else {
+            DispatchQueue.main.async { complete(nil) }
+            return
+        }
+        
         URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let d = data, error == nil else { return }
-            let hourlyForecastArray = try? JSONSerialization.jsonObject(with: d, options: .mutableContainers) as? [[String : Any]]
+            guard let data = data, error == nil else {
+                DispatchQueue.main.async { complete(nil) }
+                return
+            }
             
-            guard let parsedHourlyForecastArray = self.parseHourlyForecastArray(from: hourlyForecastArray) else { return }
+            let hourlyForecastArray = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [[String : Any]]
             
-            self.city.hourlyForecast = parsedHourlyForecastArray
-            self.city.lastUpdated.hourlyForecast = Date()
+            guard let parsedHourlyForecastArray = self.parseHourlyForecastArray(from: hourlyForecastArray) else {
+                DispatchQueue.main.async { complete(nil) }
+                return
+            }
             
             DispatchQueue.main.async {
                 complete(parsedHourlyForecastArray)
             }
+            
         }.resume()
     }
     
-    private func getDailyForecast(for id: String, complete: @escaping([DailyForecast]) -> () ) {
+    private func getDailyForecast(for id: String, complete: @escaping([DailyForecast]?) -> ()) {
+                
         let urlString = "\(self.baseURL)/forecasts/v1/daily/5day/\(id)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
-        guard let url = URL(string: urlString) else { return }
+        
+        guard let url = URL(string: urlString) else {
+            DispatchQueue.main.async { complete(nil) }
+            return
+        }
+        
         URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let d = data, error == nil else { return }
-            let dailyForecastDictionary = try? JSONSerialization.jsonObject(with: d, options: .mutableContainers) as? [String : Any]
-            
-            guard let parsedDailyForecastDictionary = self.parseDailyForecastDictionary(from: dailyForecastDictionary) else { return }
-            
-            self.city.dailyForecast = parsedDailyForecastDictionary
-            self.city.lastUpdated.dailyForecast = Date()
-            
-            DispatchQueue.main.async {
-                complete(parsedDailyForecastDictionary)
+            guard let data = data, error == nil else {
+                DispatchQueue.main.async { complete(nil) }
+                return
             }
+            
+            let dailyForecastDictionary = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String : Any]
+            
+            guard let parsedDailyForecastDictionary = self.parseDailyForecastDictionary(from: dailyForecastDictionary) else {
+                DispatchQueue.main.async { complete(nil) }
+                return
+            }
+            DispatchQueue.main.async {
+                complete(parsedDailyForecastDictionary)                
+            }
+            
         }.resume()
     }
     
     private func parseCurrentWearher(from dataArray: [[String : Any]]?) -> CurrentWeather? {
+        
         guard let dataDictionary = dataArray?.first else { return nil }
         
         let temperatureDictionary = dataDictionary[self.keyTemperature] as? [String:Any]

@@ -25,12 +25,11 @@ class CurrentWeatherView: UIView {
     
     func configure() {
         self.layer.cornerRadius = self.cornerRadius
-        self.startSkeleton(color: self.dayColor)
+        self.startSkeleton()
     }
     
-    func configure(isDayTime: Bool, temperature: Int, weatherText: String) {        
-        let backgroundColor = isDayTime ? self.dayColor : self.nightColor
-        self.backgroundColor = backgroundColor
+    func configure(isDayTime: Bool, temperature: Int, weatherText: String) {
+        self.backgroundColor = self.color(isDayTime: isDayTime)
         self.temperatureLabel.text = "\(temperature)ºC"
         self.textLabel.text = "\(weatherText)"
         self.layer.cornerRadius = self.cornerRadius
@@ -42,10 +41,11 @@ class CurrentWeatherView: UIView {
         self.iconImageView.hideSkeleton()
     }
     
-    private func startSkeleton(color: UIColor) {
+    func startSkeleton(isDayTime: Bool? = nil) {
+        
         self.isSkeletonable = true
         self.skeletonCornerRadius = Float(self.cornerRadius)
-        self.showAnimatedSkeleton(usingColor: color)
+        self.showAnimatedSkeleton(usingColor: self.color(isDayTime: isDayTime))
         
         self.iconImageView.isSkeletonable = true
         self.iconImageView.isHiddenWhenSkeletonIsActive = true
@@ -54,6 +54,14 @@ class CurrentWeatherView: UIView {
     
     private func stopSkeleton() {
         self.hideSkeleton()
+    }
+    
+    private func color(isDayTime: Bool?) -> UIColor {
+        if isDayTime == false {
+            return self.nightColor
+        } else {
+            return self.dayColor
+        }
     }
     
 }

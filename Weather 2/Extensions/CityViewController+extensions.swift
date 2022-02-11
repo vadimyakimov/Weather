@@ -12,7 +12,7 @@ import UIKit
 // MARK: - Scroll View Delegate
 
 extension CityViewController: UIScrollViewDelegate {
-    
+        
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         UIView.animate(withDuration: 1) {
             self.addFade(to: scrollView)
@@ -29,6 +29,10 @@ extension CityViewController: UIScrollViewDelegate {
 
 extension CityViewController: WeatherInfoViewDelegate {
     
+    func weatherInfoView(didUpdateWeatherInfoFor city: City) {
+        self.cityRefreshControl.endRefreshing()
+    }
+    
     func weatherInfoView(didUpdateCurrentWeatherFor city: City) {
         self.delegate?.cityViewController(didUpdateCurrentWeatherFor: self.city)
     }
@@ -38,7 +42,7 @@ extension CityViewController: WeatherInfoViewDelegate {
     }
     
     func weatherInfoView(didUpdateDailyForecastFor city: City) {
-        self.delegate?.cityViewController(didUpdateDailyForecastFor: self.city)        
+        self.delegate?.cityViewController(didUpdateDailyForecastFor: self.city)
     }
     
 }

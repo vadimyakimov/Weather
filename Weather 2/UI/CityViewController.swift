@@ -17,6 +17,9 @@ class CityViewController: UIViewController {
     let nameLabelFontSize: CGFloat = 60
     let nameLabelMinimumFontSize: CGFloat = 30
     
+    var weatherInfoView: WeatherInfoView
+    let cityRefreshControl = UIRefreshControl()
+    
     let city: City
         
     private var isConfigured = false
@@ -28,10 +31,6 @@ class CityViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
-        
-//        self.view.backgroundColor = .blue
         
     }
         
@@ -61,7 +60,9 @@ class CityViewController: UIViewController {
     
     init(_ city: City) {
         self.city = city
+        self.weatherInfoView = WeatherInfoView(for: city)
         super.init(nibName: nil, bundle: nil)
+        weatherInfoView.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -72,41 +73,49 @@ class CityViewController: UIViewController {
     
     private func configure() {
         
-        let topBound: CGFloat = 90
+//        let topBound: CGFloat = 90
         
-        self.configureHeader(startAt: topBound)
+        let nameLabelHeight: CGFloat = 80
         
-        let weatherInfoView = WeatherInfoView(for: city, width: self.view.frame.width)
-        weatherInfoView.delegate = self
-                
+        self.configureHeader(nameLabelHeight: nameLabelHeight)
+        
+        self.cityRefreshControl.addTarget(self, action: #selector(refreshWeatherInfo), for: .valueChanged)
+        
+        self.weatherInfoView.frame.size.width = self.view.frame.width
+        self.weatherInfoView.configure()
+                        
         let cityScrollView = UIScrollView()
         cityScrollView.delegate = self
         cityScrollView.frame = CGRect(x: 0,
-                                      y: self.view.safeAreaInsets.top + topBound,
+                                      y: self.view.safeAreaInsets.top + nameLabelHeight,
                                       width: self.view.frame.size.width,
-                                      height: self.view.frame.size.height - self.view.safeAreaInsets.top - topBound)
+                                      height: self.view.frame.size.height - self.view.safeAreaInsets.top - nameLabelHeight)
         cityScrollView.contentSize = weatherInfoView.frame.size
         cityScrollView.showsVerticalScrollIndicator = false
-//        self.addFade(to: cityScrollView)
         
         cityScrollView.addSubview(weatherInfoView)
+        cityScrollView.refreshControl = cityRefreshControl
         self.view.addSubview(cityScrollView)
         
         self.isConfigured = true
     }
     
+    @IBAction func refreshWeatherInfo() {
+        print("valuechanged")
+        self.weatherInfoView.refreshWeather()
+    }
     
-    private func configureHeader(startAt topBound: CGFloat) {
+    
+    private func configureHeader(nameLabelHeight: CGFloat) {
                        
         let screen = self.view.frame.size
         
         let horizontalOffsets: CGFloat = 20
-        let nameLabelHeight: CGFloat = 80
 //        let updateLabelWidth: CGFloat = 300
 //        let updateLabelHeight: CGFloat = 30
                         
         self.nameLabel = UILabel(frame: CGRect(x: horizontalOffsets,
-                                               y: self.view.safeAreaInsets.top + (topBound - nameLabelHeight),
+                                               y: self.view.safeAreaInsets.top,
                                                width: screen.width - (horizontalOffsets * 2),
                                                height: nameLabelHeight))
         self.nameLabel.textColor = .white

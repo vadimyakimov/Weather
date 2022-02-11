@@ -43,7 +43,7 @@ class OneHourView: UIView {
         self.iconImageView.hideSkeleton()
     }
     
-    private func startSkeleton() {
+    func startSkeleton() {
         createSkeletonFor(label: self.timeLabel)
         createSkeletonFor(label: self.temperatureLabel)
         createSkeletonFor(label: self.textLabel)

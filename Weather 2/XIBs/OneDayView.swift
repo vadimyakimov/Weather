@@ -49,7 +49,7 @@ class OneDayView: UIView {
         self.nightIconImageView.hideSkeleton()
     }
         
-    private func startSkeleton() {
+    func startSkeleton() {
         createSkeletonFor(label: self.dayLabel)
         createSkeletonFor(label: self.dateLabel)
         createSkeletonFor(label: self.dayTemperatureLabel)
