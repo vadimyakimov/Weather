@@ -146,6 +146,7 @@ extension CitiesPageViewController: CityViewControllerDelegate {
         if fontSize < self.nameLabelFontSize * 2 &&
            fontSize > self.nameLabelMinimumFontSize {
             self.nameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
+            self.newNameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
         }
     }
 

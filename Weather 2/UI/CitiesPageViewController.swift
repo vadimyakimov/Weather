@@ -84,21 +84,12 @@ class CitiesPageViewController: EMPageViewController {
         super.viewSafeAreaInsetsDidChange()
         
         self.configurePageControl()
-        self.addListButton()
-        
-        self.addNameLabel()  //========
-        
-        self.view.addSubview(self.nameLabel)
-        self.view.addSubview(self.newNameLabel)
+        self.addNameLabel() 
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
-    
-    
-    
-    
     
     
     // MARK: - IBActions
@@ -212,6 +203,11 @@ class CitiesPageViewController: EMPageViewController {
         
         self.configureNameLabel(self.newNameLabel)
         self.view.addSubview(self.newNameLabel)
+        
+        let recognizer = UITapGestureRecognizer(target: self,
+                                                action: #selector(self.listButtonPressed))
+        self.nameLabel.addGestureRecognizer(recognizer)
+        self.newNameLabel.addGestureRecognizer(recognizer)
     }
     
     private func configureNameLabel(_ nameLabel: UILabel, text: String = "") {
@@ -228,22 +224,7 @@ class CitiesPageViewController: EMPageViewController {
         nameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
         nameLabel.layer.zPosition = 100
         nameLabel.adjustsFontSizeToFitWidth = true
-    }
-    
-    private func addListButton() { //====================
-        
-        let listImage = UIImage(named: "menu")
-        
-        let listImageView = UIImageView(frame: CGRect(x: 0, y: self.view.safeAreaInsets.top, width: 44, height: 44))
-        listImageView.image = listImage
-        listImageView.isUserInteractionEnabled = true
-//        listImageView.backgroundColor = .yellow
-        
-        self.view.addSubview(listImageView)
-        
-        let recognizer = UITapGestureRecognizer(target: self,
-                                                action: #selector(self.listButtonPressed))
-        listImageView.addGestureRecognizer(recognizer)
+        nameLabel.isUserInteractionEnabled = true
     }
     
     private func defaultNavigationBarBackground() {
