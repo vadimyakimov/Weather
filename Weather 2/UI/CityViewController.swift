@@ -13,9 +13,9 @@ class CityViewController: UIViewController {
     
 //    var cityIndex: Int
 //    var isDayTime: Bool
-    var nameLabel = UILabel()
-    let nameLabelFontSize: CGFloat = 60
-    let nameLabelMinimumFontSize: CGFloat = 30
+//    var nameLabel = UILabel()
+//    let nameLabelFontSize: CGFloat = 60
+//    let nameLabelMinimumFontSize: CGFloat = 30
     
     var weatherInfoView: WeatherInfoView
     let cityRefreshControl = UIRefreshControl()
@@ -79,7 +79,7 @@ class CityViewController: UIViewController {
         
         let nameLabelHeight: CGFloat = 80
         
-        self.configureHeader(nameLabelHeight: nameLabelHeight)
+//        self.configureHeader(nameLabelHeight: nameLabelHeight)
         
         self.cityRefreshControl.addTarget(self, action: #selector(refreshWeatherInfo), for: .valueChanged)
         self.cityRefreshControl.tintColor = .white
@@ -109,41 +109,41 @@ class CityViewController: UIViewController {
     }
     
     
-    private func configureHeader(nameLabelHeight: CGFloat) {
-                       
-        let screen = self.view.frame.size
-        
-        let horizontalOffsets: CGFloat = 20
-//        let updateLabelWidth: CGFloat = 300
-//        let updateLabelHeight: CGFloat = 30
-                        
-        self.nameLabel = UILabel(frame: CGRect(x: horizontalOffsets,
-                                               y: self.view.safeAreaInsets.top,
-                                               width: screen.width - (horizontalOffsets * 2),
-                                               height: nameLabelHeight))
-        self.nameLabel.textColor = .white
-        self.nameLabel.text = self.city.name
-        self.nameLabel.textAlignment = .center
-        self.nameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
-        nameLabel.layer.zPosition = 100
-        nameLabel.adjustsFontSizeToFitWidth = true
-        
-        self.view.addSubview(nameLabel)
-        
-        
-//        if let lastUpdated = self.city.lastUpdated {
-//            
-//            let updateLabel = createLabel(x: screen.width - updateLabelWidth - horizontalOffsets,
-//                                          y: 0,
-//                                          width: updateLabelWidth,
-//                                          height: updateLabelHeight,
-//                                          text: updatedAt(date: lastUpdated),
-//                                          color: .white,
-//                                          align: .right)
-//            self.cityScrollView.addSubview(updateLabel)
-//        }
-        
-    }
+//    private func configureHeader(nameLabelHeight: CGFloat) {
+//                       
+//        let screen = self.view.frame.size
+//        
+//        let horizontalOffsets: CGFloat = 20
+////        let updateLabelWidth: CGFloat = 300
+////        let updateLabelHeight: CGFloat = 30
+//                        
+//        self.nameLabel = UILabel(frame: CGRect(x: horizontalOffsets,
+//                                               y: self.view.safeAreaInsets.top,
+//                                               width: screen.width - (horizontalOffsets * 2),
+//                                               height: nameLabelHeight))
+//        self.nameLabel.textColor = .white
+//        self.nameLabel.text = self.city.name
+//        self.nameLabel.textAlignment = .center
+//        self.nameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
+//        nameLabel.layer.zPosition = 100
+//        nameLabel.adjustsFontSizeToFitWidth = true
+//        
+//        self.view.addSubview(nameLabel)
+//        
+//        
+////        if let lastUpdated = self.city.lastUpdated {
+////            
+////            let updateLabel = createLabel(x: screen.width - updateLabelWidth - horizontalOffsets,
+////                                          y: 0,
+////                                          width: updateLabelWidth,
+////                                          height: updateLabelHeight,
+////                                          text: updatedAt(date: lastUpdated),
+////                                          color: .white,
+////                                          align: .right)
+////            self.cityScrollView.addSubview(updateLabel)
+////        }
+//        
+//    }
     
     
     func addFade(to scrollView: UIScrollView) {

@@ -9,29 +9,7 @@ import Foundation
 import UIKit
 import EMPageViewController
 
-// MARK: - Page View Controller Data Source
-/*
-extension CitiesPageViewController: UIPageViewControllerDataSource {
-    
-    
-    // viewControllerBefore
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        guard let controller = (viewController as? CityViewController) else { return nil }
-//        guard self.citiesArray.count > 2, controller.cityIndex != 0 else { return nil }
-        
-        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return nil }
-        return self.cityViewController(withIndex: index - 1)
-    }
-
-    // viewControllerAfter
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard let controller = (viewController as? CityViewController) else { return nil }
-//        guard self.citiesArray.count > 2, controller.cityIndex != self.citiesArray.count - 1 else { return nil }
-        
-        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return nil }
-        return self.cityViewController(withIndex: index + 1)
-    }
-}*/
+// MARK: - EM Page View Controller Data Source
 
 extension CitiesPageViewController: EMPageViewControllerDataSource {
     func em_pageViewController(_ pageViewController: EMPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
@@ -52,48 +30,61 @@ extension CitiesPageViewController: EMPageViewControllerDataSource {
     
     
 }
-/*
-extension CitiesPageViewController: UIPageViewControllerDelegate {
-    
-    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        guard let controller = (pageViewController.viewControllers?.first as? CityViewController) else { return }
-        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return }
-        
-        self.updatePageControl(index: index)
-    }
-    
-}*/
+
+// MARK: - EM Page View Controller Delegate
 
 extension CitiesPageViewController: EMPageViewControllerDelegate {
     
     func em_pageViewController(_ pageViewController: EMPageViewController, isScrollingFrom startingViewController: UIViewController, destinationViewController: UIViewController, progress: CGFloat) {
 
-        var visibleController: CityViewController?
-
-        if progress > 0.5 || progress < -0.5 {
-            visibleController = destinationViewController as? CityViewController
+        guard let destinationViewController = destinationViewController as? CityViewController,
+              let startingViewController = startingViewController as? CityViewController else { return }
+              
+        var visibleViewController: CityViewController
+        if abs(progress) > 0.5 {
+            visibleViewController = destinationViewController
         } else {
-            visibleController = startingViewController as? CityViewController
+            visibleViewController = startingViewController
         }
 
-        guard let controller = visibleController else { return }
-        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return }
+        guard let index = self.citiesArray.firstIndex(of: visibleViewController.city) else { return }
 
         self.updatePageControl(index: index)
 
-        let isDayTime = controller.city.currentWeather?.isDayTime ?? true
+        let isDayTime = visibleViewController.city.currentWeather?.isDayTime ?? true
         self.changeGradientColor(isDayTime: isDayTime)
+        
+        
+        
+        
+        
+        switch abs(progress) {
+        case 0:
+            self.newNameLabel.frame.origin.x = self.view.frame.width
+        case 0..<1:
+            let oldLabelGraph = -((pow(Double(progress), 3) / 2) + (progress / 2))
+            let newLabelGraph = (abs(progress) / progress) * ((pow(Double(progress), 2) / 2) -
+                                ((abs(progress) / progress) * progress * 1.5) + 1)
+                        
+            self.nameLabel.frame.origin.x = self.view.frame.width * oldLabelGraph
+            self.newNameLabel.frame.origin.x = self.view.frame.width * newLabelGraph
+            
+            
+            let oldLabelOpacityGraph = -pow(Double(progress), 2) + 1
+            let newLabelOpacityGraph = pow(progress, 2)
+            
+            self.nameLabel.layer.opacity = Float(oldLabelOpacityGraph)
+            self.newNameLabel.layer.opacity = Float(newLabelOpacityGraph)
+        case 1:
+            self.nameLabel.text = destinationViewController.city.name
+            self.nameLabel.frame.origin.x = 0
+            self.newNameLabel.frame.origin.x = self.view.frame.width
+        default:
+            break
+        }
+        
+        
     }
-    
-//    func em_pageViewController(_ pageViewController: EMPageViewController, didFinishScrollingFrom startingViewController: UIViewController?, destinationViewController: UIViewController, transitionSuccessful: Bool) {
-//        guard let controller = destinationViewController as? CityViewController else { return }
-//        guard let index = self.citiesArray.firstIndex(of: controller.city) else { return }
-//
-//        self.updatePageControl(index: index)
-//
-//        let isDayTime = controller.city.currentWeather?.isDayTime ?? true
-//        self.changeGradientColor(isDayTime: isDayTime)
-//    }
     
 }
 
@@ -156,5 +147,14 @@ extension CitiesPageViewController: CityViewControllerDelegate {
     
     func cityViewController(didUpdateDailyForecastFor city: City) {
         self.updateCity(city)
-    }  
+    }
+    
+    func cityViewController(scrollViewDidScroll scrollView: UIScrollView) {
+        let fontSize = self.nameLabelFontSize - scrollView.contentOffset.y
+        if fontSize < self.nameLabelFontSize * 2 &&
+           fontSize > self.nameLabelMinimumFontSize {
+            self.nameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
+        }
+    }
+
 }

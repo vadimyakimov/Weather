@@ -34,8 +34,15 @@ class CitiesPageViewController: EMPageViewController {
     
     private let gradient = CAGradientLayer()
     
+    var nameLabel = UILabel()
+    var newNameLabel = UILabel()
+    let nameLabelHeight: CGFloat = 80
+    let nameLabelFontSize: CGFloat = 60
+    let nameLabelMinimumFontSize: CGFloat = 30
+    
     private let pageControl = UIPageControl()
     private let pageControlHeight: CGFloat = 20
+    
         
     // MARK: - Lifecycle
     
@@ -76,12 +83,21 @@ class CitiesPageViewController: EMPageViewController {
         super.viewSafeAreaInsetsDidChange()
         
         self.configurePageControl()
-        self.createListButton()
+        self.addListButton()
+        
+        self.addNameLabel()  //========
+        
+        self.view.addSubview(self.nameLabel)
+        self.view.addSubview(self.newNameLabel)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
+    
+    
+    
+    
     
     
     // MARK: - IBActions
@@ -172,7 +188,6 @@ class CitiesPageViewController: EMPageViewController {
         self.pageControl.numberOfPages = self.citiesArray.count
         self.pageControl.isUserInteractionEnabled = false //=====================================================================================
         self.pageControl.hidesForSinglePage = true
-        
     }
     
     func updatePageControl(index: Int? = nil) {
@@ -182,7 +197,35 @@ class CitiesPageViewController: EMPageViewController {
         }
     }
     
-    private func createListButton() { //====================
+    private func addNameLabel() {
+        
+        guard let controller = self.selectedViewController as? CityViewController else { return }
+        
+        self.configureNameLabel(self.nameLabel, text: controller.city.name)
+        self.view.addSubview(self.nameLabel)
+        
+        self.configureNameLabel(self.newNameLabel)
+        self.view.addSubview(self.newNameLabel)
+    }
+    
+    private func configureNameLabel(_ nameLabel: UILabel, text: String = "") {
+        
+        let screen = self.view.frame.size
+        let horizontalOffsets: CGFloat = 0
+        
+        nameLabel.frame = CGRect(x: horizontalOffsets,
+                                 y: self.view.safeAreaInsets.top + self.pageControlHeight,
+                                 width: screen.width - (horizontalOffsets * 2),
+                                 height: self.nameLabelHeight)
+        nameLabel.textColor = .white
+        nameLabel.text = text
+        nameLabel.textAlignment = .center
+        nameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
+        nameLabel.layer.zPosition = 100
+        nameLabel.adjustsFontSizeToFitWidth = true
+    }
+    
+    private func addListButton() { //====================
         
         let listImage = UIImage(named: "menu")
         

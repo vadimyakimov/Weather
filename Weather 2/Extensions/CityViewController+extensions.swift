@@ -11,18 +11,15 @@ import UIKit
 
 // MARK: - Scroll View Delegate
 
-extension CityViewController: UIScrollViewDelegate {
-        
+extension CityViewController: UIScrollViewDelegate {       
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         UIView.animate(withDuration: 1) {
             self.addFade(to: scrollView)
         }
-        let fontSize = self.nameLabelFontSize - scrollView.contentOffset.y
-        if fontSize < self.nameLabelFontSize * 2 &&
-           fontSize > self.nameLabelMinimumFontSize {
-            self.nameLabel.font = UIFont.systemFont(ofSize: fontSize)
-        }
+        self.delegate?.cityViewController(scrollViewDidScroll: scrollView)
     }
+    
 }
 
 // MARK: - Weather Info View Delegate
