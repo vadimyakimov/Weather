@@ -38,6 +38,7 @@ extension CitiesListViewController: UITableViewDelegate {
         if editingStyle == .delete {
             self.citiesArray.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
+            self.delegate?.citiesListViewController(didUpdateCities: self.citiesArray)
         }
         if self.citiesArray.count == 0 {
             self.goToSearchScreen()
@@ -95,7 +96,8 @@ extension CitiesListViewController: UITableViewDropDelegate {
                 self.citiesArray.insert(city, at: destinationIndexPath.row)
                 tableView.reloadData()
             }
-        }
+        }        
+        self.delegate?.citiesListViewController(didUpdateCities: self.citiesArray)
     }
     
 }

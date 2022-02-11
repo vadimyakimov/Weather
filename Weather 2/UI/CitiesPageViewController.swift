@@ -43,8 +43,7 @@ class CitiesPageViewController: EMPageViewController {
     
     private let pageControl = UIPageControl()
     private let pageControlHeight: CGFloat = 20
-    private let currentPage = 0
-    private var previousPage = -1
+    private var previousPageControlIndex = -1
     
         
     // MARK: - Lifecycle
@@ -59,7 +58,6 @@ class CitiesPageViewController: EMPageViewController {
         self.defaultNavigationBarBackground()
         
         
-        self.view.addSubview(self.pageControl)
         self.addGradient()
         
         if self.citiesArray.count > 0 {
@@ -87,6 +85,7 @@ class CitiesPageViewController: EMPageViewController {
         super.viewSafeAreaInsetsDidChange()
         
         self.configurePageControl()
+        self.view.addSubview(self.pageControl)
         self.addNameLabel()
     }
     
@@ -115,7 +114,7 @@ class CitiesPageViewController: EMPageViewController {
     @IBAction func pageControlTouchDown(_ sender: Any) {
         guard let pageControl = sender as? UIPageControl else { return }
         pageControl.isSelected = true
-        self.previousPage = pageControl.currentPage
+        self.previousPageControlIndex = pageControl.currentPage
     }
     
     @IBAction func pageControlTouchUp(_ sender: Any) {
@@ -210,7 +209,8 @@ class CitiesPageViewController: EMPageViewController {
     func updatePageControl(index: Int? = nil) {
         if self.pageControl.numberOfPages != self.citiesArray.count {
             self.pageControl.numberOfPages = self.citiesArray.count
-            self.pageControl.frame.size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
+            let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
+            self.pageControl.frame.size = CGSize(width: size.width, height: self.pageControlHeight)
         }
         
         if let index = index {
@@ -219,9 +219,9 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     func pageControl(didUpdate pageControl: UIPageControl) {
-        guard pageControl.currentPage != self.previousPage,
+        guard pageControl.currentPage != self.previousPageControlIndex,
               !pageControl.isSelected else { return }
-        if pageControl.currentPage > self.previousPage {
+        if pageControl.currentPage > self.previousPageControlIndex {
             showCityViewController(withIndex: pageControl.currentPage, direction: .forward)
         } else {
             showCityViewController(withIndex: pageControl.currentPage, direction: .reverse)

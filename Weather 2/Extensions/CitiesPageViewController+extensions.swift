@@ -117,6 +117,10 @@ extension CitiesPageViewController: SearchScreenViewControllerDelegate, CitiesLi
         self.backToPageViewController(withIndex: indexPath.row)
     }
     
+    func citiesListViewController(didUpdateCities citiesArray: [City]) {
+        self.citiesArray = citiesArray
+    }
+    
     func citiesListViewControllerWillDisappear() {        
         self.checkDeletedViewControllers()
     }
