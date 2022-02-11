@@ -61,7 +61,9 @@ class CityViewController: UIViewController {
     init(_ city: City) {
         self.city = city
         self.weatherInfoView = WeatherInfoView(for: city)
+        
         super.init(nibName: nil, bundle: nil)
+        
         weatherInfoView.delegate = self
     }
     
@@ -80,6 +82,7 @@ class CityViewController: UIViewController {
         self.configureHeader(nameLabelHeight: nameLabelHeight)
         
         self.cityRefreshControl.addTarget(self, action: #selector(refreshWeatherInfo), for: .valueChanged)
+        self.cityRefreshControl.tintColor = .white
         
         self.weatherInfoView.frame.size.width = self.view.frame.width
         self.weatherInfoView.configure()
@@ -122,12 +125,11 @@ class CityViewController: UIViewController {
         self.nameLabel.text = self.city.name
         self.nameLabel.textAlignment = .center
         self.nameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
-        
-
         nameLabel.layer.zPosition = 100
         nameLabel.adjustsFontSizeToFitWidth = true
         
         self.view.addSubview(nameLabel)
+        
         
 //        if let lastUpdated = self.city.lastUpdated {
 //            
@@ -142,6 +144,7 @@ class CityViewController: UIViewController {
 //        }
         
     }
+    
     
     func addFade(to scrollView: UIScrollView) {
         let scrollViewHeight = scrollView.frame.size.height

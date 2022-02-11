@@ -108,6 +108,7 @@ class CitiesPageViewController: EMPageViewController {
         
         self.selectViewController(controller, direction: .forward, animated: true, completion: nil)
         
+        self.changeGradientColor(isDayTime: controller.city.currentWeather?.isDayTime)
     }
     
     func cityViewController(withIndex i: Int) -> CityViewController? {
@@ -212,18 +213,19 @@ class CitiesPageViewController: EMPageViewController {
         self.gradient.endPoint = CGPoint(x: 0, y: 1)
         self.gradient.frame = self.view.bounds
         self.view.layer.insertSublayer(gradient, at: 0)
-        self.changeGradientColor()
+        
+        self.changeGradientColor(isDayTime: nil)
     }
     
-    func changeGradientColor(isDayTime: Bool = true) {
-        if isDayTime {
-            self.gradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
-                                    UIColor(red: 1, green: 0.49, blue: 0.49, alpha: 1).cgColor,
-                                    UIColor(red: 1, green: 0.82, blue: 0.24, alpha: 1).cgColor]
-        } else {
+    func changeGradientColor(isDayTime: Bool?) {
+        if isDayTime == false {
             self.gradient.colors = [UIColor(red: 0.25, green: 0, blue: 0.57, alpha: 1).cgColor,
                                     UIColor(red: 0, green: 0.35, blue: 0.53, alpha: 1).cgColor,
                                     UIColor(red: 0.02, green: 0, blue: 0.36, alpha: 1).cgColor]
+        } else {
+            self.gradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
+                                    UIColor(red: 1, green: 0.49, blue: 0.49, alpha: 1).cgColor,
+                                    UIColor(red: 1, green: 0.82, blue: 0.24, alpha: 1).cgColor]
         }
     }
     

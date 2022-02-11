@@ -23,9 +23,9 @@ class CurrentWeatherView: UIView {
         return UINib(nibName: "CurrentWeatherView", bundle: nil).instantiate(withOwner: nil, options: nil).first as! CurrentWeatherView
     }
     
-    func configure() {
+    func configure(isDayTime: Bool?) {
         self.layer.cornerRadius = self.cornerRadius
-        self.startSkeleton()
+        self.startSkeleton(isDayTime: isDayTime)
     }
     
     func configure(isDayTime: Bool, temperature: Int, weatherText: String) {
@@ -41,7 +41,7 @@ class CurrentWeatherView: UIView {
         self.iconImageView.hideSkeleton()
     }
     
-    func startSkeleton(isDayTime: Bool? = nil) {
+    func startSkeleton(isDayTime: Bool?) {
         
         self.isSkeletonable = true
         self.skeletonCornerRadius = Float(self.cornerRadius)

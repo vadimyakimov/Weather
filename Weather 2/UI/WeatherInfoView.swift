@@ -25,7 +25,7 @@ class WeatherInfoView: UIView {
     
     private let baseURL = "https://dataservice.accuweather.com"
     private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "YyRHncuTlsidjyS4YVziEZPChV4sPDVA"
+    private let keyAccuAPI = "YyRHncuTlsidjyS4YVziEZPChV4sPDVA0"
     //pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ
     //YyRHncuTlsidjyS4YVziEZPChV4sPDVA
     //dcXaSaOT2bTNKzDiMD37dnGlZXGEeTxG
@@ -117,11 +117,6 @@ class WeatherInfoView: UIView {
             print("done")
         }
         
-//        DispatchGroup().
-//
-//        DispatchQueue.global().
-//
-//        UIView.anima
         
     }
     
@@ -131,7 +126,7 @@ class WeatherInfoView: UIView {
         let width = self.frame.width
         let currentWeatherViewSide = self.currentWeatherView.frame.width
         
-        self.currentWeatherView.configure()
+        self.currentWeatherView.configure(isDayTime: self.city.currentWeather?.isDayTime)
         self.currentWeatherView.frame.origin = CGPoint(x: (width - currentWeatherViewSide) / 2, y: top)
         
         self.addSubview(self.currentWeatherView)

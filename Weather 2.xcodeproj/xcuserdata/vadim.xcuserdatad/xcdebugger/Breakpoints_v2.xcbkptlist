@@ -301,8 +301,8 @@
             filePath = "Weather 2/UI/CityViewController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "111"
-            endingLineNumber = "111"
+            startingLineNumber = "114"
+            endingLineNumber = "114"
             landmarkName = "configureHeader(nameLabelHeight:)"
             landmarkType = "7">
          </BreakpointContent>
