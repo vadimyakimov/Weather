@@ -12,12 +12,6 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Properties
     
-    //    var currentCityIndex = 0 {
-    //        didSet {
-    //            self.pageControl.currentPage = self.currentCityIndex
-    //        }
-    //    }
-    
     var citiesArray: [City] {
         get {
             if let data = UserDefaults.standard.data(forKey: self.citiesArrayKeyUserDefaults),
@@ -52,7 +46,6 @@ class CitiesPageViewController: EMPageViewController {
         
         self.defaultNavigationBarBackground()
         
-        self.createListButton()
         self.view.addSubview(pageControl)
         self.addGradient()
         
@@ -63,9 +56,7 @@ class CitiesPageViewController: EMPageViewController {
             searchScreen.delegate = self
             self.navigationController?.pushViewController(searchScreen, animated: false)
         }
-        
     }
-    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
@@ -83,6 +74,7 @@ class CitiesPageViewController: EMPageViewController {
         super.viewSafeAreaInsetsDidChange()
         
         self.configurePageControl()
+        self.createListButton()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -189,12 +181,19 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     private func createListButton() { //====================
-        let listButton = UIButton(frame: CGRect(x: 0, y: 50, width: 60, height: 60))
-        listButton.backgroundColor = .yellow
+        
+        let listImage = UIImage(named: "menu")
+        
+        let listImageView = UIImageView(frame: CGRect(x: 0, y: self.view.safeAreaInsets.top, width: 44, height: 44))
+        listImageView.image = listImage
+        listImageView.isUserInteractionEnabled = true
+//        listImageView.backgroundColor = .yellow
+        
+        self.view.addSubview(listImageView)
+        
         let recognizer = UITapGestureRecognizer(target: self,
                                                 action: #selector(self.listButtonPressed))
-        listButton.addGestureRecognizer(recognizer)
-        self.view.addSubview(listButton)
+        listImageView.addGestureRecognizer(recognizer)
     }
     
     private func defaultNavigationBarBackground() {
