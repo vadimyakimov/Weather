@@ -17,10 +17,12 @@ class CityViewController: UIViewController {
 //    let nameLabelFontSize: CGFloat = 60
 //    let nameLabelMinimumFontSize: CGFloat = 30
     
+    let city: City
+    
     var weatherInfoView: WeatherInfoView
     let cityRefreshControl = UIRefreshControl()
     
-    let city: City
+    let frameRectangle: CGRect
         
     private var isConfigured = false
     
@@ -58,9 +60,10 @@ class CityViewController: UIViewController {
     
     // MARK: - Initializers
     
-    init(_ city: City) {
+    init(_ city: City, frame: CGRect) {
         self.city = city
         self.weatherInfoView = WeatherInfoView(for: city)
+        self.frameRectangle = frame
         
         super.init(nibName: nil, bundle: nil)
         
@@ -77,7 +80,7 @@ class CityViewController: UIViewController {
         
 //        let topBound: CGFloat = 90
         
-        let nameLabelHeight: CGFloat = 80
+//        let nameLabelHeight: CGFloat = 80
         
 //        self.configureHeader(nameLabelHeight: nameLabelHeight)
         
@@ -89,10 +92,10 @@ class CityViewController: UIViewController {
                         
         let cityScrollView = UIScrollView()
         cityScrollView.delegate = self
-        cityScrollView.frame = CGRect(x: 0,
-                                      y: self.view.safeAreaInsets.top + nameLabelHeight,
-                                      width: self.view.frame.size.width,
-                                      height: self.view.frame.size.height - self.view.safeAreaInsets.top - nameLabelHeight)
+        cityScrollView.frame = CGRect(x: self.frameRectangle.origin.x,
+                                      y: self.frameRectangle.origin.y + self.view.safeAreaInsets.top,
+                                      width: self.frameRectangle.width,
+                                      height: self.frameRectangle.height - self.view.safeAreaInsets.top)
         cityScrollView.contentSize = weatherInfoView.frame.size
         cityScrollView.showsVerticalScrollIndicator = false
         

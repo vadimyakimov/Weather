@@ -73,7 +73,7 @@ class WeatherInfoView: UIView {
     // MARK: - Configure functions
     
     func configure() {
-        self.frame.size.height += self.verticalSpacing
+        self.frame.size.height += self.verticalSpacing / 2
         self.configureCurrentWearher()
         self.configureHourlyForecast()
         self.configureDailyForecast()

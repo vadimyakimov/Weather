@@ -39,6 +39,7 @@ class CitiesPageViewController: EMPageViewController {
     let nameLabelHeight: CGFloat = 80
     let nameLabelFontSize: CGFloat = 60
     let nameLabelMinimumFontSize: CGFloat = 30
+    let horizontalOffset: CGFloat = 20
     
     private let pageControl = UIPageControl()
     private let pageControlHeight: CGFloat = 20
@@ -140,7 +141,12 @@ class CitiesPageViewController: EMPageViewController {
             }
         }
         
-        let cityViewController = CityViewController(self.citiesArray[index] )
+        let yOriginCityViewController = self.nameLabelHeight + self.pageControlHeight
+        let cityViewController = CityViewController(self.citiesArray[index],
+                                                    frame: CGRect(x: 0,
+                                                                  y: yOriginCityViewController,
+                                                                  width: self.view.frame.size.width,
+                                                                  height: self.view.frame.size.height - yOriginCityViewController))
         cityViewController.delegate = self
         return cityViewController
     }
@@ -211,11 +217,10 @@ class CitiesPageViewController: EMPageViewController {
     private func configureNameLabel(_ nameLabel: UILabel, text: String = "") {
         
         let screen = self.view.frame.size
-        let horizontalOffsets: CGFloat = 0
         
-        nameLabel.frame = CGRect(x: horizontalOffsets,
+        nameLabel.frame = CGRect(x: self.horizontalOffset,
                                  y: self.view.safeAreaInsets.top + self.pageControlHeight,
-                                 width: screen.width - (horizontalOffsets * 2),
+                                 width: screen.width - (self.horizontalOffset * 2),
                                  height: self.nameLabelHeight)
         nameLabel.textColor = .white
         nameLabel.text = text

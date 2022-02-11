@@ -53,21 +53,20 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
 
         let isDayTime = visibleViewController.city.currentWeather?.isDayTime ?? true
         self.changeGradientColor(isDayTime: isDayTime)
-        
-        
-        
-        
+                
+        self.nameLabel.text = startingViewController.city.name
+        self.newNameLabel.text = destinationViewController.city.name
         
         switch abs(progress) {
         case 0:
-            self.newNameLabel.frame.origin.x = self.view.frame.width
+            self.newNameLabel.frame.origin.x = self.horizontalOffset + self.view.frame.width
         case 0..<1:
             let oldLabelGraph = -((pow(Double(progress), 3) / 2) + (progress / 2))
             let newLabelGraph = (abs(progress) / progress) * ((pow(Double(progress), 2) / 2) -
                                 ((abs(progress) / progress) * progress * 1.5) + 1)
                         
-            self.nameLabel.frame.origin.x = self.view.frame.width * oldLabelGraph
-            self.newNameLabel.frame.origin.x = self.view.frame.width * newLabelGraph
+            self.nameLabel.frame.origin.x = self.horizontalOffset + (self.view.frame.width * oldLabelGraph)
+            self.newNameLabel.frame.origin.x = self.horizontalOffset + (self.view.frame.width * newLabelGraph)
             
             
             let oldLabelOpacityGraph = -pow(Double(progress), 2) + 1
@@ -75,17 +74,10 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
             
             self.nameLabel.layer.opacity = Float(oldLabelOpacityGraph)
             self.newNameLabel.layer.opacity = Float(newLabelOpacityGraph)
-        case 1:
-            self.nameLabel.text = destinationViewController.city.name
-            self.nameLabel.frame.origin.x = 0
-            self.newNameLabel.frame.origin.x = self.view.frame.width
         default:
             break
         }
-        
-        
-    }
-    
+    }    
 }
 
 // MARK: - Search Screen View Controller Delegate
