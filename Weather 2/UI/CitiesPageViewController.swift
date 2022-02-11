@@ -36,13 +36,15 @@ class CitiesPageViewController: EMPageViewController {
     
     var nameLabel = UILabel()
     var newNameLabel = UILabel()
-    let nameLabelHeight: CGFloat = 80
+    private let nameLabelHeight: CGFloat = 80
     let nameLabelFontSize: CGFloat = 60
     let nameLabelMinimumFontSize: CGFloat = 30
     let horizontalOffset: CGFloat = 20
     
     private let pageControl = UIPageControl()
     private let pageControlHeight: CGFloat = 20
+    private let currentPage = 0
+    private var previousPage = -1
     
         
     // MARK: - Lifecycle
@@ -56,7 +58,8 @@ class CitiesPageViewController: EMPageViewController {
         
         self.defaultNavigationBarBackground()
         
-        self.view.addSubview(pageControl)
+        
+        self.view.addSubview(self.pageControl)
         self.addGradient()
         
         if self.citiesArray.count > 0 {
@@ -84,14 +87,13 @@ class CitiesPageViewController: EMPageViewController {
         super.viewSafeAreaInsetsDidChange()
         
         self.configurePageControl()
-        self.addNameLabel() 
+        self.addNameLabel()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
-    
-    
+        
     // MARK: - IBActions
     
     @IBAction func listButtonPressed() {
@@ -100,16 +102,34 @@ class CitiesPageViewController: EMPageViewController {
         self.navigationController?.pushViewController(list, animated: true)
     }
     
+    @IBAction func pageControlValueChanged(_ sender: Any) {
+        guard let pageControl = sender as? UIPageControl else { return }
+        
+        if pageControl.isSelected {
+            return
+        } else {
+            self.pageControl(didUpdate: pageControl)
+        }
+    }
+    
+    @IBAction func pageControlTouchDown(_ sender: Any) {
+        guard let pageControl = sender as? UIPageControl else { return }
+        pageControl.isSelected = true
+        self.previousPage = pageControl.currentPage
+    }
+    
+    @IBAction func pageControlTouchUp(_ sender: Any) {
+        guard let pageControl = sender as? UIPageControl else { return }
+        pageControl.isSelected = false
+        self.pageControl(didUpdate: pageControl)
+    }
     
     // MARK: - Flow funcs
     
-    
-    
-    func showCityViewController(withIndex index: Int) {
+    func showCityViewController(withIndex index: Int, direction: EMPageViewControllerNavigationDirection = .forward) {
         guard let controller = self.cityViewController(withIndex: index) else { return }
         
-        self.selectViewController(controller, direction: .forward, animated: true, completion: nil)
-        
+        self.selectViewController(controller, direction: direction, animated: true, completion: nil)
         self.changeGradientColor(isDayTime: controller.city.currentWeather?.isDayTime)
     }
     
@@ -164,7 +184,6 @@ class CitiesPageViewController: EMPageViewController {
         
         self.updatePageControl(index: index)
         self.showCityViewController(withIndex: self.pageControl.currentPage)
-        
     }
     
     func updateCity(_ city: City) {
@@ -177,20 +196,35 @@ class CitiesPageViewController: EMPageViewController {
         self.view.frame.origin.y = 0
     }
     
-    func configurePageControl() {
-        self.pageControl.frame = CGRect(x: 0,
-                                        y: self.view.safeAreaInsets.top,
-                                        width: self.view.frame.width,
-                                        height: self.pageControlHeight) //=================================================================
-        self.pageControl.numberOfPages = self.citiesArray.count
-        self.pageControl.isUserInteractionEnabled = false //=====================================================================================
+    private func configurePageControl() {
+        self.updatePageControl()
+        self.pageControl.frame.origin = CGPoint(x: (self.view.frame.width - self.pageControl.frame.width) / 2,
+                                                y: self.view.safeAreaInsets.top)
         self.pageControl.hidesForSinglePage = true
+        
+        self.pageControl.addTarget(self, action: #selector(self.pageControlValueChanged(_:)), for: .valueChanged)
+        self.pageControl.addTarget(self, action: #selector(self.pageControlTouchDown(_:)), for: .touchDown)
+        self.pageControl.addTarget(self, action: #selector(self.pageControlTouchUp(_:)), for: [.touchUpInside])
     }
     
     func updatePageControl(index: Int? = nil) {
-        pageControl.numberOfPages = self.citiesArray.count
+        if self.pageControl.numberOfPages != self.citiesArray.count {
+            self.pageControl.numberOfPages = self.citiesArray.count
+            self.pageControl.frame.size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
+        }
+        
         if let index = index {
             self.pageControl.currentPage = index
+        }
+    }
+    
+    func pageControl(didUpdate pageControl: UIPageControl) {
+        guard pageControl.currentPage != self.previousPage,
+              !pageControl.isSelected else { return }
+        if pageControl.currentPage > self.previousPage {
+            showCityViewController(withIndex: pageControl.currentPage, direction: .forward)
+        } else {
+            showCityViewController(withIndex: pageControl.currentPage, direction: .reverse)
         }
     }
     

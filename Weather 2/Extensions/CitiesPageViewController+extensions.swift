@@ -45,15 +45,11 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
             visibleViewController = destinationViewController
         } else {
             visibleViewController = startingViewController
-        }
-
-        guard let index = self.citiesArray.firstIndex(of: visibleViewController.city) else { return }
-
-        self.updatePageControl(index: index)
-
+        }        
         let isDayTime = visibleViewController.city.currentWeather?.isDayTime ?? true
         self.changeGradientColor(isDayTime: isDayTime)
                 
+        
         self.nameLabel.text = startingViewController.city.name
         self.newNameLabel.text = destinationViewController.city.name
         
@@ -77,7 +73,15 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
         default:
             break
         }
-    }    
+    }
+    
+    func em_pageViewController(_ pageViewController: EMPageViewController, didFinishScrollingFrom startingViewController: UIViewController?, destinationViewController: UIViewController, transitionSuccessful: Bool) {
+        guard transitionSuccessful,
+              let controller = destinationViewController as? CityViewController,
+              let index = self.citiesArray.firstIndex(of: controller.city) else { return }
+        self.updatePageControl(index: index)
+    }
+    
 }
 
 // MARK: - Search Screen View Controller Delegate
