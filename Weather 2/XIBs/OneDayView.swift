@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SkeletonView
 
 class OneDayView: UIView {
     
@@ -50,12 +51,12 @@ class OneDayView: UIView {
     }
         
     func startSkeleton() {
-        createSkeletonFor(label: self.dayLabel)
-        createSkeletonFor(label: self.dateLabel)
-        createSkeletonFor(label: self.dayTemperatureLabel)
-        createSkeletonFor(label: self.nightTemperatureLabel)
-        createSkeletonFor(imageView: self.dayIconImageView)
-        createSkeletonFor(imageView: self.nightIconImageView)
+        self.createSkeletonFor(label: self.dayLabel)
+        self.createSkeletonFor(label: self.dateLabel)
+        self.createSkeletonFor(label: self.dayTemperatureLabel)
+        self.createSkeletonFor(label: self.nightTemperatureLabel)
+        self.createSkeletonFor(imageView: self.dayIconImageView)
+        self.createSkeletonFor(imageView: self.nightIconImageView)
     }
     
     private func stopSkeleton() {
@@ -66,11 +67,15 @@ class OneDayView: UIView {
     }
     
     private func createSkeletonFor(label: UILabel) {
+        let baseColor = UIColor(red: 0.7, green: 0.7, blue: 0.7, alpha: 0.2)
+        let secondaryColor = UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 0.3)
+        let gradient = SkeletonGradient(baseColor: baseColor, secondaryColor: secondaryColor)
+        
         label.isSkeletonable = true
         label.skeletonTextLineHeight = .relativeToFont
         label.lastLineFillPercent = 100
         label.linesCornerRadius = self.skeletonCustomCornerRadius
-        label.showAnimatedGradientSkeleton()
+        label.showAnimatedGradientSkeleton(usingGradient: gradient)
     }
     
     private func createSkeletonFor(imageView: UIImageView) {

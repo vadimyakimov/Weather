@@ -211,6 +211,7 @@ class CitiesPageViewController: EMPageViewController {
             self.pageControl.numberOfPages = self.citiesArray.count
             let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
             self.pageControl.frame.size = CGSize(width: size.width, height: self.pageControlHeight)
+            self.pageControl.frame.origin.x = (self.view.frame.width - size.width) / 2
         }
         
         if let index = index {

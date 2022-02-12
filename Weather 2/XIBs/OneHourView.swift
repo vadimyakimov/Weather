@@ -44,10 +44,11 @@ class OneHourView: UIView {
     }
     
     func startSkeleton() {
-        createSkeletonFor(label: self.timeLabel)
-        createSkeletonFor(label: self.temperatureLabel)
-        createSkeletonFor(label: self.textLabel)
-        createSkeletonFor(imageView: self.iconImageView)
+        self.createSkeletonFor(label: self.timeLabel)
+        self.createSkeletonFor(label: self.temperatureLabel)
+        self.createSkeletonFor(imageView: self.iconImageView)
+        self.textLabel.skeletonTextNumberOfLines = 1
+        self.createSkeletonFor(label: self.textLabel)
     }
     
     private func stopSkeleton() {
@@ -57,11 +58,15 @@ class OneHourView: UIView {
     }
     
     private func createSkeletonFor(label: UILabel) {
+        let baseColor = UIColor(red: 0.7, green: 0.7, blue: 0.7, alpha: 0.2)
+        let secondaryColor = UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 0.3)
+        let gradient = SkeletonGradient(baseColor: baseColor, secondaryColor: secondaryColor)
+        
         label.isSkeletonable = true
-        label.skeletonTextLineHeight = .relativeToFont
+        label.skeletonTextLineHeight = .relativeToConstraints
         label.lastLineFillPercent = 100
         label.linesCornerRadius = self.skeletonCustomCornerRadius
-        label.showAnimatedGradientSkeleton()
+        label.showAnimatedGradientSkeleton(usingGradient: gradient)
     }
     
     private func createSkeletonFor(imageView: UIImageView) {

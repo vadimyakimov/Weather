@@ -29,7 +29,7 @@ class SearchScreenViewController: UIViewController {
     
     private let baseURL = "https://dataservice.accuweather.com"
     private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "aclG15Tu7dG0kikCCAYWL2TiCgNp6I6y"
+    private let keyAccuAPI = "WaP8kp90kGrPCypoU4Tp7mmQKcnG9YUe"
     
     private let keyCityName = "LocalizedName"
     private let keyCityID = "Key"
