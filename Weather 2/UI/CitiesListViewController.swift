@@ -24,27 +24,18 @@ class CitiesListViewController: UIViewController {
                                            target: self,
                                            action: #selector(goToSearchScreen))
         self.navigationItem.rightBarButtonItem = searchButton
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
         
-        
-        self.navigationController?.isNavigationBarHidden = false
-        if #available(iOS 13.0, *) {
-            self.view.backgroundColor = .systemBackground
-        } else {
-            self.view.backgroundColor = .white
-        }
-        
+        self.addCitiesListTableView()
+        self.addNavigationControllerBackground()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
     }
     
     override func viewSafeAreaInsetsDidChange() {
-        self.addCitiesListTableView(frame: CGRect(x: 0,
-                                                  y: self.view.safeAreaInsets.top,
-                                                  width: self.view.frame.size.width,
-                                                  height: self.view.frame.size.height - self.view.safeAreaInsets.top - self.view.safeAreaInsets.bottom))
+        super.viewSafeAreaInsetsDidChange()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -58,6 +49,7 @@ class CitiesListViewController: UIViewController {
     init(citiesList: [City]) {
         self.citiesArray = citiesList
         super.init(nibName: nil, bundle: nil)
+//        self.view.bounds.origin.y = -10
     }
     
     required init?(coder: NSCoder) {
@@ -75,8 +67,8 @@ class CitiesListViewController: UIViewController {
     
     // MARK: - Flow funcs
 
-    private func addCitiesListTableView(frame: CGRect) {
-        let citiesListTableView = UITableView(frame: frame)
+    private func addCitiesListTableView() {
+        let citiesListTableView = UITableView(frame: self.view.bounds)
         citiesListTableView.rowHeight = CityTableViewCell.cellHeight
         citiesListTableView.separatorStyle = .none
         
@@ -88,5 +80,22 @@ class CitiesListViewController: UIViewController {
         self.view.addSubview(citiesListTableView)
     }
     
-
+    private func addNavigationControllerBackground() {
+        let statusBarFrame = UIApplication.shared.statusBarFrame
+        var frame = statusBarFrame
+        
+        if let navigationBarFrame = self.navigationController?.navigationBar.frame {
+            frame.size.height += navigationBarFrame.height
+        }
+        
+        frame.origin.y -= frame.height
+        
+        let view = UIView(frame: frame)
+        if #available(iOS 13.0, *) {
+            view.backgroundColor = UIColor.blue
+        } else {
+            view.backgroundColor = UIColor.white
+        }
+        self.view.addSubview(view)
+    }
 }

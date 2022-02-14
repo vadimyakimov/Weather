@@ -42,7 +42,7 @@ extension CitiesListViewController: UITableViewDelegate {
         }
         if self.citiesArray.count == 0 {
             self.goToSearchScreen()
-            self.navigationController?.isNavigationBarHidden = true
+            self.navigationController?.setNavigationBarHidden(true, animated: true)
         }
     }
     

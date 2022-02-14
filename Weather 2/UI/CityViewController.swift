@@ -107,7 +107,6 @@ class CityViewController: UIViewController {
     }
     
     @IBAction func refreshWeatherInfo() {
-        print("valuechanged")
         self.weatherInfoView.refreshWeather()
     }
     

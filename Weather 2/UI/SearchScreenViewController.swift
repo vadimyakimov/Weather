@@ -17,19 +17,15 @@ class SearchScreenViewController: UIViewController {
     weak var delegate: SearchScreenViewControllerDelegate?
     
     var searchTableView = UITableView()
-    var autocompleteSearchBar = UISearchBar()
+    let autocompleteSearchController = UISearchController()
     lazy var locationManager = CLLocationManager()
-    
-    var autocompleteTimer: Timer?    
-    
-    private let autocompleteSearchBarHeight: CGFloat = 60
-    let searchCellId = "autocompleteCell"
-    
+    lazy var autocompleteTimer = Timer()
+        
     // API keys
     
     private let baseURL = "https://dataservice.accuweather.com"
     private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "WaP8kp90kGrPCypoU4Tp7mmQKcnG9YUe"
+    private let keyAccuAPI = "pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ"
     
     private let keyCityName = "LocalizedName"
     private let keyCityID = "Key"
@@ -41,35 +37,33 @@ class SearchScreenViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        registerForKeyboardNotifications()
+        self.registerForKeyboardNotifications()
         
-        self.searchTableView.delegate = self
-        self.searchTableView.dataSource = self
-        self.autocompleteSearchBar.delegate = self
-                
-        if #available(iOS 13.0, *) {
-            self.view.backgroundColor = .systemBackground
-        } else {
-            self.view.backgroundColor = .white
-        }
+        
+        self.addSearchController()
+        self.addSearchTableView()
+        self.addNavigationControllerBackground()
+        self.addStatusBarBackground()
+        
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
         
-        self.addSearchBar()
-        self.addSearchTableView()
+//        self.addSearchTableView()
         
+//        updateSearchTableViewFrame() //==========
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        self.autocompleteSearchBar.becomeFirstResponder()
+//        self.autocompleteSearchBar.becomeFirstResponder()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        self.autocompleteSearchBar.resignFirstResponder()
+        
+        self.autocompleteSearchController.searchBar.resignFirstResponder()
     }
     
     // MARK: - Initializers
@@ -84,18 +78,69 @@ class SearchScreenViewController: UIViewController {
         if let userInfo = notification.userInfo,
            let keyboardRectangle = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
            let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
+            
+            var isKeyboardShown: Bool
+            
             switch notification.name {
             case UIResponder.keyboardWillShowNotification:
-                updateSearchTableViewFrame(keyboardShown: true,
-                                           keyboardHeight: keyboardRectangle.height,
-                                           withDuration: animationDuration)
+                isKeyboardShown = true
             default:
-                updateSearchTableViewFrame(keyboardShown: false)
+                isKeyboardShown = false
             }
+            
+            updateSearchTableViewFrame(keyboardShown: isKeyboardShown,
+                                       keyboardHeight: keyboardRectangle.height,
+                                       withDuration: animationDuration)
         }
     }
     
     // MARK: - Flow funcs
+    
+        
+    private func addSearchController() {
+        self.autocompleteSearchController.searchResultsUpdater = self
+        self.searchTableView.tableHeaderView = self.autocompleteSearchController.searchBar
+        self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
+        self.autocompleteSearchController.searchBar.becomeFirstResponder()
+        
+        if #available(iOS 13.0, *) {
+            self.searchTableView.tableHeaderView?.backgroundColor = .yellow
+        } else {
+            self.searchTableView.tableHeaderView?.backgroundColor = .white
+        }
+        
+        self.autocompleteSearchController.definesPresentationContext = true
+        self.definesPresentationContext = true
+    }
+    
+    private func addSearchTableView() {
+        
+        self.searchTableView.delegate = self
+        self.searchTableView.dataSource = self
+        
+        self.searchTableView.frame = self.view.bounds //=======
+        
+        
+        self.searchTableView.rowHeight = CityTableViewCell.cellHeight
+        self.searchTableView.separatorStyle = .none
+        searchTableView.scrollIndicatorInsets.top = self.autocompleteSearchController.searchBar.frame.height
+        self.view.addSubview(self.searchTableView)
+    }
+    
+    private func updateSearchTableViewFrame(keyboardShown: Bool,
+                                            keyboardHeight: CGFloat,
+                                            withDuration duration: TimeInterval) {
+        var height = self.view.frame.height
+        
+        if keyboardShown == true {
+            height -= keyboardHeight
+        }
+
+        UIView.animate(withDuration: duration) {
+            self.searchTableView.frame.size.height = height
+        }
+        self.view.layoutIfNeeded()
+    }
     
     func requestLocation() {
         self.locationManager.delegate = self
@@ -140,47 +185,43 @@ class SearchScreenViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(handle(keyboardNotification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
-    private func addSearchBar() {
-        self.autocompleteSearchBar.frame = CGRect(x: 0,
-                                                  y: self.view.safeAreaInsets.top,
-                                                  width: self.view.frame.size.width,
-                                                  height: self.autocompleteSearchBarHeight)
-        self.view.addSubview(self.autocompleteSearchBar)
-    }
-    
-    private func addSearchTableView() {
-        self.updateSearchTableViewFrame(keyboardShown: nil)
-        self.searchTableView.rowHeight = CityTableViewCell.cellHeight
-        self.searchTableView.separatorStyle = .none
-        self.view.addSubview(self.searchTableView)
-    }
-    
-    private func updateSearchTableViewFrame(keyboardShown: Bool?,
-                                         keyboardHeight: CGFloat = 0,
-                                         withDuration duration: TimeInterval = 0) {
-        var height: CGFloat = self.view.frame.size.height - self.autocompleteSearchBarHeight - self.view.safeAreaInsets.top
-        if let keyboardShown = keyboardShown, keyboardShown {
-            height -= keyboardHeight
-        } else if let keyboardShown = keyboardShown, !keyboardShown || self.searchTableView.frame == CGRect() {
-            height -= self.view.safeAreaInsets.bottom
+    private func addNavigationControllerBackground() {
+        let statusBarFrame = UIApplication.shared.statusBarFrame
+        var frame = statusBarFrame
+        
+        if let navigationController = self.navigationController {
+            let navigationBarFrame = navigationController.navigationBar.frame
+            frame.size.height += navigationBarFrame.height
+            frame.origin.y -= navigationBarFrame.height
+            if navigationController.isNavigationBarHidden == false {
+                frame.origin.y -= statusBarFrame.height
+            }
+        }
+        
+        let view = UIView(frame: frame)
+        if #available(iOS 13.0, *) {
+            view.backgroundColor = UIColor.blue
         } else {
-            return
+            view.backgroundColor = UIColor.white
         }
-        UIView.animate(withDuration: duration) {
-            self.searchTableView.frame = CGRect(x: 0,
-                                                y: self.view.safeAreaInsets.top + self.autocompleteSearchBarHeight,
-                                                width: self.view.frame.size.width,
-                                                height: height)
-        }
-        self.view.layoutIfNeeded()
+        self.view.addSubview(view)
+    }
+    
+    private func addStatusBarBackground() {
+//        let frame = UIApplication.shared.statusBarFrame
+//        let view = UIView(frame: frame)
+//        if #available(iOS 13.0, *) {
+//            view.backgroundColor = .blue
+//        } else {
+//            view.backgroundColor = .white
+//        }
+//        self.navigationController?.view.addSubview(view)
     }
     
     // MARK: - Server connection functions
     
     func autocomplete(for text: String, complete: @escaping () -> ()) {
-        guard !text.isEmpty,
-              let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-        else { return }
+        guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
             
         let urlString = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
         guard let url = URL(string: urlString) else { return }
@@ -204,8 +245,6 @@ class SearchScreenViewController: UIViewController {
             
             let newCity = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String : Any]
             guard let parsedCity = self.parseGeopositionCity(from: newCity) else { return }
-            
-//            Manager.shared.locatedCity = parsedCity
             
             DispatchQueue.main.async {
                 complete(parsedCity)

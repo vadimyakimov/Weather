@@ -55,10 +55,9 @@ class CitiesPageViewController: EMPageViewController {
         self.delegate = self
         self.scrollView.contentInsetAdjustmentBehavior = .never
         
-        self.defaultNavigationBarBackground()
-        
-        
         self.addGradient()
+        
+        self.view.addSubview(self.pageControl)
         
         if self.citiesArray.count > 0 {
             self.showCityViewController(withIndex: 0)
@@ -72,25 +71,17 @@ class CitiesPageViewController: EMPageViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
-        self.navigationController?.isNavigationBarHidden = true
-        
         self.updatePageControl()
-    }
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+        
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
         
         self.configurePageControl()
-        self.view.addSubview(self.pageControl)
         self.addNameLabel()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+        
     }
         
     // MARK: - IBActions
@@ -261,15 +252,22 @@ class CitiesPageViewController: EMPageViewController {
         nameLabel.isUserInteractionEnabled = true
     }
     
-    private func defaultNavigationBarBackground() {
-//                self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-//                self.navigationController?.navigationBar.shadowImage = UIImage()
-//                self.navigationController?.navigationBar.isTranslucent = false
-        
-        if #available(iOS 13.0, *) {
-            self.navigationController?.view.backgroundColor = .systemBackground
-        }
-    }
+//    private func defaultNavigationBarBackground() {
+////                self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
+////                self.navigationController?.navigationBar.shadowImage = UIImage()
+////                self.navigationController?.navigationBar.isTranslucent = false
+//        
+//        let statusBarView = UIView(frame: UIApplication.shared.statusBarFrame)
+//        let statusBarColor = UIColor(red: 32/255, green: 149/255, blue: 215/255, alpha: 1.0)
+//        statusBarView.backgroundColor = statusBarColor
+//        view.addSubview(statusBarView)
+//        
+//        if #available(iOS 13.0, *) {
+//            self.navigationController?.view.backgroundColor = .systemBackground
+//        } else {
+//            self.navigationController?.view.backgroundColor = .white
+//        }
+//    }
     
     private func addGradient() {
         self.gradient.opacity = 1

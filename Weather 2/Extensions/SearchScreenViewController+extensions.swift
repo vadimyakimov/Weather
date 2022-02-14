@@ -25,7 +25,6 @@ extension SearchScreenViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        guard let cell = tableView.dequeueReusableCell(withIdentifier: self.searchCellId) as? CityTableViewCell else { return UITableViewCell() }
         let cell = CityTableViewCell.instanceFronNib()
         let width = self.view.frame.width
         if indexPath.section == 0 {
@@ -36,6 +35,8 @@ extension SearchScreenViewController: UITableViewDataSource {
         return cell
     }
 }
+
+//MARK: - Table View Updating
 
 extension SearchScreenViewController: UITableViewDelegate {
     
@@ -50,23 +51,35 @@ extension SearchScreenViewController: UITableViewDelegate {
     
 }
 
-// MARK: - Search Bar Delegate
+//MARK: - Search Results Updating
 
-extension SearchScreenViewController: UISearchBarDelegate {
+extension SearchScreenViewController: UISearchResultsUpdating {
     
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.autocompleteTimer?.invalidate()
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let searchText = searchController.searchBar.text, !searchText.isEmpty else { return }
+        
+        self.autocompleteTimer.invalidate()
         self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false, block: { _ in
             self.autocomplete(for: searchText) {
                 DispatchQueue.main.async {
-                    self.autocompleteTimer?.invalidate()
+                    self.autocompleteTimer.invalidate()
                     self.searchTableView.reloadData()
                 }
-            }            
-        })      
+            }
+        })
     }
-
 }
+
+extension SearchScreenViewController: UISearchBarDelegate {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        self.navigationController?.hidesBarsOnSwipe = false
+    }
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        self.navigationController?.hidesBarsOnSwipe = true
+    }
+}
+
+//MARK: - Location Manager Updating
 
 extension SearchScreenViewController: CLLocationManagerDelegate {
     

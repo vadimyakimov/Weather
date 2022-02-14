@@ -25,7 +25,7 @@ class WeatherInfoView: UIView {
     
     private let baseURL = "https://dataservice.accuweather.com"
     private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "aclG15Tu7dG0kikCCAYWL2TiCgNp6I6y"
+    private let keyAccuAPI = "aclG15Tu7dG0kikCCAYWL2TiCgNp6I6y0"
     //pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ
     //YyRHncuTlsidjyS4YVziEZPChV4sPDVA
     //dcXaSaOT2bTNKzDiMD37dnGlZXGEeTxG
@@ -114,7 +114,6 @@ class WeatherInfoView: UIView {
         
         tasks.notify(queue: .main) {
             self.delegate?.weatherInfoView(didUpdateWeatherInfoFor: self.city)
-            print("done")
         }
         
         
