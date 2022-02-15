@@ -24,10 +24,9 @@ class CitiesListViewController: UIViewController {
                                            target: self,
                                            action: #selector(goToSearchScreen))
         self.navigationItem.rightBarButtonItem = searchButton
-        self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.navigationController?.isNavigationBarHidden = false
         
         self.addCitiesListTableView()
-        self.addNavigationControllerBackground()
     }
     
     override func viewDidLayoutSubviews() {
@@ -60,7 +59,8 @@ class CitiesListViewController: UIViewController {
     // MARK: - IBActions
         
     @IBAction func goToSearchScreen() {
-        let searchScreen = SearchScreenViewController()
+        let hidesBackButton = self.citiesArray.isEmpty ? true : false
+        let searchScreen = SearchScreenViewController(hidesBackButton: hidesBackButton)
         searchScreen.delegate = self
         self.navigationController?.pushViewController(searchScreen, animated: true)
     }
@@ -78,24 +78,5 @@ class CitiesListViewController: UIViewController {
         citiesListTableView.dropDelegate = self
         
         self.view.addSubview(citiesListTableView)
-    }
-    
-    private func addNavigationControllerBackground() {
-        let statusBarFrame = UIApplication.shared.statusBarFrame
-        var frame = statusBarFrame
-        
-        if let navigationBarFrame = self.navigationController?.navigationBar.frame {
-            frame.size.height += navigationBarFrame.height
-        }
-        
-        frame.origin.y -= frame.height
-        
-        let view = UIView(frame: frame)
-        if #available(iOS 13.0, *) {
-            view.backgroundColor = UIColor.blue
-        } else {
-            view.backgroundColor = UIColor.white
-        }
-        self.view.addSubview(view)
     }
 }

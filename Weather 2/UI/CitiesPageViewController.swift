@@ -43,7 +43,7 @@ class CitiesPageViewController: EMPageViewController {
     
     private let pageControl = UIPageControl()
     private let pageControlHeight: CGFloat = 20
-    private var previousPageControlIndex = -1
+    private var previousPageControlIndex: Int?
     
         
     // MARK: - Lifecycle
@@ -56,13 +56,13 @@ class CitiesPageViewController: EMPageViewController {
         self.scrollView.contentInsetAdjustmentBehavior = .never
         
         self.addGradient()
-        
+        self.setNavigationBarBackground()
         self.view.addSubview(self.pageControl)
         
         if self.citiesArray.count > 0 {
             self.showCityViewController(withIndex: 0)
         } else {
-            let searchScreen = SearchScreenViewController()
+            let searchScreen = SearchScreenViewController(hidesBackButton: true)
             searchScreen.delegate = self
             self.navigationController?.pushViewController(searchScreen, animated: false)
         }
@@ -73,7 +73,7 @@ class CitiesPageViewController: EMPageViewController {
         
         self.updatePageControl()
         
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
+        self.navigationController?.isNavigationBarHidden = true
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -211,9 +211,11 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     func pageControl(didUpdate pageControl: UIPageControl) {
-        guard pageControl.currentPage != self.previousPageControlIndex,
-              !pageControl.isSelected else { return }
-        if pageControl.currentPage > self.previousPageControlIndex {
+        guard let previousPageControlIndex = self.previousPageControlIndex,
+                pageControl.currentPage != previousPageControlIndex,
+                !pageControl.isSelected else { return }
+        
+        if pageControl.currentPage > previousPageControlIndex {
             showCityViewController(withIndex: pageControl.currentPage, direction: .forward)
         } else {
             showCityViewController(withIndex: pageControl.currentPage, direction: .reverse)
@@ -252,22 +254,22 @@ class CitiesPageViewController: EMPageViewController {
         nameLabel.isUserInteractionEnabled = true
     }
     
-//    private func defaultNavigationBarBackground() {
-////                self.navigationController?.navigationBar.setBackgroundImage(nil, for: .default)
-////                self.navigationController?.navigationBar.shadowImage = UIImage()
-////                self.navigationController?.navigationBar.isTranslucent = false
-//        
-//        let statusBarView = UIView(frame: UIApplication.shared.statusBarFrame)
-//        let statusBarColor = UIColor(red: 32/255, green: 149/255, blue: 215/255, alpha: 1.0)
-//        statusBarView.backgroundColor = statusBarColor
-//        view.addSubview(statusBarView)
-//        
-//        if #available(iOS 13.0, *) {
-//            self.navigationController?.view.backgroundColor = .systemBackground
-//        } else {
-//            self.navigationController?.view.backgroundColor = .white
-//        }
-//    }
+    private func setNavigationBarBackground() {
+        
+        if #available(iOS 13.0, *) {
+            let appearence = UINavigationBarAppearance()
+            appearence.backgroundColor = .systemBackground
+            self.navigationController?.navigationBar.standardAppearance = appearence
+            self.navigationController?.navigationBar.scrollEdgeAppearance = appearence
+            self.navigationController?.view.backgroundColor = .systemBackground
+        } else {
+            self.navigationController?.navigationBar.backgroundColor = .white
+            self.navigationController?.view.backgroundColor = .white
+            self.navigationController?.view.backgroundColor = .white
+        }
+        
+        
+    }
     
     private func addGradient() {
         self.gradient.opacity = 1

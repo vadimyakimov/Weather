@@ -70,14 +70,14 @@ extension SearchScreenViewController: UISearchResultsUpdating {
     }
 }
 
-extension SearchScreenViewController: UISearchBarDelegate {
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        self.navigationController?.hidesBarsOnSwipe = false
-    }
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        self.navigationController?.hidesBarsOnSwipe = true
-    }
+//MARK: - Search Controller Delegate
+
+extension SearchScreenViewController: UISearchControllerDelegate {
+    func presentSearchController(_ searchController: UISearchController) {
+        searchController.searchBar.becomeFirstResponder()
+    }    
 }
+
 
 //MARK: - Location Manager Updating
 

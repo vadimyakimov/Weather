@@ -20,6 +20,8 @@ class SearchScreenViewController: UIViewController {
     let autocompleteSearchController = UISearchController()
     lazy var locationManager = CLLocationManager()
     lazy var autocompleteTimer = Timer()
+    
+    let hidesBackButton: Bool
         
     // API keys
     
@@ -39,34 +41,32 @@ class SearchScreenViewController: UIViewController {
         
         self.registerForKeyboardNotifications()
         
-        
         self.addSearchController()
         self.addSearchTableView()
-        self.addNavigationControllerBackground()
-        self.addStatusBarBackground()
-        
+        self.navigationController?.isNavigationBarHidden = false
     }
     
-    override func viewSafeAreaInsetsDidChange() {
-        super.viewSafeAreaInsetsDidChange()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
-//        self.addSearchTableView()
-        
-//        updateSearchTableViewFrame() //==========
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-//        self.autocompleteSearchBar.becomeFirstResponder()
+        self.autocompleteSearchController.isActive = true
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        
-        self.autocompleteSearchController.searchBar.resignFirstResponder()
+        self.navigationItem.searchController = nil
     }
     
     // MARK: - Initializers
+    
+    init(hidesBackButton: Bool = false) {
+        self.hidesBackButton = hidesBackButton
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     deinit {
         Manager.shared.citiesAutocompleteArray = []
@@ -99,18 +99,16 @@ class SearchScreenViewController: UIViewController {
         
     private func addSearchController() {
         self.autocompleteSearchController.searchResultsUpdater = self
-        self.searchTableView.tableHeaderView = self.autocompleteSearchController.searchBar
-        self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
-        self.autocompleteSearchController.searchBar.becomeFirstResponder()
+        self.autocompleteSearchController.delegate = self
         
-        if #available(iOS 13.0, *) {
-            self.searchTableView.tableHeaderView?.backgroundColor = .yellow
+        if self.hidesBackButton {
+            self.navigationItem.titleView = self.autocompleteSearchController.searchBar
+            self.navigationItem.hidesBackButton = true
+            self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
         } else {
-            self.searchTableView.tableHeaderView?.backgroundColor = .white
+            self.navigationItem.searchController = self.autocompleteSearchController
         }
-        
-        self.autocompleteSearchController.definesPresentationContext = true
-        self.definesPresentationContext = true
+        self.navigationItem.hidesSearchBarWhenScrolling = false
     }
     
     private func addSearchTableView() {
@@ -118,12 +116,9 @@ class SearchScreenViewController: UIViewController {
         self.searchTableView.delegate = self
         self.searchTableView.dataSource = self
         
-        self.searchTableView.frame = self.view.bounds //=======
-        
-        
+        self.searchTableView.frame = self.view.bounds
         self.searchTableView.rowHeight = CityTableViewCell.cellHeight
         self.searchTableView.separatorStyle = .none
-        searchTableView.scrollIndicatorInsets.top = self.autocompleteSearchController.searchBar.frame.height
         self.view.addSubview(self.searchTableView)
     }
     
@@ -131,11 +126,10 @@ class SearchScreenViewController: UIViewController {
                                             keyboardHeight: CGFloat,
                                             withDuration duration: TimeInterval) {
         var height = self.view.frame.height
-        
         if keyboardShown == true {
             height -= keyboardHeight
+            height += self.autocompleteSearchController.searchBar.frame.origin.y
         }
-
         UIView.animate(withDuration: duration) {
             self.searchTableView.frame.size.height = height
         }
@@ -183,39 +177,6 @@ class SearchScreenViewController: UIViewController {
     private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(handle(keyboardNotification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handle(keyboardNotification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-    
-    private func addNavigationControllerBackground() {
-        let statusBarFrame = UIApplication.shared.statusBarFrame
-        var frame = statusBarFrame
-        
-        if let navigationController = self.navigationController {
-            let navigationBarFrame = navigationController.navigationBar.frame
-            frame.size.height += navigationBarFrame.height
-            frame.origin.y -= navigationBarFrame.height
-            if navigationController.isNavigationBarHidden == false {
-                frame.origin.y -= statusBarFrame.height
-            }
-        }
-        
-        let view = UIView(frame: frame)
-        if #available(iOS 13.0, *) {
-            view.backgroundColor = UIColor.blue
-        } else {
-            view.backgroundColor = UIColor.white
-        }
-        self.view.addSubview(view)
-    }
-    
-    private func addStatusBarBackground() {
-//        let frame = UIApplication.shared.statusBarFrame
-//        let view = UIView(frame: frame)
-//        if #available(iOS 13.0, *) {
-//            view.backgroundColor = .blue
-//        } else {
-//            view.backgroundColor = .white
-//        }
-//        self.navigationController?.view.addSubview(view)
     }
     
     // MARK: - Server connection functions

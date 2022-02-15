@@ -10,8 +10,9 @@
         <!--Navigation Controller-->
         <scene sceneID="0Wl-XW-YuK">
             <objects>
-                <navigationController navigationBarHidden="YES" id="W74-P7-tD4" sceneMemberID="viewController">
+                <navigationController id="W74-P7-tD4" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" translucent="NO" id="sWh-uF-9U6">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Led-n1-P7b">
