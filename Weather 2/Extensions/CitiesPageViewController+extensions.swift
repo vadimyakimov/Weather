@@ -95,18 +95,14 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
 // MARK: - Search Screen View Controller Delegate
 // MARK: - Cities List View Controller Delegate
 
-extension CitiesPageViewController: SearchScreenViewControllerDelegate, CitiesListViewControllerDelegate {
+extension CitiesPageViewController: SearchScreenViewControllerDelegate, CitiesListViewControllerDelegate {    
     
-    func searchScreenViewController(didSelectRowAt indexPath: IndexPath) {
+    func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City) {
         
-        let id = Manager.shared.citiesAutocompleteArray[indexPath.row].id
-        let name = Manager.shared.citiesAutocompleteArray[indexPath.row].name
-        let city = City(id: id, name: name)
-
-        if let index = self.citiesArray.firstIndex(of: city) {
+        if let index = self.citiesArray.firstIndex(of: autocompletedCity) {
             self.backToPageViewController(withIndex: index)
         } else {
-            self.citiesArray.append(city)
+            self.citiesArray.append(autocompletedCity)
             self.backToPageViewController(withIndex: self.citiesArray.count - 1)
         }
     }

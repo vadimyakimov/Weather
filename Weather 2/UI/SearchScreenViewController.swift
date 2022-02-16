@@ -16,6 +16,8 @@ class SearchScreenViewController: UIViewController {
     
     weak var delegate: SearchScreenViewControllerDelegate?
     
+    var citiesAutocompleteArray: [City]?
+    
     var searchTableView = UITableView()
     let autocompleteSearchController = UISearchController()
     lazy var locationManager = CLLocationManager()
@@ -27,7 +29,7 @@ class SearchScreenViewController: UIViewController {
     
     private let baseURL = "https://dataservice.accuweather.com"
     private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "pUPRp5bjAvEajZjEA6kc6yPSlbYMhXRZ"
+    private let keyAccuAPI = "YyRHncuTlsidjyS4YVziEZPChV4sPDVA"
     
     private let keyCityName = "LocalizedName"
     private let keyCityID = "Key"
@@ -54,7 +56,6 @@ class SearchScreenViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
-        self.navigationItem.searchController = nil
     }
     
     // MARK: - Initializers
@@ -66,11 +67,7 @@ class SearchScreenViewController: UIViewController {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    deinit {
-        Manager.shared.citiesAutocompleteArray = []
-    }
+    }    
     
     // MARK: - IBAction
     
@@ -97,7 +94,7 @@ class SearchScreenViewController: UIViewController {
     // MARK: - Flow funcs
     
         
-    private func addSearchController() {
+    private func addSearchController() {        
         self.autocompleteSearchController.searchResultsUpdater = self
         self.autocompleteSearchController.delegate = self
         
@@ -126,10 +123,15 @@ class SearchScreenViewController: UIViewController {
                                             keyboardHeight: CGFloat,
                                             withDuration duration: TimeInterval) {
         var height = self.view.frame.height
+        
         if keyboardShown == true {
             height -= keyboardHeight
-            height += self.autocompleteSearchController.searchBar.frame.origin.y
+            if let navigationBarHeight = self.navigationController?.navigationBar.frame.height {
+                height += navigationBarHeight
+                height -= self.autocompleteSearchController.searchBar.frame.height
+            }
         }
+        
         UIView.animate(withDuration: duration) {
             self.searchTableView.frame.size.height = height
         }
@@ -190,7 +192,7 @@ class SearchScreenViewController: UIViewController {
             guard let data = data, error == nil else { return }
             let cityDataArray = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [[String : Any]]
             guard let parsedCityArray = self.parseCityAutocompleteArray(from: cityDataArray) else { return }
-            Manager.shared.citiesAutocompleteArray = parsedCityArray
+            self.citiesAutocompleteArray = parsedCityArray
             DispatchQueue.main.async {
                 complete()
             }
@@ -213,13 +215,13 @@ class SearchScreenViewController: UIViewController {
         }.resume()
     }
     
-    private func parseCityAutocompleteArray(from dataArray: [[String : Any]]?) -> [CityAutocomplete]? {
+    private func parseCityAutocompleteArray(from dataArray: [[String : Any]]?) -> [City]? {
         guard let dataArray = dataArray else { return nil }
-        var cityArray: [CityAutocomplete] = []
+        var cityArray: [City] = []
         for dataDictionary in dataArray {
             if let id = dataDictionary[self.keyCityID] as? String,
                let name = dataDictionary[self.keyCityName] as? String {
-                cityArray.append(CityAutocomplete(id: id, name: name))
+                cityArray.append(City(id: id, name: name))
             }
         }
         return cityArray

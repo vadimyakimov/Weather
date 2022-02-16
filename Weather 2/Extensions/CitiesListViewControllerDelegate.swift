@@ -12,6 +12,6 @@ protocol CitiesListViewControllerDelegate: AnyObject {
     func citiesListViewController(didUpdateCities citiesArray: [City])
     func citiesListViewControllerWillDisappear()
     
-    func searchScreenViewController(didSelectRowAt indexPath: IndexPath)
+    func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City)
     func searchScreenViewController(didLoadLocaleCity city: City)
 }

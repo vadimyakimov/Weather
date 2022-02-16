@@ -15,7 +15,7 @@ class Manager {
     
     static let shared = Manager()
     
-    var citiesAutocompleteArray: [CityAutocomplete] = []
+    
 //    var locatedCity: City?
     
     // MARK: - Initializers

@@ -69,11 +69,14 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
+        super.viewWillAppear(animated)
         
         self.updatePageControl()
-        
         self.navigationController?.isNavigationBarHidden = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -153,8 +156,8 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     func backToPageViewController(withIndex index: Int) {
-        self.updatePageControl(index: index)
         self.navigationController?.popToRootViewController(animated: true)
+        self.updatePageControl(index: index)
         self.showCityViewController(withIndex: index)
     }
     

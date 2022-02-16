@@ -20,7 +20,8 @@ extension SearchScreenViewController: UITableViewDataSource {
         if section == 0 {
             return 1
         } else {
-            return Manager.shared.citiesAutocompleteArray.count
+            guard let count = self.citiesAutocompleteArray?.count else { return 0 }
+            return count
         }
     }
     
@@ -30,7 +31,8 @@ extension SearchScreenViewController: UITableViewDataSource {
         if indexPath.section == 0 {
             cell.configure(width: width, text: "My location".localized(), isLocation: true)
         } else {
-            cell.configure(width: width, text: Manager.shared.citiesAutocompleteArray[indexPath.row].name)
+            guard let citiesAutocompleteArray = self.citiesAutocompleteArray else { return UITableViewCell() }
+            cell.configure(width: width, text: citiesAutocompleteArray[indexPath.row].name)
         }
         return cell
     }
@@ -41,14 +43,19 @@ extension SearchScreenViewController: UITableViewDataSource {
 extension SearchScreenViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        self.autocompleteSearchController.searchBar.resignFirstResponder()
+        self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
+        
         if indexPath.section == 0 {
             self.startLoadingAnimation()
             self.requestLocation()
         } else {
-            self.delegate?.searchScreenViewController(didSelectRowAt: indexPath) 
+            guard let citiesAutocompleteArray = self.citiesAutocompleteArray else { return }
+            let city = citiesAutocompleteArray[indexPath.row]
+            self.delegate?.searchScreenViewController(didSelectRowAt: indexPath, autocompletedCity: city)
         }
     }
-    
 }
 
 //MARK: - Search Results Updating
@@ -75,7 +82,7 @@ extension SearchScreenViewController: UISearchResultsUpdating {
 extension SearchScreenViewController: UISearchControllerDelegate {
     func presentSearchController(_ searchController: UISearchController) {
         searchController.searchBar.becomeFirstResponder()
-    }    
+    }
 }
 
 

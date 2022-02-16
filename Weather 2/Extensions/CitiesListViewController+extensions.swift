@@ -105,8 +105,8 @@ extension CitiesListViewController: UITableViewDropDelegate {
 
 extension CitiesListViewController: SearchScreenViewControllerDelegate {
     
-    func searchScreenViewController(didSelectRowAt indexPath: IndexPath) {
-        delegate?.searchScreenViewController(didSelectRowAt: indexPath)
+    func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City) {
+        delegate?.searchScreenViewController(didSelectRowAt: indexPath, autocompletedCity: autocompletedCity)
     }
     
     func searchScreenViewController(didLoadLocaleCity city: City) {
