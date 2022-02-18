@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="W74-P7-tD4">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="SN6-ph-fQ4">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -19,12 +21,66 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>
-                        <segue destination="Sgs-fd-hSR" kind="relationship" relationship="rootViewController" id="z6G-Wt-WqX"/>
+                        <segue destination="Sgs-fd-hSR" kind="relationship" relationship="rootViewController" id="0qs-Yk-WQx"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Uu-9g-7lJ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-1072" y="929"/>
+        </scene>
+        <!--Demo View Controller-->
+        <scene sceneID="NsA-hF-vmm">
+            <objects>
+                <viewController id="SN6-ph-fQ4" customClass="DemoViewController" customModule="Weather_2" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Elc-KG-e1b">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="37P-Ox-aRl">
+                                <rect key="frame" x="0.0" y="44" width="414" height="652"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="OP2-Gq-hZG">
+                                        <rect key="frame" x="0.0" y="44.5" width="414" height="43.5"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="OP2-Gq-hZG" id="t0N-2Q-qTc">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="SN6-ph-fQ4" id="X0n-5N-52n"/>
+                                </connections>
+                            </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jul-VV-xVI">
+                                <rect key="frame" x="180" y="781" width="54" height="31"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="ADD"/>
+                                <connections>
+                                    <action selector="addButtonPressed:" destination="SN6-ph-fQ4" eventType="touchUpInside" id="9vW-P9-5wW"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="MbM-aU-gPM"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="MbM-aU-gPM" firstAttribute="trailing" secondItem="37P-Ox-aRl" secondAttribute="trailing" id="HdY-xb-nPF"/>
+                            <constraint firstItem="37P-Ox-aRl" firstAttribute="top" secondItem="MbM-aU-gPM" secondAttribute="top" id="Svh-jH-s4P"/>
+                            <constraint firstItem="Jul-VV-xVI" firstAttribute="centerX" secondItem="Elc-KG-e1b" secondAttribute="centerX" id="T1J-f3-pFk"/>
+                            <constraint firstItem="37P-Ox-aRl" firstAttribute="leading" secondItem="MbM-aU-gPM" secondAttribute="leading" id="dPS-QF-se3"/>
+                            <constraint firstAttribute="bottom" secondItem="37P-Ox-aRl" secondAttribute="bottom" constant="200" id="uzo-xW-cSd"/>
+                            <constraint firstItem="MbM-aU-gPM" firstAttribute="bottom" secondItem="Jul-VV-xVI" secondAttribute="bottom" constant="50" id="wgf-bG-8dN"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="LAt-pz-dG9"/>
+                    <connections>
+                        <outlet property="myTableView" destination="37P-Ox-aRl" id="zfU-Fg-eTa"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dlb-Aj-njL" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1072" y="1613"/>
         </scene>
         <!--Cities Page View Controller-->
         <scene sceneID="w5w-X4-g0i">
@@ -37,4 +93,9 @@
             <point key="canvasLocation" x="-281" y="929"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

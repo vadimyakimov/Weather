@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class CityViewController: UIViewController {
     
@@ -30,26 +31,6 @@ class CityViewController: UIViewController {
     
     
     // MARK: - Lifecycle
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-    }
-        
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
     
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()

@@ -84,7 +84,7 @@ class WeatherInfoView: UIView {
         
         tasks.enter()
         self.currentWeatherView.startSkeleton(isDayTime: city.currentWeather?.isDayTime)
-        self.getCurrentWeather(for: self.city.id) { currentWeather in
+        self.getCurrentWeather(for: self.city.key) { currentWeather in
             if let currentWeather = currentWeather {
                 self.updateData(currentWeather)
             }
@@ -94,7 +94,7 @@ class WeatherInfoView: UIView {
         
         tasks.enter()
         let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
-        self.getHourlyForecast(for: self.city.id) { dailyForecast in
+        self.getHourlyForecast(for: self.city.key) { dailyForecast in
             if let dailyForecast = dailyForecast {
                 self.updateData(data: dailyForecast)
             }
@@ -104,7 +104,7 @@ class WeatherInfoView: UIView {
         
         tasks.enter()
         let _ = self.dailyForecastViews.map({ $0.startSkeleton() })
-        self.getDailyForecast(for: self.city.id) { hourlyForecast in
+        self.getDailyForecast(for: self.city.key) { hourlyForecast in
             if let hourlyForecast = hourlyForecast {
                 self.updateData(data: hourlyForecast)
             }
@@ -135,7 +135,7 @@ class WeatherInfoView: UIView {
         if self.city.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
             self.updateView(self.currentWeatherView)
         } else {
-            self.getCurrentWeather(for: self.city.id) { currentWeather in
+            self.getCurrentWeather(for: self.city.key) { currentWeather in
                 if let currentWeather = currentWeather {
                     self.updateData(currentWeather)
                 }
@@ -182,7 +182,7 @@ class WeatherInfoView: UIView {
         if self.city.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
             self.updateView(self.hourlyForecastViews)
         } else {
-            self.getHourlyForecast(for: self.city.id) { hourlyForecast in
+            self.getHourlyForecast(for: self.city.key) { hourlyForecast in
                 if let hourlyForecast = hourlyForecast {
                     self.updateData(data: hourlyForecast)
                 }
@@ -223,7 +223,7 @@ class WeatherInfoView: UIView {
         if self.city.lastUpdated.dailyForecast.timeIntervalSinceNow > -600 {
             self.updateView(self.dailyForecastViews)
         } else {
-            self.getDailyForecast(for: self.city.id) { dailyForecast in
+            self.getDailyForecast(for: self.city.key) { dailyForecast in
                 if let dailyForecast = dailyForecast {
                     self.updateData(data: dailyForecast)
                 }
@@ -243,7 +243,7 @@ class WeatherInfoView: UIView {
     
     private func updateData(data: [HourlyForecast]) {
         
-        self.city.hourlyForecast = data
+        self.city.hourlyForecast = NSOrderedSet(array: data)
         self.city.lastUpdated.hourlyForecast = Date()
         self.delegate?.weatherInfoView(didUpdateHourlyForecastFor: self.city)
         
@@ -251,7 +251,7 @@ class WeatherInfoView: UIView {
     
     private func updateData(data: [DailyForecast]) {
         
-        self.city.dailyForecast = data
+        self.city.dailyForecast = NSOrderedSet(array: data)
         self.city.lastUpdated.dailyForecast = Date()
         self.delegate?.weatherInfoView(didUpdateDailyForecastFor: self.city)
     }

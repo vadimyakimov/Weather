@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import EMPageViewController
+import CoreData
 
 // MARK: - EM Page View Controller Data Source
 
@@ -89,8 +90,14 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
               let index = self.citiesArray.firstIndex(of: controller.city) else { return }
         self.updatePageControl(index: index)
     }
-    
 }
+
+// MARK: - NSFetchedResultsControllerDelegate
+
+extension CitiesPageViewController: NSFetchedResultsControllerDelegate {
+
+}
+
 
 // MARK: - Search Screen View Controller Delegate
 // MARK: - Cities List View Controller Delegate

@@ -7,28 +7,35 @@
 
 import UIKit
 import EMPageViewController
+import CoreData
 
 class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Properties
+        
+    let coreDataStack = CoreDataStack()
     
-    var citiesArray: [City] {
-        get {
-            if let data = UserDefaults.standard.data(forKey: self.citiesArrayKeyUserDefaults),
-               let decoded = try? JSONDecoder().decode([City].self, from: data) {
-                return decoded
-            }
-
-            return []
+    lazy var fetchedResultsController: NSFetchedResultsController<City> = {
+        let fetchRequest = City.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(City.id), ascending: true)]
+        let controller = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                                    managedObjectContext: coreDataStack.persistentContainer.viewContext,
+                                                    sectionNameKeyPath: nil,
+                                                    cacheName: nil)
+        controller.delegate = self
+        
+        do {
+            try controller.performFetch()  //=====================
+        } catch {
+            
         }
-        set {
-            if let encoded = try? JSONEncoder().encode(newValue) {
-                UserDefaults.standard.set(encoded, forKey: self.citiesArrayKeyUserDefaults)
-            }
-        }
-    }
+        
+        return controller
+    }()
     
-    private let citiesArrayKeyUserDefaults = "CitiesArray"
+    lazy var citiesArray: [City] = {
+        return self.fetchedResultsController.fetchedObjects ?? []
+    }()
     
     override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
     
@@ -50,7 +57,7 @@ class CitiesPageViewController: EMPageViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+                
         self.dataSource = self
         self.delegate = self
         self.scrollView.contentInsetAdjustmentBehavior = .never
@@ -127,7 +134,7 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     func cityViewController(withIndex i: Int) -> CityViewController? {
-        
+                
         var index = i
         let citiesCount = self.citiesArray.count
                 
@@ -164,6 +171,8 @@ class CitiesPageViewController: EMPageViewController {
     func checkDeletedViewControllers() {
         
         guard let controller = self.selectedViewController as? CityViewController else { return }
+        
+        
         let city = controller.city
         var index: Int
         
