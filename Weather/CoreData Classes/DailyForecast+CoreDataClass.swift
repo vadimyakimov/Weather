@@ -1,0 +1,33 @@
+import Foundation
+import CoreData
+
+
+public class DailyForecast: NSManagedObject {
+    
+    override public init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
+    }
+    
+    init(for city: City, forecastDate: Date, dayTemperatureCelsius: Double, dayWeatherIcon: Int, dayWeatherText: String, nightTemperatureCelsius: Double, nightWeatherIcon: Int, nightWeatherText: String) {
+        
+        let context = city.managedObjectContext!
+        
+        if let entity = NSEntityDescription.entity(forEntityName: "DailyForecast", in: context) {
+            super.init(entity: entity, insertInto: context)
+        } else {
+            super.init(context: context)
+        }
+        
+        self.forecastDate = forecastDate
+                
+        self.dayWeather = WeatherInfo(for: city,
+                                      temperatureCelsius: dayTemperatureCelsius,
+                                      weatherIcon: dayWeatherIcon,
+                                      weatherText: dayWeatherText)
+        
+        self.nightWeather = WeatherInfo(for: city,
+                                        temperatureCelsius: nightTemperatureCelsius,
+                                        weatherIcon: nightWeatherIcon,
+                                        weatherText: nightWeatherText)
+    }
+}
