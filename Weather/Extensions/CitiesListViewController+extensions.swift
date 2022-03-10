@@ -12,7 +12,7 @@ extension CitiesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = CityTableViewCell.instanceFronNib()
         cell.configure(width: self.view.frame.width,
-                       text: self.citiesArray[indexPath.row].name + " \(self.citiesArray[indexPath.row].id)",
+                       text: self.citiesArray[indexPath.row].name,
                        isLocation: self.citiesArray[indexPath.row].isLocated)
         return cell
     }

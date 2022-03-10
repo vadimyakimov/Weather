@@ -6,6 +6,7 @@ import CoreData
 class NetworkManager {
     
     var city: City?
+    lazy var context = CoreDataStack().persistentContainer.viewContext
     
     //MARK: API keys
     
@@ -246,7 +247,7 @@ class NetworkManager {
             if let key = dataDictionary[self.keyCityID] as? String,
                let name = dataDictionary[self.keyCityName] as? String {
                 
-                let city = City(context: NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType),
+                let city = City(context: self.context,
                                 key: key,
                                 name: name)
                 autocompletedCitiesArray.append(city)
@@ -261,7 +262,7 @@ class NetworkManager {
         guard let key = dataDictionary[self.keyCityID] as? String else { return nil }
         guard let name = dataDictionary[self.keyCityName] as? String else { return nil }
         
-        let city = City(context: NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType),
+        let city = City(context: self.context,
                         key: key,
                         name: name,
                         isLocated: true)
