@@ -5,32 +5,20 @@ import CoreData
 
 class SearchScreenViewController: UIViewController {
     
-    
     // MARK: - Properties
     
     weak var delegate: SearchScreenViewControllerDelegate?
     
-    lazy var context = CoreDataStack().persistentContainer.viewContext
-    
     var citiesAutocompleteArray: [City]?
-    
+        
     var searchTableView = UITableView()
     let autocompleteSearchController = UISearchController()
     lazy var locationManager = CLLocationManager()
     lazy var autocompleteTimer = Timer()
     
     let hidesBackButton: Bool
-        
-    // API keys
     
-    private let baseURL = "https://dataservice.accuweather.com"
-    private let language = "language=" + "en-us".localized()
-    private let keyAccuAPI = "dcXaSaOT2bTNKzDiMD37dnGlZXGEeTxG"
-    
-    private let keyCityName = "LocalizedName"
-    private let keyCityID = "Key"
-    
-    
+    lazy var networkManager = NetworkManager()
     
     // MARK: - Lifecycle
     
@@ -178,66 +166,6 @@ class SearchScreenViewController: UIViewController {
     func stopLoadingAnimation() {
         guard let cell = searchTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? CityTableViewCell else { return }
         cell.stopLoading() 
-    }
-    
-    // MARK: - Server connection functions
-    
-    func autocomplete(for text: String, complete: @escaping () -> ()) {
-        guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
-            
-        let urlString = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
-        guard let url = URL(string: urlString) else { return }
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            let cityDataArray = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [[String : Any]]
-            guard let parsedCityArray = self.parseCityAutocompleteArray(from: cityDataArray) else { return }
-            self.citiesAutocompleteArray = parsedCityArray
-            DispatchQueue.main.async {
-                complete()
-            }
-        }.resume()
-    }
-    
-    func geopositionCity(for location: CLLocationCoordinate2D, complete: @escaping (City) -> ()) {
-        let urlString = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.language)"
-        guard let url = URL(string: urlString) else { return }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            
-            let newCity = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String : Any]
-            guard let parsedCity = self.parseGeopositionCity(from: newCity) else { return }
-            
-            DispatchQueue.main.async {
-                complete(parsedCity)
-            }
-        }.resume()
-    }
-    
-    private func parseCityAutocompleteArray(from dataArray: [[String : Any]]?) -> [City]? {
-        guard let dataArray = dataArray else { return nil }
-        
-        var autocompletedCitiesArray: [City] = []
-        
-        for dataDictionary in dataArray {
-            if let key = dataDictionary[self.keyCityID] as? String,
-               let name = dataDictionary[self.keyCityName] as? String {
-                
-                let city = City(context: self.context, key: key, name: name)
-                autocompletedCitiesArray.append(city)
-            }
-        }
-        return autocompletedCitiesArray
-    }
-    
-    private func parseGeopositionCity(from dataDictionary: [String : Any]?) -> City? {
-        guard let dataDictionary = dataDictionary else { return nil }
-        guard let key = dataDictionary[self.keyCityID] as? String else { return nil }
-        guard let name = dataDictionary[self.keyCityName] as? String else { return nil }
-        
-        let city = City(context: self.context, key: key, name: name, isLocated: true)
-        
-        return city
     }
     
 }

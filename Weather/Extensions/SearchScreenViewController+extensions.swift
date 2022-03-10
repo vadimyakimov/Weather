@@ -60,7 +60,8 @@ extension SearchScreenViewController: UISearchResultsUpdating {
         
         self.autocompleteTimer.invalidate()
         self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false, block: { _ in
-            self.autocomplete(for: searchText) {
+            self.networkManager.autocomplete(for: searchText) {cityArray in
+                self.citiesAutocompleteArray = cityArray
                 DispatchQueue.main.async {
                     self.autocompleteTimer.invalidate()
                     self.searchTableView.reloadData()
@@ -89,7 +90,7 @@ extension SearchScreenViewController: CLLocationManagerDelegate {
             showLocationErrorAlert()
             return
         }
-        self.geopositionCity(for: location.coordinate) {city in
+        self.networkManager.geopositionCity(for: location.coordinate) {city in
             self.delegate?.searchScreenViewController(didLoadLocaleCity: city)
         }
     }
