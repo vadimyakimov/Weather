@@ -10,6 +10,8 @@ class SearchScreenViewController: UIViewController {
     weak var delegate: SearchScreenViewControllerDelegate?
     
     var citiesAutocompleteArray: [City]?
+    
+    let context = CoreDataStack().persistentContainer.viewContext
         
     var searchTableView = UITableView()
     let autocompleteSearchController = UISearchController()
@@ -17,8 +19,6 @@ class SearchScreenViewController: UIViewController {
     lazy var autocompleteTimer = Timer()
     
     let hidesBackButton: Bool
-    
-    lazy var networkManager = NetworkManager()
     
     // MARK: - Lifecycle
     

@@ -82,9 +82,8 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
 }
 
 // MARK: - Search Screen View Controller Delegate
-// MARK: - Cities List View Controller Delegate
 
-extension CitiesPageViewController: SearchScreenViewControllerDelegate, CitiesListViewControllerDelegate {
+extension CitiesPageViewController: SearchScreenViewControllerDelegate {
     
     func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City) {
         
@@ -105,6 +104,11 @@ extension CitiesPageViewController: SearchScreenViewControllerDelegate, CitiesLi
         self.moveCity(at: self.citiesArray.count - 1, to: 0)
         self.backToPageViewController(withIndex: 0)
     }
+}
+
+// MARK: - Cities List View Controller Delegate
+
+extension CitiesPageViewController: CitiesListViewControllerDelegate {    
     
     func citiesListViewController(didSelectRowAt indexPath: IndexPath) {
         self.backToPageViewController(withIndex: indexPath.row)

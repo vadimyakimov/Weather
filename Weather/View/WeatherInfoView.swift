@@ -13,9 +13,7 @@ class WeatherInfoView: UIView {
     private let currentWeatherView = CurrentWeatherView.instanceFromNib()
     private var hourlyForecastViews = [OneHourView](repeating: OneHourView(), count: 12)
     private var dailyForecastViews = [OneDayView](repeating: OneDayView(), count: 5)
-        
-    lazy var networkManager = NetworkManager(city: city)
-    
+            
     // MARK: - Initializers
     
     init(for city: City) {
@@ -41,7 +39,7 @@ class WeatherInfoView: UIView {
         
         tasks.enter()
         self.currentWeatherView.startSkeleton(isDayTime: city.currentWeather?.isDayTime)
-        self.networkManager.getCurrentWeather(for: self.city.key) { currentWeather in
+        NetworkManager.shared.getCurrentWeather(for: self.city) { currentWeather in
             if let currentWeather = currentWeather {
                 self.updateData(currentWeather)
             }
@@ -51,7 +49,7 @@ class WeatherInfoView: UIView {
         
         tasks.enter()
         let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
-        self.networkManager.getHourlyForecast(for: self.city.key) { dailyForecast in
+        NetworkManager.shared.getHourlyForecast(for: self.city) { dailyForecast in
             if let dailyForecast = dailyForecast {
                 self.updateData(data: dailyForecast)
             }
@@ -61,7 +59,7 @@ class WeatherInfoView: UIView {
 
         tasks.enter()
         let _ = self.dailyForecastViews.map({ $0.startSkeleton() })
-        self.networkManager.getDailyForecast(for: self.city.key) { hourlyForecast in
+        NetworkManager.shared.getDailyForecast(for: self.city) { hourlyForecast in
             if let hourlyForecast = hourlyForecast {
                 self.updateData(data: hourlyForecast)
             }
@@ -90,7 +88,7 @@ class WeatherInfoView: UIView {
         if self.city.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
             self.updateView(self.currentWeatherView)
         } else {
-            self.networkManager.getCurrentWeather(for: self.city.key) { currentWeather in
+            NetworkManager.shared.getCurrentWeather(for: self.city) { currentWeather in
                 if let currentWeather = currentWeather {
                     self.updateData(currentWeather)
                 }
@@ -137,7 +135,7 @@ class WeatherInfoView: UIView {
         if self.city.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
             self.updateView(self.hourlyForecastViews)
         } else {
-            self.networkManager.getHourlyForecast(for: self.city.key) { hourlyForecast in
+            NetworkManager.shared.getHourlyForecast(for: self.city) { hourlyForecast in
                 if let hourlyForecast = hourlyForecast {
                     self.updateData(data: hourlyForecast)
                 }
@@ -178,7 +176,7 @@ class WeatherInfoView: UIView {
         if self.city.lastUpdated.dailyForecast.timeIntervalSinceNow > -600 {
             self.updateView(self.dailyForecastViews)
         } else {
-            self.networkManager.getDailyForecast(for: self.city.key) { dailyForecast in
+            NetworkManager.shared.getDailyForecast(for: self.city) { dailyForecast in
                 if let dailyForecast = dailyForecast {
                     self.updateData(data: dailyForecast)
                 }
@@ -217,7 +215,7 @@ class WeatherInfoView: UIView {
         view.configure(isDayTime: data.isDayTime,
                        temperature: Int(data.temperatureCelsius),
                        weatherText: data.weatherText)
-        self.networkManager.getImage(iconNumber: Int(data.weatherIcon)) { weatherIcon in
+        NetworkManager.shared.getImage(iconNumber: Int(data.weatherIcon)) { weatherIcon in
             view.setIcon(weatherIcon)
         }
     }
@@ -231,7 +229,7 @@ class WeatherInfoView: UIView {
             view.configure(time: data[index].forecastTime,
                            temperature: Int(data[index].temperatureCelsius),
                            weatherText: data[index].weatherText)
-            self.networkManager.getImage(iconNumber: Int(data[index].weatherIcon)) { weatherIcon in
+            NetworkManager.shared.getImage(iconNumber: Int(data[index].weatherIcon)) { weatherIcon in
                 view.setIcon(weatherIcon)
             }
         }
@@ -246,10 +244,10 @@ class WeatherInfoView: UIView {
             view.configure(date: data[index].forecastDate,
                            dayTemperature: Int(data[index].dayWeather.temperatureCelsius),
                            nightTemperature: Int(data[index].nightWeather.temperatureCelsius))
-            self.networkManager.getImage(iconNumber: Int(data[index].dayWeather.weatherIcon)) { dayIcon in
+            NetworkManager.shared.getImage(iconNumber: Int(data[index].dayWeather.weatherIcon)) { dayIcon in
                 view.setDayIcon(dayIcon)
             }
-            self.networkManager.getImage(iconNumber: Int(data[index].nightWeather.weatherIcon)) { nightIcon in
+            NetworkManager.shared.getImage(iconNumber: Int(data[index].nightWeather.weatherIcon)) { nightIcon in
                 view.setNightIcon(nightIcon)
             }
         }

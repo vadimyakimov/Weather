@@ -24,8 +24,8 @@ extension SearchScreenViewController: UITableViewDataSource {
         if indexPath.section == 0 {
             cell.configure(width: width, text: "My location".localized(), isLocation: true)
         } else {
-            guard let citiesAutocompleteArray = self.citiesAutocompleteArray else { return UITableViewCell() }
-            cell.configure(width: width, text: citiesAutocompleteArray[indexPath.row].name)
+            guard let autocompletedCity = self.citiesAutocompleteArray?[indexPath.row] else { return UITableViewCell() }
+            cell.configure(width: width, text: autocompletedCity.name)
         }
         return cell
     }
@@ -60,7 +60,7 @@ extension SearchScreenViewController: UISearchResultsUpdating {
         
         self.autocompleteTimer.invalidate()
         self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false, block: { _ in
-            self.networkManager.autocomplete(for: searchText) {cityArray in
+            NetworkManager.shared.autocomplete(for: searchText, context: self.context) {cityArray in
                 self.citiesAutocompleteArray = cityArray
                 DispatchQueue.main.async {
                     self.autocompleteTimer.invalidate()
@@ -90,7 +90,7 @@ extension SearchScreenViewController: CLLocationManagerDelegate {
             showLocationErrorAlert()
             return
         }
-        self.networkManager.geopositionCity(for: location.coordinate) {city in
+        NetworkManager.shared.geopositionCity(for: location.coordinate, context: self.context) {city in
             self.delegate?.searchScreenViewController(didLoadLocaleCity: city)
         }
     }

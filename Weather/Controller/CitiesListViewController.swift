@@ -5,7 +5,7 @@ class CitiesListViewController: UIViewController {
     
     // MARK: - Properties
     
-    weak var delegate: CitiesListViewControllerDelegate?
+    weak var delegate: (CitiesListViewControllerDelegate & SearchScreenViewControllerDelegate)?
     
     var fetchedResultsController: NSFetchedResultsController<City>
     
@@ -18,6 +18,7 @@ class CitiesListViewController: UIViewController {
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
+                
         super.viewDidLoad()
               
         let searchButton = UIBarButtonItem(barButtonSystemItem: .search,
