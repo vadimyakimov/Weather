@@ -9,7 +9,7 @@ class NetworkManager {
     
     //MARK: API keys
     
-    lazy var keyAccuAPI = APIKeys().getRandomAPIKey()
+    lazy var keyAccuAPI = APIKeys.shared.getRandomAPIKey()
     
     let baseURL = "https://dataservice.accuweather.com"
     let language = "language=" + "en-us".localized()
