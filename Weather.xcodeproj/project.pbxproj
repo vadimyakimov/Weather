@@ -154,6 +154,7 @@
 				DDDED8062796B223009C621C /* Delegates */,
 				DD240CEB27B27BA800FF6F77 /* WeatherInfoView.swift */,
 				DDFA990B278DFE840045A760 /* Main.storyboard */,
+				DDFA9910278DFE850045A760 /* LaunchScreen.storyboard */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -190,14 +191,10 @@
 		DDA571C727DB5848007A67CA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				DDA571C327DB57E6007A67CA /* Extensions */,
-				DDFA9905278DFE840045A760 /* AppDelegate.swift */,
 				DDF9A04F27D9D8E800623939 /* NetworkManager.swift */,
 				DDF9A05527D9E84900623939 /* APIKeys.swift */,
 				DD423AF527B5365900CF4E25 /* Localizable.strings */,
 				DDFA990E278DFE850045A760 /* Assets.xcassets */,
-				DDFA9910278DFE850045A760 /* LaunchScreen.storyboard */,
-				DDFA9913278DFE850045A760 /* Info.plist */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -275,10 +272,13 @@
 		DDFA9904278DFE840045A760 /* Weather */ = {
 			isa = PBXGroup;
 			children = (
+				DDFA9905278DFE840045A760 /* AppDelegate.swift */,
+				DDA571C327DB57E6007A67CA /* Extensions */,
 				DDF9A04E27D9D8C200623939 /* Model */,
 				DDA571BE27DB565F007A67CA /* View */,
 				DDA571BD27DB5655007A67CA /* Controller */,
 				DDA571C727DB5848007A67CA /* Supporting Files */,
+				DDFA9913278DFE850045A760 /* Info.plist */,
 			);
 			path = Weather;
 			sourceTree = "<group>";
