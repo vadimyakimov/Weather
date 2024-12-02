@@ -604,7 +604,7 @@
 				DEVELOPMENT_TEAM = MZNY672VY8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Weather/Supporting Files/Info.plist";
+				INFOPLIST_FILE = Weather/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -637,7 +637,7 @@
 				DEVELOPMENT_TEAM = MZNY672VY8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Weather/Supporting Files/Info.plist";
+				INFOPLIST_FILE = Weather/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
