@@ -1,8 +1,8 @@
 /Podfile.lock
 /Pods
 .DS_Store
-/Weather.xcodeproj/xcshareddata/xcschemes/Weather 2.xcscheme
 /build
 /Weather/Supporting Files/APIKeys.swift
 /Weather.xcworkspace
+/Weather.xcodeproj/xcshareddata
 /Weather.xcodeproj/xcuserdata

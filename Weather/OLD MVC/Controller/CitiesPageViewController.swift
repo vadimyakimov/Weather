@@ -5,33 +5,9 @@ import CoreData
 class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Properties
-        
-    var fetchedResultsController: NSFetchedResultsController<City> = {
-        
-        let coreDataStack = CoreDataStack()
-        
-        let fetchRequest = City.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(City.id), ascending: true)]
-        
-        let controller = NSFetchedResultsController(fetchRequest: fetchRequest,
-                                                    managedObjectContext: coreDataStack.persistentContainer.viewContext,
-                                                    sectionNameKeyPath: nil,
-                                                    cacheName: nil)
-        do {
-            try controller.performFetch()
-        } catch {
-            let nserror = error as NSError
-            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-        }
-        return controller
-    }()
     
-    var citiesArray: [City] {
-        get {
-            return self.fetchedResultsController.fetchedObjects ?? []
-        }
-    }
-    
+    let coreData = CitiesCoreDataStack()
+            
     override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
     
     private let gradient = CAGradientLayer()
@@ -61,10 +37,10 @@ class CitiesPageViewController: EMPageViewController {
         self.setNavigationBarBackground()
         self.view.addSubview(self.pageControl)
         
-        if self.citiesArray.count > 0 {
+        if self.coreData.citiesList.count > 0 {
             self.showCityViewController(withIndex: 0)
         } else {
-            let searchScreen = SearchScreenViewController(hidesBackButton: true)
+            let searchScreen = SearchScreenViewController(hidesBackButton: true, context: self.coreData.context)
             searchScreen.delegate = self
             self.navigationController?.pushViewController(searchScreen, animated: false)
         }
@@ -88,7 +64,7 @@ class CitiesPageViewController: EMPageViewController {
     // MARK: - IBActions
     
     @IBAction func listButtonPressed() {
-        let list = CitiesListViewController(fetchedResultsController: self.fetchedResultsController)
+        let list = CitiesListViewController(coreDataStack: coreData)
         list.delegate = self
         self.navigationController?.pushViewController(list, animated: true)
     }
@@ -127,7 +103,7 @@ class CitiesPageViewController: EMPageViewController {
     func cityViewController(withIndex i: Int) -> CityViewController? {
                 
         var index = i
-        let citiesCount = self.citiesArray.count
+        let citiesCount = self.coreData.citiesList.count
                 
         if index < 0 {
             if citiesCount > 3 {
@@ -144,7 +120,7 @@ class CitiesPageViewController: EMPageViewController {
         }
         
         let yOriginCityViewController = self.nameLabelHeight + self.pageControlHeight
-        let cityViewController = CityViewController(self.citiesArray[index],
+        let cityViewController = CityViewController(self.coreData.citiesList[index],
                                                     frame: CGRect(x: 0,
                                                                   y: yOriginCityViewController,
                                                                   width: self.view.frame.size.width,
@@ -168,7 +144,7 @@ class CitiesPageViewController: EMPageViewController {
         let city = controller.city
         var index: Int
         
-        if let i = self.citiesArray.firstIndex(of: city) {
+        if let i = self.coreData.citiesList.firstIndex(of: city) {
             index = i
         } else {
             index = self.pageControl.currentPage
@@ -180,83 +156,7 @@ class CitiesPageViewController: EMPageViewController {
         self.showCityViewController(withIndex: self.pageControl.currentPage)
     }
     
-    
-    // MARK: - Cities Array Management
-    
-    func addCity(_ city: City) {
-        let context = self.fetchedResultsController.managedObjectContext
-        let id = Int16(self.fetchedResultsController.fetchedObjects?.count ?? 0)
-        
-        _ = City(context: context,
-                 id: id,
-                 key: city.key,
-                 name: city.name,
-                 isLocated: city.isLocated)
-        self.saveContext()
-    }
-    
-    func deleteCity(at index: Int) {
-        let city = self.citiesArray[index]
-
-        for i in index..<self.citiesArray.count {
-            self.citiesArray[i].id -= 1
-        }
-        
-        let deleteFromContext = self.fetchedResultsController.managedObjectContext.delete
-
-        if let currentWeather = city.currentWeather {
-            deleteFromContext(currentWeather)
-        }
-        if let hourlyForecast = city.hourlyForecast?.array as? [HourlyForecast] {
-            for item in hourlyForecast {
-                deleteFromContext(item)
-            }
-        }
-        if let dailyForecast = city.dailyForecast?.array as? [DailyForecast] {
-            for item in dailyForecast {
-                deleteFromContext(item)
-            }
-        }
-        deleteFromContext(city.lastUpdated)
-        deleteFromContext(city)
-        
-        self.saveContext()
-    }
-    
-    func moveCity(at sourceIndex: Int, to destinationIndex: Int) {
-        guard sourceIndex != destinationIndex else { return }
-
-        let sourceCity = self.citiesArray[sourceIndex]
-
-        if sourceIndex > destinationIndex {
-            for index in destinationIndex...sourceIndex {
-                let city = self.citiesArray[index]
-                city.id += 1
-            }
-        } else if sourceIndex < destinationIndex {
-            for index in sourceIndex...destinationIndex {
-                let city = self.citiesArray[index]
-                city.id -= 1
-            }
-        }
-
-        sourceCity.id = Int16(destinationIndex)
-        
-        self.saveContext()
-    }    
-    
-    func saveContext() {
-        do {
-            try self.fetchedResultsController.managedObjectContext.save()
-            try self.fetchedResultsController.performFetch()
-        } catch {
-            let nserror = error as NSError
-            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-        }
-    }
-    
     // MARK: - Frame
-    
     
     private func updateFrame() {
         self.view.frame.size.height += self.view.frame.origin.y
@@ -277,8 +177,8 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     func updatePageControl(index: Int? = nil) {
-        if self.pageControl.numberOfPages != self.citiesArray.count {
-            self.pageControl.numberOfPages = self.citiesArray.count
+        if self.pageControl.numberOfPages != self.coreData.citiesList.count {
+            self.pageControl.numberOfPages = self.coreData.citiesList.count
             let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
             self.pageControl.frame.size = CGSize(width: size.width, height: self.pageControlHeight)
             self.pageControl.frame.origin.x = (self.view.frame.width - size.width) / 2
@@ -307,10 +207,10 @@ class CitiesPageViewController: EMPageViewController {
         
         guard let controller = self.selectedViewController as? CityViewController else { return }
                 
-        self.configureNameLabel(self.newNameLabel)
+        self.configureNameLabel()
         self.view.addSubview(self.newNameLabel)
         
-        self.configureNameLabel(self.nameLabel, text: controller.city.name)
+        self.configureNameLabel(text: controller.city.name)
         self.view.addSubview(self.nameLabel)
         
         let recognizer = UITapGestureRecognizer(target: self,
@@ -318,21 +218,21 @@ class CitiesPageViewController: EMPageViewController {
         self.nameLabel.addGestureRecognizer(recognizer)
     }
     
-    private func configureNameLabel(_ nameLabel: UILabel, text: String? = nil) {
+    private func configureNameLabel(text: String? = nil) {
         
         let screen = self.view.frame.size
         
-        nameLabel.frame = CGRect(x: self.horizontalOffset,
-                                 y: self.view.safeAreaInsets.top + self.pageControlHeight,
-                                 width: screen.width - (self.horizontalOffset * 2),
-                                 height: self.nameLabelHeight)
-        nameLabel.text = text
-        nameLabel.textColor = .white
-        nameLabel.textAlignment = .center
-        nameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
-        nameLabel.layer.zPosition = 100
-        nameLabel.adjustsFontSizeToFitWidth = true
-        nameLabel.isUserInteractionEnabled = true
+        self.newNameLabel.frame = CGRect(x: self.horizontalOffset,
+                                         y: self.view.safeAreaInsets.top + self.pageControlHeight,
+                                         width: screen.width - (self.horizontalOffset * 2),
+                                         height: self.nameLabelHeight)
+        self.newNameLabel.text = text
+        self.newNameLabel.textColor = .white
+        self.newNameLabel.textAlignment = .center
+        self.newNameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
+        self.newNameLabel.layer.zPosition = 100
+        self.newNameLabel.adjustsFontSizeToFitWidth = true
+        self.newNameLabel.isUserInteractionEnabled = true
     }
     
     // MARK: - Navigation Bar

@@ -9,10 +9,10 @@ class SearchScreenViewController: UIViewController {
     
     weak var delegate: SearchScreenViewControllerDelegate?
     
-    var citiesAutocompleteArray: [City]?
+    let context: NSManagedObjectContext
     
-    let context = CoreDataStack().persistentContainer.viewContext
-        
+    var citiesAutocompleteArray: [City]?
+            
     var searchTableView = UITableView()
     let autocompleteSearchController = UISearchController()
     lazy var locationManager = CLLocationManager()
@@ -44,8 +44,9 @@ class SearchScreenViewController: UIViewController {
     
     // MARK: - Initializers
     
-    init(hidesBackButton: Bool = false) {
+    init(hidesBackButton: Bool = false, context: NSManagedObjectContext) {
         self.hidesBackButton = hidesBackButton
+        self.context = context
         super.init(nibName: nil, bundle: nil)
     }
     
