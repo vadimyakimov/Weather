@@ -8,13 +8,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-//        window = UIWindow(frame: UIScreen.main.bounds)
+        window = UIWindow(frame: UIScreen.main.bounds)
                 
-//        let startViewController = ViewController()
-//        window?.rootViewController = startViewController
-//        window?.makeKeyAndVisible()
+        let navigationController = MainNavigationController()
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
         
         return true
     }
+
 }
 

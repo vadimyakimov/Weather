@@ -5,6 +5,9 @@ import CoreData
 class CitiesCoreDataStack {
         
     // MARK: - Core Data stack
+    
+    static let shared = CitiesCoreDataStack()
+    private init() {}
 
     private var containerName = "Cities"
     
@@ -19,7 +22,13 @@ class CitiesCoreDataStack {
     }()
     
     var context: NSManagedObjectContext {
-        return persistentContainer.viewContext
+        return self.persistentContainer.viewContext
+    }
+    
+    var bgContext: NSManagedObjectContext {
+        get {
+            return self.persistentContainer.newBackgroundContext()
+        }
     }
     
     var citiesList: [City] {

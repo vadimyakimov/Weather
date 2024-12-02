@@ -1,24 +1,23 @@
 import UIKit
 import CoreLocation
-import CoreData
 
 
-class SearchScreenViewController: UIViewController {
+class OLDSearchScreenViewController: UIViewController {
     
     // MARK: - Properties
     
     weak var delegate: SearchScreenViewControllerDelegate?
-    
-    let context: NSManagedObjectContext
-    
+        
     var citiesAutocompleteArray: [City]?
             
     var searchTableView = UITableView()
     let autocompleteSearchController = UISearchController()
     lazy var locationManager = CLLocationManager()
-    lazy var autocompleteTimer = Timer()
     
-    let hidesBackButton: Bool
+    lazy var autocompleteTimer = Timer()
+    let timerInterval = 0.7
+    
+//    let hidesBackButton: Bool
     
     // MARK: - Lifecycle
     
@@ -43,16 +42,15 @@ class SearchScreenViewController: UIViewController {
     }
     
     // MARK: - Initializers
-    
-    init(hidesBackButton: Bool = false, context: NSManagedObjectContext) {
-        self.hidesBackButton = hidesBackButton
-        self.context = context
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }    
+//    
+//    init(hidesBackButton: Bool = false) {
+////        self.hidesBackButton = hidesBackButton
+//        super.init(nibName: nil, bundle: nil)
+//    }
+//    
+//    required init?(coder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }    
     
     // MARK: - IBAction
     
@@ -89,13 +87,13 @@ class SearchScreenViewController: UIViewController {
         self.autocompleteSearchController.searchResultsUpdater = self
         self.autocompleteSearchController.delegate = self
         
-        if self.hidesBackButton {
+//        if self.hidesBackButton {
             self.navigationItem.titleView = self.autocompleteSearchController.searchBar
-            self.navigationItem.hidesBackButton = true
+//            self.navigationItem.hidesBackButton = true
             self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
-        } else {
-            self.navigationItem.searchController = self.autocompleteSearchController
-        }
+//        } else {
+//            self.navigationItem.searchController = self.autocompleteSearchController
+//        }
         self.navigationItem.hidesSearchBarWhenScrolling = false
     }
     

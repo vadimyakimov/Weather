@@ -6,12 +6,10 @@ class CitiesListViewController: UIViewController {
     // MARK: - Properties
     
     weak var delegate: (CitiesListViewControllerDelegate & SearchScreenViewControllerDelegate)?
-    
-    var coreData: CitiesCoreDataStack
-    
+        
     var citiesArray: [City] {
         get {
-            return self.coreData.fetchCities()
+            return CitiesCoreDataStack.shared.fetchCities()
         }
     }
     
@@ -40,8 +38,7 @@ class CitiesListViewController: UIViewController {
     
     // MARK: - Initializers
     
-    init(coreDataStack: CitiesCoreDataStack) {
-        self.coreData = coreDataStack
+    init() {
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -54,7 +51,7 @@ class CitiesListViewController: UIViewController {
         
     @IBAction func goToSearchScreen() {
         let hidesBackButton = self.citiesArray.isEmpty ? true : false
-        let searchScreen = SearchScreenViewController(hidesBackButton: hidesBackButton, context: self.coreData.context)
+        let searchScreen = SearchScreenViewController()
         searchScreen.delegate = self
         self.navigationController?.pushViewController(searchScreen, animated: true)
     }

@@ -6,8 +6,8 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Properties
     
-    let coreData = CitiesCoreDataStack()
-            
+    private let viewModel = CitiesPageViewModel()
+                
     override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
     
     private let gradient = CAGradientLayer()
@@ -34,16 +34,9 @@ class CitiesPageViewController: EMPageViewController {
         self.scrollView.contentInsetAdjustmentBehavior = .never
         
         self.addGradient()
-        self.setNavigationBarBackground()
         self.view.addSubview(self.pageControl)
         
-        if self.coreData.citiesList.count > 0 {
-            self.showCityViewController(withIndex: 0)
-        } else {
-            let searchScreen = SearchScreenViewController(hidesBackButton: true, context: self.coreData.context)
-            searchScreen.delegate = self
-            self.navigationController?.pushViewController(searchScreen, animated: false)
-        }
+//        self.
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -64,7 +57,7 @@ class CitiesPageViewController: EMPageViewController {
     // MARK: - IBActions
     
     @IBAction func listButtonPressed() {
-        let list = CitiesListViewController(coreDataStack: coreData)
+        let list = CitiesListViewController()
         list.delegate = self
         self.navigationController?.pushViewController(list, animated: true)
     }
@@ -103,7 +96,7 @@ class CitiesPageViewController: EMPageViewController {
     func cityViewController(withIndex i: Int) -> CityViewController? {
                 
         var index = i
-        let citiesCount = self.coreData.citiesList.count
+        let citiesCount = CitiesCoreDataStack.shared.citiesList.count
                 
         if index < 0 {
             if citiesCount > 3 {
@@ -120,7 +113,7 @@ class CitiesPageViewController: EMPageViewController {
         }
         
         let yOriginCityViewController = self.nameLabelHeight + self.pageControlHeight
-        let cityViewController = CityViewController(self.coreData.citiesList[index],
+        let cityViewController = CityViewController(CitiesCoreDataStack.shared.citiesList[index],
                                                     frame: CGRect(x: 0,
                                                                   y: yOriginCityViewController,
                                                                   width: self.view.frame.size.width,
@@ -144,7 +137,7 @@ class CitiesPageViewController: EMPageViewController {
         let city = controller.city
         var index: Int
         
-        if let i = self.coreData.citiesList.firstIndex(of: city) {
+        if let i = CitiesCoreDataStack.shared.citiesList.firstIndex(of: city) {
             index = i
         } else {
             index = self.pageControl.currentPage
@@ -177,8 +170,8 @@ class CitiesPageViewController: EMPageViewController {
     }
     
     func updatePageControl(index: Int? = nil) {
-        if self.pageControl.numberOfPages != self.coreData.citiesList.count {
-            self.pageControl.numberOfPages = self.coreData.citiesList.count
+        if self.pageControl.numberOfPages != CitiesCoreDataStack.shared.citiesList.count {
+            self.pageControl.numberOfPages = CitiesCoreDataStack.shared.citiesList.count
             let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
             self.pageControl.frame.size = CGSize(width: size.width, height: self.pageControlHeight)
             self.pageControl.frame.origin.x = (self.view.frame.width - size.width) / 2
@@ -233,25 +226,6 @@ class CitiesPageViewController: EMPageViewController {
         self.newNameLabel.layer.zPosition = 100
         self.newNameLabel.adjustsFontSizeToFitWidth = true
         self.newNameLabel.isUserInteractionEnabled = true
-    }
-    
-    // MARK: - Navigation Bar
-    
-    private func setNavigationBarBackground() {
-        
-        if #available(iOS 13.0, *) {
-            let appearence = UINavigationBarAppearance()
-            appearence.backgroundColor = .systemBackground
-            self.navigationController?.navigationBar.standardAppearance = appearence
-            self.navigationController?.navigationBar.scrollEdgeAppearance = appearence
-            self.navigationController?.view.backgroundColor = .systemBackground
-        } else {
-            self.navigationController?.navigationBar.backgroundColor = .white
-            self.navigationController?.view.backgroundColor = .white
-            self.navigationController?.view.backgroundColor = .white
-        }
-        
-        
     }
     
     // MARK: - Background Gradient

@@ -9,14 +9,14 @@ extension CitiesPageViewController: EMPageViewControllerDataSource {
     func em_pageViewController(_ pageViewController: EMPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
         guard let controller = (viewController as? CityViewController) else { return nil }
         
-        guard let index = self.coreData.citiesList.firstIndex(of: controller.city) else { return nil }
+        guard let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: controller.city) else { return nil }
         return self.cityViewController(withIndex: index - 1)
     }
     
     func em_pageViewController(_ pageViewController: EMPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController? {
         guard let controller = (viewController as? CityViewController) else { return nil }
         
-        guard let index = self.coreData.citiesList.firstIndex(of: controller.city) else { return nil }
+        guard let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: controller.city) else { return nil }
         return self.cityViewController(withIndex: index + 1)
     }
 }
@@ -76,7 +76,7 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
     func em_pageViewController(_ pageViewController: EMPageViewController, didFinishScrollingFrom startingViewController: UIViewController?, destinationViewController: UIViewController, transitionSuccessful: Bool) {
         guard transitionSuccessful,
               let controller = destinationViewController as? CityViewController,
-              let index = self.coreData.citiesList.firstIndex(of: controller.city) else { return }
+              let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: controller.city) else { return }
         self.updatePageControl(index: index)
     }
 }
@@ -87,21 +87,21 @@ extension CitiesPageViewController: SearchScreenViewControllerDelegate {
     
     func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City) {
         
-        if let index = self.coreData.citiesList.firstIndex(of: autocompletedCity) {
+        if let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: autocompletedCity) {
             self.backToPageViewController(withIndex: index)
         } else {
-            self.coreData.addCity(autocompletedCity)
-            self.backToPageViewController(withIndex: self.coreData.citiesList.count - 1)
+            CitiesCoreDataStack.shared.addCity(autocompletedCity)
+            self.backToPageViewController(withIndex: CitiesCoreDataStack.shared.citiesList.count - 1)
         }
     }
     
     func searchScreenViewController(didLoadLocaleCity city: City) {
         
-        if self.coreData.citiesList.first?.isLocated == true {
-            self.coreData.deleteCity(at: 0)
+        if CitiesCoreDataStack.shared.citiesList.first?.isLocated == true {
+            CitiesCoreDataStack.shared.deleteCity(at: 0)
         }
-        self.coreData.addCity(city)
-        self.coreData.moveCity(at: self.coreData.citiesList.count - 1, to: 0)
+        CitiesCoreDataStack.shared.addCity(city)
+        CitiesCoreDataStack.shared.moveCity(at: CitiesCoreDataStack.shared.citiesList.count - 1, to: 0)
         self.backToPageViewController(withIndex: 0)
     }
 }
@@ -115,11 +115,11 @@ extension CitiesPageViewController: CitiesListViewControllerDelegate {
     }
     
     func citiesListViewController(shouldRemoveCityAt index: Int) {
-        self.coreData.deleteCity(at: index)
+        CitiesCoreDataStack.shared.deleteCity(at: index)
     }
     
     func citiesListViewController(shouldMoveCityAt sourceIndex: Int, to destinationIndex: Int) {
-        self.coreData.moveCity(at: sourceIndex, to: destinationIndex)
+        CitiesCoreDataStack.shared.moveCity(at: sourceIndex, to: destinationIndex)
     }
     
     func citiesListViewControllerWillDisappear() {
@@ -133,7 +133,7 @@ extension CitiesPageViewController: CityViewControllerDelegate {
     
     func cityViewController(didUpdateCurrentWeatherFor city: City) {
         
-        self.coreData.saveContext()
+        CitiesCoreDataStack.shared.saveContext()
         
         guard let controller = self.selectedViewController as? CityViewController else { return }
         let isDayTime = controller.city.currentWeather?.isDayTime ?? true
@@ -141,11 +141,11 @@ extension CitiesPageViewController: CityViewControllerDelegate {
     }
     
     func cityViewController(didUpdateHourlyForecastFor city: City) {
-        self.coreData.saveContext()
+        CitiesCoreDataStack.shared.saveContext()
     }
     
     func cityViewController(didUpdateDailyForecastFor city: City) {
-        self.coreData.saveContext()
+        CitiesCoreDataStack.shared.saveContext()
     }
     
     func cityViewController(scrollViewDidScroll scrollView: UIScrollView) {

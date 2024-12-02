@@ -99,24 +99,24 @@ class NetworkManager {
         }
     }
     
-    func autocomplete(for text: String, context: NSManagedObjectContext, complete: @escaping ([City]) -> ()) {
+    func autocomplete(for text: String, complete: @escaping ([City]) -> ()) {
         guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
             
         let url = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
         
         self.fetchRequest(with: url) { data in
-            guard let parsedCityArray = self.parseCityAutocompleteArray(from: data, context: context) else { return }
+            guard let parsedCityArray = self.parseCityAutocompleteArray(from: data) else { return }
             DispatchQueue.main.async {
                 complete(parsedCityArray)
             }
         }
     }
     
-    func geopositionCity(for location: CLLocationCoordinate2D, context: NSManagedObjectContext, complete: @escaping (City) -> ()) {
+    func geopositionCity(for location: CLLocationCoordinate2D, complete: @escaping (City) -> ()) {
         let url = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.language)"
                 
         self.fetchRequest(with: url) { data in
-            guard let parsedCity = self.parseGeopositionCity(from: data, context: context) else { return }
+            guard let parsedCity = self.parseGeopositionCity(from: data) else { return }
             DispatchQueue.main.async {
                 complete(parsedCity)
             }
@@ -173,7 +173,7 @@ class NetworkManager {
         return dailyForecastArray
     }
     
-    private func parseCityAutocompleteArray(from data: Any?, context: NSManagedObjectContext) -> [City]? {
+    private func parseCityAutocompleteArray(from data: Any?) -> [City]? {
         
         guard let dataArray = data as? [[String : Any]] else { return nil }
         
@@ -183,7 +183,7 @@ class NetworkManager {
             if let key = dataDictionary[self.keyCityID] as? String,
                let name = dataDictionary[self.keyCityName] as? String {
                 
-                let city = City(context: context,
+                let city = City(context: CitiesCoreDataStack.shared.bgContext,
                                 key: key,
                                 name: name)
                 autocompletedCitiesArray.append(city)
@@ -192,13 +192,13 @@ class NetworkManager {
         return autocompletedCitiesArray
     }
     
-    private func parseGeopositionCity(from data: Any?, context: NSManagedObjectContext) -> City? {
+    private func parseGeopositionCity(from data: Any?) -> City? {
         
         guard let dataDictionary = data as? [String : Any] else { return nil }
         guard let key = dataDictionary[self.keyCityID] as? String else { return nil }
         guard let name = dataDictionary[self.keyCityName] as? String else { return nil }
         
-        let city = City(context: context,
+        let city = City(context: CitiesCoreDataStack.shared.context,
                         key: key,
                         name: name,
                         isLocated: true)

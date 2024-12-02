@@ -3,7 +3,7 @@ import CoreLocation
 
 // MARK: - Table View Data Source
 
-extension SearchScreenViewController: UITableViewDataSource {
+extension OLDSearchScreenViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
@@ -11,19 +11,21 @@ extension SearchScreenViewController: UITableViewDataSource {
         
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
+            return 1 //For detecting location
         } else {
-            guard let count = self.citiesAutocompleteArray?.count else { return 0 }
-            return count
+            return self.citiesAutocompleteArray?.count ?? 0
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        
         let cell = CityTableViewCell.instanceFronNib()
         let width = self.view.frame.width
         if indexPath.section == 0 {
             cell.configure(width: width, text: "My location".localized(), isLocation: true)
         } else {
+            
             guard let autocompletedCity = self.citiesAutocompleteArray?[indexPath.row] else { return UITableViewCell() }
             cell.configure(width: width, text: autocompletedCity.name)
         }
@@ -59,8 +61,8 @@ extension SearchScreenViewController: UISearchResultsUpdating {
         guard let searchText = searchController.searchBar.text, !searchText.isEmpty else { return }
         
         self.autocompleteTimer.invalidate()
-        self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false, block: { _ in
-            NetworkManager.shared.autocomplete(for: searchText, context: self.context) {cityArray in
+        self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval, repeats: false, block: { _ in
+            NetworkManager.shared.autocomplete(for: searchText) { [unowned self] cityArray in
                 self.citiesAutocompleteArray = cityArray
                 DispatchQueue.main.async {
                     self.autocompleteTimer.invalidate()
@@ -90,7 +92,7 @@ extension SearchScreenViewController: CLLocationManagerDelegate {
             showLocationErrorAlert()
             return
         }
-        NetworkManager.shared.geopositionCity(for: location.coordinate, context: self.context) {city in
+        NetworkManager.shared.geopositionCity(for: location.coordinate) {city in
             self.delegate?.searchScreenViewController(didLoadLocaleCity: city)
         }
     }
