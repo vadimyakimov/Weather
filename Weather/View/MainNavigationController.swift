@@ -14,14 +14,18 @@ class MainNavigationController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
                 
-        self.setNavigationBarBackground()
-        self.pushViewController(rootViewController(), animated: true)
-  
-        
         let weatherScreen = Bindable(CitiesCoreDataStack.shared.citiesList)
         weatherScreen.bind { citiesArray in
-            print(citiesArray.count)
+//            print(citiesArray.count)
         }
+        
+        self.pushViewController(rootViewController(), animated: true)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.setNavigationBarBackground()
     }
     
     private func setNavigationBarBackground() {
@@ -41,7 +45,7 @@ class MainNavigationController: UINavigationController {
         
         if self.viewModel.isSearchRoot {
             let searchScreen = SearchScreenViewController()
-            searchScreen.delegate = self.viewModel
+            searchScreen.viewModel.delegate = self.viewModel
             return searchScreen
         } else {
             let weatherScreen = CitiesPageViewController()

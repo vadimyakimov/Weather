@@ -18,11 +18,11 @@ class MainNavigationViewModel {
 
 extension MainNavigationViewModel: SearchScreenViewControllerDelegate {
     func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City) {
-        print("selected")
+//        print("selected")
         if let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: autocompletedCity) {
-            print(index)
-            print(CitiesCoreDataStack.shared.citiesList.count)
-            print(CitiesCoreDataStack.shared.citiesList.firstIndex(of: autocompletedCity))
+//            print(index)
+//            print(CitiesCoreDataStack.shared.citiesList.count)
+//            print(CitiesCoreDataStack.shared.citiesList.firstIndex(of: autocompletedCity))
             return
         }
         CitiesCoreDataStack.shared.addCity(autocompletedCity)

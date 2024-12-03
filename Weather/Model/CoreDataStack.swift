@@ -24,13 +24,7 @@ class CitiesCoreDataStack {
     var context: NSManagedObjectContext {
         return self.persistentContainer.viewContext
     }
-    
-    var bgContext: NSManagedObjectContext {
-        get {
-            return self.persistentContainer.newBackgroundContext()
-        }
-    }
-    
+        
     var citiesList: [City] {
         get {
             return self.fetchCities()

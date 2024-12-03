@@ -138,7 +138,6 @@ class NetworkManager {
             }
             
             let jsonData = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-            
             complete(jsonData)
         }
         
@@ -182,13 +181,13 @@ class NetworkManager {
         for dataDictionary in dataArray {
             if let key = dataDictionary[self.keyCityID] as? String,
                let name = dataDictionary[self.keyCityName] as? String {
-                
                 let city = City(context: CitiesCoreDataStack.shared.bgContext,
                                 key: key,
                                 name: name)
                 autocompletedCitiesArray.append(city)
             }
         }
+        print(CitiesCoreDataStack.shared.citiesList)
         return autocompletedCitiesArray
     }
     
