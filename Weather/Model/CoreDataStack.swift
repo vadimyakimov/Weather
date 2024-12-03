@@ -7,7 +7,6 @@ class CitiesCoreDataStack {
     // MARK: - Core Data stack
     
     static let shared = CitiesCoreDataStack()
-    private init() {}
 
     private var containerName = "Cities"
     
@@ -24,11 +23,20 @@ class CitiesCoreDataStack {
     var context: NSManagedObjectContext {
         return self.persistentContainer.viewContext
     }
+    
+    let tempContext: NSManagedObjectContext
         
     var citiesList: [City] {
         get {
             return self.fetchCities()
         }
+    }
+    
+    // MARK: - Initializers
+    
+    private init() {
+        self.tempContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        self.tempContext.parent = self.context
     }
 
     // MARK: - Core Data context funcs
@@ -47,7 +55,7 @@ class CitiesCoreDataStack {
     // MARK: - Core Data working with entities
     
     
-    func fetchCities() -> [City] {
+    private func fetchCities() -> [City] {
         let fetchRequest = City.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(City.id), ascending: true)]
         

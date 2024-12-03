@@ -52,9 +52,7 @@ class SearchScreenViewController: UIViewController {
     func bindViewModel() {
         
         self.viewModel.citiesAutocompleteArray.bind { [unowned self] _ in
-            DispatchQueue.main.async {
-                self.searchTableView.reloadData()
-            }
+            self.searchTableView.reloadData()
         }
         
         self.viewModel.isLocationLoading.bind { [unowned self] isLoading in

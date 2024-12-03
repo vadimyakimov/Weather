@@ -4,7 +4,7 @@ import CoreLocation
 import CoreData
 
 class NetworkManager {
-        
+    
     static let shared = NetworkManager()
     
     //MARK: API keys
@@ -45,7 +45,7 @@ class NetworkManager {
     // MARK: - Server connection functions
     
     func getImage(iconNumber: Int, complete: @escaping(UIImage) -> ()) {
-                
+        
         let numberFormatted = String(format: "%02d", iconNumber)
         let urlString = "https://developer.accuweather.com/sites/default/files/" + numberFormatted + "-s.png"
         guard let url = URL(string: urlString) else { return }
@@ -59,9 +59,9 @@ class NetworkManager {
             }
         }
     }
-        
+    
     func getCurrentWeather(for city: City, complete: @escaping(CurrentWeather?) -> ()) {
-                
+        
         let cityKey = city.key
         let url = "\(self.baseURL)/currentconditions/v1/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.language)"
         
@@ -101,11 +101,12 @@ class NetworkManager {
     
     func autocomplete(for text: String, complete: @escaping ([City]) -> ()) {
         guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
-            
+        
         let url = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
         
         self.fetchRequest(with: url) { data in
             guard let parsedCityArray = self.parseCityAutocompleteArray(from: data) else { return }
+                    
             DispatchQueue.main.async {
                 complete(parsedCityArray)
             }
@@ -114,7 +115,7 @@ class NetworkManager {
     
     func geopositionCity(for location: CLLocationCoordinate2D, complete: @escaping (City) -> ()) {
         let url = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.language)"
-                
+        
         self.fetchRequest(with: url) { data in
             guard let parsedCity = self.parseGeopositionCity(from: data) else { return }
             DispatchQueue.main.async {
@@ -145,7 +146,7 @@ class NetworkManager {
     }
     
     //MARK: - Parsing functions
-       
+    
     private func parseHourlyForecast(for city: City, data: Any?) -> [HourlyForecast]? {
         
         guard let dataArray = data as? [[String : Any]] else { return nil }
@@ -176,18 +177,18 @@ class NetworkManager {
         
         guard let dataArray = data as? [[String : Any]] else { return nil }
         
-        var autocompletedCitiesArray: [City] = []
+        var autocompletedCitiesArray = [City]()
         
         for dataDictionary in dataArray {
             if let key = dataDictionary[self.keyCityID] as? String,
                let name = dataDictionary[self.keyCityName] as? String {
-                let city = City(context: CitiesCoreDataStack.shared.bgContext,
+                let city = City(context: CitiesCoreDataStack.shared.tempContext,
                                 key: key,
                                 name: name)
                 autocompletedCitiesArray.append(city)
             }
         }
-        print(CitiesCoreDataStack.shared.citiesList)
+        
         return autocompletedCitiesArray
     }
     
@@ -203,5 +204,5 @@ class NetworkManager {
                         isLocated: true)
         
         return city
-    }    
+    }
 }

@@ -34,9 +34,7 @@ class SearchScreenViewModel: NSObject {
                                                       block: { _ in
             NetworkManager.shared.autocomplete(for: searchText) { [unowned self] cityArray in
                 self.citiesAutocompleteArray.value = cityArray
-//                DispatchQueue.main.async {
                 self.autocompleteTimer.invalidate()
-//                  }
             }
         })
     }
