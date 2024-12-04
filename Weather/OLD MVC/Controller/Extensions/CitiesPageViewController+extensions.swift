@@ -83,28 +83,7 @@
 //
 //// MARK: - Search Screen View Controller Delegate
 //
-//extension CitiesPageViewController: SearchScreenViewControllerDelegate {
-//    
-//    func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City) {
-//        
-//        if let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: autocompletedCity) {
-//            self.backToPageViewController(withIndex: index)
-//        } else {
-//            CitiesCoreDataStack.shared.addCity(autocompletedCity)
-//            self.backToPageViewController(withIndex: CitiesCoreDataStack.shared.citiesList.count - 1)
-//        }
-//    }
-//    
-//    func searchScreenViewController(didLoadLocaleCity city: City) {
-//        
-//        if CitiesCoreDataStack.shared.citiesList.first?.isLocated == true {
-//            CitiesCoreDataStack.shared.deleteCity(at: 0)
-//        }
-//        CitiesCoreDataStack.shared.addCity(city)
-//        CitiesCoreDataStack.shared.moveCity(at: CitiesCoreDataStack.shared.citiesList.count - 1, to: 0)
-//        self.backToPageViewController(withIndex: 0)
-//    }
-//}
+
 //
 //// MARK: - Cities List View Controller Delegate
 //

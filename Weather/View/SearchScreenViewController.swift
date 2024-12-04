@@ -10,7 +10,7 @@ import UIKit
 class SearchScreenViewController: UIViewController {
     
     // MARK: - Properties
-    
+        
     var viewModel = SearchScreenViewModel()
     
     var searchTableView = UITableView()
@@ -33,15 +33,15 @@ class SearchScreenViewController: UIViewController {
     }
     
     // MARK: - Initializers
-    //
-    //    init(hidesBackButton: Bool = false) {
-    ////        self.hidesBackButton = hidesBackButton
-    //        super.init(nibName: nil, bundle: nil)
-    //    }
-    //
-    //    required init?(coder: NSCoder) {
-    //        fatalError("init(coder:) has not been implemented")
-    //    }
+    
+        init(isRoot: Bool = false) {
+            self.viewModel.isRoot = isRoot
+            super.init(nibName: nil, bundle: nil)
+        }
+    
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -59,8 +59,10 @@ class SearchScreenViewController: UIViewController {
             self.setLoadingAnimation(isLoading)
         }
         
-        self.viewModel.locationError?.bind { [unowned self] _ in
-            self.showLocationErrorAlert()
+        self.viewModel.locationError.bind { [unowned self] error in
+            if error != nil {
+                self.showLocationErrorAlert()                
+            }
         }
     }
     
@@ -115,16 +117,17 @@ class SearchScreenViewController: UIViewController {
     }
     
     private func addSearchController() {
+        
         self.autocompleteSearchController.searchResultsUpdater = self
         self.autocompleteSearchController.delegate = self
         
-//        if self.hidesBackButton {
+        if self.viewModel.isRoot {
             self.navigationItem.titleView = self.autocompleteSearchController.searchBar
-//            self.navigationItem.hidesBackButton = true
+            self.navigationItem.hidesBackButton = true
             self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
-//        } else {
-//            self.navigationItem.searchController = self.autocompleteSearchController
-//        }
+        } else {
+            self.navigationItem.searchController = self.autocompleteSearchController
+        }
         
         self.navigationItem.hidesSearchBarWhenScrolling = false
         self.autocompleteSearchController.isActive = true
@@ -139,7 +142,6 @@ class SearchScreenViewController: UIViewController {
         self.searchTableView.rowHeight = CityTableViewCell.cellHeight
         self.searchTableView.separatorStyle = .none
         self.view.addSubview(self.searchTableView)
-        
     }
     
     // MARK: - Location funcs
@@ -188,12 +190,10 @@ extension SearchScreenViewController: UISearchResultsUpdating {
 //MARK: - Search Controller Delegate
 
 extension SearchScreenViewController: UISearchControllerDelegate {
-    
     func presentSearchController(_ searchController: UISearchController) {
         searchController.searchBar.becomeFirstResponder()
     }
 }
-
 
 
 // MARK: - Table View Data Source
@@ -220,7 +220,6 @@ extension SearchScreenViewController: UITableViewDataSource {
             cell.configure(width: width, text: "My location".localized(), isLocation: true)
         } else {
             guard let autocompletedCity = self.viewModel.getCity(atIndexPath: indexPath) else { return UITableViewCell() }
-            
             cell.configure(width: width, text: autocompletedCity.name)
         }
         return cell
@@ -232,16 +231,8 @@ extension SearchScreenViewController: UITableViewDataSource {
 extension SearchScreenViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         self.autocompleteSearchController.searchBar.resignFirstResponder()
         self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
-
-        if indexPath.section == 0 {
-            self.setLoadingAnimation(true)
-//            self.requestLocation()
-        } else {
-            guard let city = self.viewModel.getCity(atIndexPath: indexPath) else { return }
-//            self.delegate?.searchScreenViewController(didSelectRowAt: indexPath, autocompletedCity: city)
-        }
+        self.viewModel.passSelectedRow(at: indexPath)
     }
 }

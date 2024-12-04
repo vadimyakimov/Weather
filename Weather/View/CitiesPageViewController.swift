@@ -8,11 +8,392 @@
 import UIKit
 
 class CitiesPageViewController: UIPageViewController {
+    
+    // MARK: - Properties
+
+    private let viewModel = CitiesPageViewModel()
+
+    override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
+
+    private let gradient = CAGradientLayer()
+
+    var nameLabel = UILabel()
+    var newNameLabel = UILabel()
+    private let nameLabelHeight: CGFloat = 80
+    let nameLabelFontSize: CGFloat = 60
+    let nameLabelMinimumFontSize: CGFloat = 30
+    let horizontalOffset: CGFloat = 20
+
+    private let pageControl = UIPageControl()
+    private let pageControlHeight: CGFloat = 20
+    private var previousPageControlIndex: Int?
+    
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        self.dataSource = self
+        self.delegate = self
+//        self.scrollView.contentInsetAdjustmentBehavior = .never
+//
+//        self.addGradient()
+//        self.view.addSubview(self.pageControl)
+
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+//        self.updatePageControl()
+//        self.navigationController?.isNavigationBarHidden = true
+    }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+
+//        self.configurePageControl()
+//        self.addNameLabel()
+
     }
     
+    // MARK: - IBActions
+
+//    @IBAction func listButtonPressed() {
+//        let list = CitiesListViewController()
+//        list.delegate = self
+//        self.navigationController?.pushViewController(list, animated: true)
+//    }
+//
+//    @IBAction func pageControlValueChanged(_ sender: Any) {
+//        guard let pageControl = sender as? UIPageControl else { return }
+//
+//        if pageControl.isSelected {
+//            return
+//        } else {
+//            self.pageControl(didUpdate: pageControl)
+//        }
+//    }
+//
+//    @IBAction func pageControlTouchDown(_ sender: Any) {
+//        guard let pageControl = sender as? UIPageControl else { return }
+//        pageControl.isSelected = true
+//        self.previousPageControlIndex = pageControl.currentPage
+//    }
+//
+//    @IBAction func pageControlTouchUp(_ sender: Any) {
+//        guard let pageControl = sender as? UIPageControl else { return }
+//        pageControl.isSelected = false
+//        self.pageControl(didUpdate: pageControl)
+//    }
+    
 }
+
+//class OLDCitiesPageViewController: EMPageViewController {
+//
+//    // MARK: - View Controllers Management
+//
+//    func showCityViewController(withIndex index: Int, direction: EMPageViewControllerNavigationDirection = .forward) {
+//        guard let controller = self.cityViewController(withIndex: index) else { return }
+//
+//        self.selectViewController(controller, direction: direction, animated: true, completion: nil)
+//        self.changeGradientColor(isDayTime: controller.city.currentWeather?.isDayTime)
+//    }
+//
+//    func cityViewController(withIndex i: Int) -> CityViewController? {
+//
+//        var index = i
+//        let citiesCount = CitiesCoreDataStack.shared.citiesList.count
+//
+//        if index < 0 {
+//            if citiesCount > 3 {
+//                index += citiesCount
+//            } else {
+//                return nil
+//            }
+//        } else if index >= citiesCount {
+//            if citiesCount > 3 {
+//                index -= citiesCount
+//            } else {
+//                return nil
+//            }
+//        }
+//
+//        let yOriginCityViewController = self.nameLabelHeight + self.pageControlHeight
+//        let cityViewController = CityViewController(CitiesCoreDataStack.shared.citiesList[index],
+//                                                    frame: CGRect(x: 0,
+//                                                                  y: yOriginCityViewController,
+//                                                                  width: self.view.frame.size.width,
+//                                                                  height: self.view.frame.size.height - yOriginCityViewController))
+//        cityViewController.delegate = self
+//        return cityViewController
+//    }
+//
+//    func backToPageViewController(withIndex index: Int) {
+//        self.navigationController?.popToRootViewController(animated: true)
+//        self.updatePageControl(index: index)
+//        self.showCityViewController(withIndex: index)
+//    }
+//
+//    func checkDeletedViewControllers() {
+//
+//        guard self.navigationController?.topViewController == self,
+//            let controller = self.selectedViewController as? CityViewController else { return }
+//
+//
+//        let city = controller.city
+//        var index: Int
+//
+//        if let i = CitiesCoreDataStack.shared.citiesList.firstIndex(of: city) {
+//            index = i
+//        } else {
+//            index = self.pageControl.currentPage
+//        }
+//
+//        self.updateFrame()
+//
+//        self.updatePageControl(index: index)
+//        self.showCityViewController(withIndex: self.pageControl.currentPage)
+//    }
+//
+//    // MARK: - Frame
+//
+//    private func updateFrame() {
+//        self.view.frame.size.height += self.view.frame.origin.y
+//        self.view.frame.origin.y = 0
+//    }
+//
+//    // MARK: - Page Control
+//
+//    private func configurePageControl() {
+//        self.updatePageControl()
+//        self.pageControl.frame.origin = CGPoint(x: (self.view.frame.width - self.pageControl.frame.width) / 2,
+//                                                y: self.view.safeAreaInsets.top)
+//        self.pageControl.hidesForSinglePage = true
+//
+//        self.pageControl.addTarget(self, action: #selector(self.pageControlValueChanged(_:)), for: .valueChanged)
+//        self.pageControl.addTarget(self, action: #selector(self.pageControlTouchDown(_:)), for: .touchDown)
+//        self.pageControl.addTarget(self, action: #selector(self.pageControlTouchUp(_:)), for: [.touchUpInside])
+//    }
+//
+//    func updatePageControl(index: Int? = nil) {
+//        if self.pageControl.numberOfPages != CitiesCoreDataStack.shared.citiesList.count {
+//            self.pageControl.numberOfPages = CitiesCoreDataStack.shared.citiesList.count
+//            let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
+//            self.pageControl.frame.size = CGSize(width: size.width, height: self.pageControlHeight)
+//            self.pageControl.frame.origin.x = (self.view.frame.width - size.width) / 2
+//        }
+//
+//        if let index = index {
+//            self.pageControl.currentPage = index
+//        }
+//    }
+//
+//    func pageControl(didUpdate pageControl: UIPageControl) {
+//        guard let previousPageControlIndex = self.previousPageControlIndex,
+//                pageControl.currentPage != previousPageControlIndex,
+//                !pageControl.isSelected else { return }
+//
+//        if pageControl.currentPage > previousPageControlIndex {
+//            showCityViewController(withIndex: pageControl.currentPage, direction: .forward)
+//        } else {
+//            showCityViewController(withIndex: pageControl.currentPage, direction: .reverse)
+//        }
+//    }
+//
+//    // MARK: - Name Label
+//
+//    private func addNameLabel() {
+//
+//        guard let controller = self.selectedViewController as? CityViewController else { return }
+//
+//        self.configureNameLabel()
+//        self.view.addSubview(self.newNameLabel)
+//
+//        self.configureNameLabel(text: controller.city.name)
+//        self.view.addSubview(self.nameLabel)
+//
+//        let recognizer = UITapGestureRecognizer(target: self,
+//                                                action: #selector(self.listButtonPressed))
+//        self.nameLabel.addGestureRecognizer(recognizer)
+//    }
+//
+//    private func configureNameLabel(text: String? = nil) {
+//
+//        let screen = self.view.frame.size
+//
+//        self.newNameLabel.frame = CGRect(x: self.horizontalOffset,
+//                                         y: self.view.safeAreaInsets.top + self.pageControlHeight,
+//                                         width: screen.width - (self.horizontalOffset * 2),
+//                                         height: self.nameLabelHeight)
+//        self.newNameLabel.text = text
+//        self.newNameLabel.textColor = .white
+//        self.newNameLabel.textAlignment = .center
+//        self.newNameLabel.font = UIFont.systemFont(ofSize: self.nameLabelFontSize, weight: .light)
+//        self.newNameLabel.layer.zPosition = 100
+//        self.newNameLabel.adjustsFontSizeToFitWidth = true
+//        self.newNameLabel.isUserInteractionEnabled = true
+//    }
+//
+//    // MARK: - Background Gradient
+//
+//    private func addGradient() {
+//        self.gradient.opacity = 1
+//        self.gradient.startPoint = CGPoint(x: 0, y: 0)
+//        self.gradient.endPoint = CGPoint(x: 0, y: 1)
+//        self.gradient.frame = self.view.bounds
+//        self.view.layer.insertSublayer(gradient, at: 0)
+//
+//        self.changeGradientColor(isDayTime: nil)
+//    }
+//
+//    func changeGradientColor(isDayTime: Bool?) {
+//        if isDayTime == false {
+//            self.gradient.colors = [UIColor(red: 0.25, green: 0, blue: 0.57, alpha: 1).cgColor,
+//                                    UIColor(red: 0, green: 0.35, blue: 0.53, alpha: 1).cgColor,
+//                                    UIColor(red: 0.02, green: 0, blue: 0.36, alpha: 1).cgColor]
+//        } else {
+//            self.gradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
+//                                    UIColor(red: 1, green: 0.49, blue: 0.49, alpha: 1).cgColor,
+//                                    UIColor(red: 1, green: 0.82, blue: 0.24, alpha: 1).cgColor]
+//        }
+//    }
+//
+//}
+//
+//
+// MARK: - EM Page View Controller Data Source
+
+extension CitiesPageViewController: EMPageViewControllerDataSource {
+    func em_pageViewController(_ pageViewController: EMPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
+        guard let controller = (viewController as? CityViewController) else { return nil }
+
+        guard let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: controller.city) else { return nil }
+        return self.cityViewController(withIndex: index - 1)
+    }
+
+    func em_pageViewController(_ pageViewController: EMPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController? {
+        guard let controller = (viewController as? CityViewController) else { return nil }
+
+        guard let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: controller.city) else { return nil }
+        return self.cityViewController(withIndex: index + 1)
+    }
+}
+
+// MARK: - EM Page View Controller Delegate
+
+extension CitiesPageViewController: EMPageViewControllerDelegate {
+
+    func em_pageViewController(_ pageViewController: EMPageViewController, isScrollingFrom startingViewController: UIViewController, destinationViewController: UIViewController, progress: CGFloat) {
+
+        guard let destinationViewController = destinationViewController as? CityViewController,
+              let startingViewController = startingViewController as? CityViewController else { return }
+
+        var visibleViewController: CityViewController
+        if abs(progress) > 0.5 {
+            visibleViewController = destinationViewController
+        } else {
+            visibleViewController = startingViewController
+        }
+        let isDayTime = visibleViewController.city.currentWeather?.isDayTime ?? true
+        self.changeGradientColor(isDayTime: isDayTime)
+
+
+        self.nameLabel.text = startingViewController.city.name
+        self.newNameLabel.text = destinationViewController.city.name
+
+        switch abs(progress) {
+        case 0:
+            self.newNameLabel.frame.origin.x = self.horizontalOffset + self.view.frame.width
+        case 0..<1:
+            let oldLabelGraph = -((pow(Double(progress), 3) / 2) + (progress / 2))
+            let newLabelGraph = (abs(progress) / progress) * ((pow(Double(progress), 2) / 2) -
+                                ((abs(progress) / progress) * progress * 1.5) + 1)
+
+            self.nameLabel.frame.origin.x = self.horizontalOffset + (self.view.frame.width * oldLabelGraph)
+            self.newNameLabel.frame.origin.x = self.horizontalOffset + (self.view.frame.width * newLabelGraph)
+
+
+            let oldLabelOpacityGraph = -pow(Double(progress), 2) + 1
+            let newLabelOpacityGraph = pow(progress, 2)
+
+            self.nameLabel.layer.opacity = Float(oldLabelOpacityGraph)
+            self.newNameLabel.layer.opacity = Float(newLabelOpacityGraph)
+        case 1:
+            self.nameLabel.text = destinationViewController.city.name
+            self.nameLabel.frame.origin.x = self.horizontalOffset
+            self.nameLabel.layer.opacity = 1
+
+//            self.newNameLabel.text = ""
+            self.newNameLabel.frame.origin.x = self.view.frame.width
+            self.newNameLabel.layer.opacity = 0
+        default:
+            break
+        }
+    }
+
+    func em_pageViewController(_ pageViewController: EMPageViewController, didFinishScrollingFrom startingViewController: UIViewController?, destinationViewController: UIViewController, transitionSuccessful: Bool) {
+        guard transitionSuccessful,
+              let controller = destinationViewController as? CityViewController,
+              let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: controller.city) else { return }
+        self.updatePageControl(index: index)
+    }
+}
+//
+//// MARK: - Search Screen View Controller Delegate
+//
+
+//
+//// MARK: - Cities List View Controller Delegate
+//
+//extension CitiesPageViewController: CitiesListViewControllerDelegate {
+//
+//    func citiesListViewController(didSelectRowAt indexPath: IndexPath) {
+//        self.backToPageViewController(withIndex: indexPath.row)
+//    }
+//
+//    func citiesListViewController(shouldRemoveCityAt index: Int) {
+//        CitiesCoreDataStack.shared.deleteCity(at: index)
+//    }
+//
+//    func citiesListViewController(shouldMoveCityAt sourceIndex: Int, to destinationIndex: Int) {
+//        CitiesCoreDataStack.shared.moveCity(at: sourceIndex, to: destinationIndex)
+//    }
+//
+//    func citiesListViewControllerWillDisappear() {
+//        self.checkDeletedViewControllers()
+//    }
+//}
+//
+//// MARK: - City View Controller Delegate
+//
+//extension CitiesPageViewController: CityViewControllerDelegate {
+//
+//    func cityViewController(didUpdateCurrentWeatherFor city: City) {
+//
+//        CitiesCoreDataStack.shared.saveContext()
+//
+//        guard let controller = self.selectedViewController as? CityViewController else { return }
+//        let isDayTime = controller.city.currentWeather?.isDayTime ?? true
+//        self.changeGradientColor(isDayTime: isDayTime)
+//    }
+//
+//    func cityViewController(didUpdateHourlyForecastFor city: City) {
+//        CitiesCoreDataStack.shared.saveContext()
+//    }
+//
+//    func cityViewController(didUpdateDailyForecastFor city: City) {
+//        CitiesCoreDataStack.shared.saveContext()
+//    }
+//
+//    func cityViewController(scrollViewDidScroll scrollView: UIScrollView) {
+//        let fontSize = self.nameLabelFontSize - scrollView.contentOffset.y
+//        if fontSize < self.nameLabelFontSize * 2 &&
+//           fontSize > self.nameLabelMinimumFontSize {
+//            self.nameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
+//            self.newNameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
+//        }
+//    }
+//
+//}
+

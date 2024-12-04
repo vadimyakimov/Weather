@@ -5,31 +5,40 @@
 //  Created by Вадим on 02.12.2024.
 //
 
-import Foundation
-
 class MainNavigationViewModel {
     
-    var isSearchRoot: Bool {
-        get {
-            CitiesCoreDataStack.shared.citiesList.isEmpty
-        }
-    }
-}
-
-extension MainNavigationViewModel: SearchScreenViewControllerDelegate {
-    func searchScreenViewController(didSelectRowAt indexPath: IndexPath, autocompletedCity: City) {
-//        print("selected")
-        if let index = CitiesCoreDataStack.shared.citiesList.firstIndex(of: autocompletedCity) {
-//            print(index)
-//            print(CitiesCoreDataStack.shared.citiesList.count)
-//            print(CitiesCoreDataStack.shared.citiesList.firstIndex(of: autocompletedCity))
-            return
-        }
-        CitiesCoreDataStack.shared.addCity(autocompletedCity)
-        print("selected")
+    // MARK: - Properties
+    
+    private var citiesList: [City] {
+        return CitiesCoreDataStack.shared.citiesList
     }
     
-    func searchScreenViewController(didLoadLocaleCity city: City) {
-        
+    var citiesCount: Int {
+        return self.citiesList.count
     }
+    
+    var isSearchRoot: Bool {
+        return self.citiesList.isEmpty
+    }
+    
+    // MARK: - Working with data
+    
+    func addNewCity(_ city: City) {
+        
+        CitiesCoreDataStack.shared.addCity(city)
+        
+        if city.isLocated {
+            if self.citiesList.first?.isLocated == true {
+                CitiesCoreDataStack.shared.deleteCity(at: 0)
+            }
+            CitiesCoreDataStack.shared.moveCity(at: CitiesCoreDataStack.shared.citiesList.count - 1, to: 0)
+        }
+    }
+    
+    func firstIndexInCityList(of city: City) -> Int? {
+        return self.citiesList.firstIndex(of: city)
+    }
+    
 }
+
+

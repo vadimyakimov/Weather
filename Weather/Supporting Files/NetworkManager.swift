@@ -106,7 +106,6 @@ class NetworkManager {
         
         self.fetchRequest(with: url) { data in
             guard let parsedCityArray = self.parseCityAutocompleteArray(from: data) else { return }
-                    
             DispatchQueue.main.async {
                 complete(parsedCityArray)
             }
