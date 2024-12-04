@@ -13,7 +13,7 @@ class MainNavigationController: UINavigationController {
     
     private let viewModel = MainNavigationViewModel()
     
-    private var indexPageViewControler: Int?
+    private var indexPageViewControler = 0
     
     // MARK: - Lifecycle
     
@@ -65,7 +65,7 @@ class MainNavigationController: UINavigationController {
             searchScreen.viewModel.delegate = self
             return searchScreen
         } else {
-            let weatherScreen = CitiesPageViewController()
+            let weatherScreen = CitiesPageViewController(atIndex: self.indexPageViewControler)
             return weatherScreen
         }
     }

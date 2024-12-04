@@ -197,7 +197,7 @@ class NetworkManager {
         guard let key = dataDictionary[self.keyCityID] as? String else { return nil }
         guard let name = dataDictionary[self.keyCityName] as? String else { return nil }
         
-        let city = City(context: CitiesCoreDataStack.shared.context,
+        let city = City(context: CitiesCoreDataStack.shared.tempContext,
                         key: key,
                         name: name,
                         isLocated: true)

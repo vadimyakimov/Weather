@@ -15,7 +15,7 @@ class SearchScreenViewModel: NSObject {
     
     weak var delegate: SearchScreenViewControllerDelegate?
     
-    var isRoot = false
+    var isRoot: Bool
     
     var citiesAutocompleteArray = Bindable([City]())
     
@@ -26,7 +26,11 @@ class SearchScreenViewModel: NSObject {
     private lazy var autocompleteTimer = Timer()
     private let timerInterval = 0.7
     
-    //    let hidesBackButton: Bool
+    // MARK: - Initializers
+    
+    init(isRoot: Bool) {
+        self.isRoot = isRoot
+    }
     
     // MARK: - Getting data
     

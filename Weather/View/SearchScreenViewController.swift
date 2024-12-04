@@ -11,7 +11,7 @@ class SearchScreenViewController: UIViewController {
     
     // MARK: - Properties
         
-    var viewModel = SearchScreenViewModel()
+    var viewModel: SearchScreenViewModel
     
     var searchTableView = UITableView()
     let autocompleteSearchController = UISearchController()
@@ -35,7 +35,7 @@ class SearchScreenViewController: UIViewController {
     // MARK: - Initializers
     
         init(isRoot: Bool = false) {
-            self.viewModel.isRoot = isRoot
+            self.viewModel = SearchScreenViewModel(isRoot: isRoot)
             super.init(nibName: nil, bundle: nil)
         }
     

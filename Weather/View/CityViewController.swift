@@ -27,6 +27,7 @@ class CityViewController: UIViewController {
 
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
+        print("viewSafeAreaInsetsDidChange")
         if !isConfigured {
             self.configure()
         }
@@ -41,7 +42,7 @@ class CityViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-//        weatherInfoView.delegate = self
+        weatherInfoView.delegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -65,15 +66,15 @@ class CityViewController: UIViewController {
         self.weatherInfoView.configure()
 
         let cityScrollView = UIScrollView()
-//        cityScrollView.delegate = self
+        cityScrollView.delegate = self
         cityScrollView.frame = CGRect(x: self.frameRectangle.origin.x,
                                       y: self.frameRectangle.origin.y + self.view.safeAreaInsets.top,
                                       width: self.frameRectangle.width,
                                       height: self.frameRectangle.height - self.view.safeAreaInsets.top)
-        cityScrollView.contentSize = weatherInfoView.frame.size
+        cityScrollView.contentSize = self.weatherInfoView.frame.size
         cityScrollView.showsVerticalScrollIndicator = false
 
-        cityScrollView.addSubview(weatherInfoView)
+        cityScrollView.addSubview(self.weatherInfoView)
         cityScrollView.refreshControl = cityRefreshControl
         self.view.addSubview(cityScrollView)
 
@@ -102,4 +103,39 @@ class CityViewController: UIViewController {
 
         scrollView.layer.mask = mask
     }
+}
+
+// MARK: - Scroll View Delegate
+
+extension CityViewController: UIScrollViewDelegate {
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        UIView.animate(withDuration: 1) {
+            self.addFade(to: scrollView)
+        }
+        self.delegate?.cityViewController(scrollViewDidScroll: scrollView)
+    }
+
+}
+
+// MARK: - Weather Info View Delegate
+
+extension CityViewController: WeatherInfoViewDelegate {
+
+    func weatherInfoView(didUpdateWeatherInfoFor city: City) {
+        self.cityRefreshControl.endRefreshing()
+    }
+
+    func weatherInfoView(didUpdateCurrentWeatherFor city: City) {
+        self.delegate?.cityViewController(didUpdateCurrentWeatherFor: self.viewModel.city)
+    }
+
+    func weatherInfoView(didUpdateHourlyForecastFor city: City) {
+        self.delegate?.cityViewController(didUpdateHourlyForecastFor: self.viewModel.city)
+    }
+
+    func weatherInfoView(didUpdateDailyForecastFor city: City) {
+        self.delegate?.cityViewController(didUpdateDailyForecastFor: self.viewModel.city)
+    }
+
 }
