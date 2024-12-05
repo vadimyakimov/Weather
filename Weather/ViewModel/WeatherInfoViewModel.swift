@@ -34,6 +34,7 @@ class WeatherInfoViewModel {
     }
     
     
+    
     init(city: City) {
         self.city = city
     }

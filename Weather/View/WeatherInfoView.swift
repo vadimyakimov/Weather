@@ -5,12 +5,16 @@ class WeatherInfoView: UIView {
     // MARK: - Properties
         
     let viewModel: WeatherInfoViewModel
-        
-    private let verticalSpacing: CGFloat = 30
     
+    private let verticalSpacing: CGFloat = 30
+    private let innerOffset: CGFloat = 20
+        
     private let currentWeatherView = CurrentWeatherView.instanceFromNib()
     private var hourlyForecastViews = [OneHourView](repeating: OneHourView(), count: 12)
     private var dailyForecastViews = [OneDayView](repeating: OneDayView(), count: 5)
+    
+    private let hourlyScrollView = UIScrollView()
+    private let dailyScrollView = UIScrollView()
             
     // MARK: - Initializers
     
@@ -71,7 +75,7 @@ class WeatherInfoView: UIView {
         self.frame.size.height += self.verticalSpacing / 2
         self.configureCurrentWearher()
         self.configureHourlyForecast()
-        self.configureDailyForecast()
+//        self.configureDailyForecast()
     }
     
     func refreshWeather() {
@@ -82,19 +86,26 @@ class WeatherInfoView: UIView {
     }
     
     private func configureCurrentWearher() {
-               
-        let top = self.frame.height
-        let width = self.frame.width
+        
+        let view = self.currentWeatherView
+        view.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(view)
+        
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: self.topAnchor, constant: self.verticalSpacing / 2),
+            view.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            view.widthAnchor.constraint(equalToConstant: self.currentWeatherView.frame.width),
+            view.heightAnchor.constraint(equalToConstant: self.currentWeatherView.frame.height),
+        ])
+        
+        
+        view.configure(isDayTime: self.viewModel.isDayTime) //?????
+        
+        
         let currentWeatherViewSide = self.currentWeatherView.frame.width
-        
-        self.currentWeatherView.configure(isDayTime: self.viewModel.isDayTime)
-        self.currentWeatherView.frame.origin = CGPoint(x: (width - currentWeatherViewSide) / 2, y: top)
-        
-        self.addSubview(self.currentWeatherView)
-        
         self.frame.size.height += currentWeatherViewSide + self.verticalSpacing
         
-        if self.viewModel.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
+        if self.viewModel.lastUpdated.currentWeather.timeIntervalSinceNow > -600 { //????????
             self.updateCurrentWeather(self.viewModel.currentWeather.value)
         } else {
             self.viewModel.fetchCurrentWeather()
@@ -104,36 +115,90 @@ class WeatherInfoView: UIView {
     
     private func configureHourlyForecast() {
         
-        let top = self.frame.height
-        let width = self.frame.width
-        
-        let offsetBetween: CGFloat = 20
         let oneHourViewSize = OneHourView.instanceFromNib().frame.size
-        var contentWidth = offsetBetween
+                
+        let scrollView = self.hourlyScrollView
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(scrollView)
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: self.currentWeatherView.bottomAnchor,
+                                            constant: self.verticalSpacing),
+//            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+//            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            scrollView.widthAnchor.constraint(equalToConstant: self.frame.width),
+            scrollView.heightAnchor.constraint(equalToConstant: oneHourViewSize.height),
+        ])
         
         
-        let hourlyScrollView = UIScrollView(frame: CGRect(x: 0,
-                                                          y: top,
-                                                          width: width,
-                                                          height: oneHourViewSize.height))
-        hourlyScrollView.showsHorizontalScrollIndicator = false
-        self.addSubview(hourlyScrollView)
+        var contentWidth = self.innerOffset
         
+        var previousView: OneHourView?
         
-        for index in 0..<self.hourlyForecastViews.count {
-            let oneHourView = OneHourView.instanceFromNib()
-            oneHourView.configure()
-            oneHourView.frame.origin = CGPoint(x: contentWidth, y: 0)
-            hourlyScrollView.addSubview(oneHourView)
+        for var view in self.hourlyForecastViews {
             
-            self.hourlyForecastViews[index] = oneHourView
+            contentWidth += oneHourViewSize.width + self.innerOffset
+                        
+            view = OneHourView.instanceFromNib()
+            view.configure()
+            scrollView.addSubview(view)
             
-            contentWidth += oneHourViewSize.width + offsetBetween            
+            var leadingAnchor: NSLayoutConstraint
+            
+            if let previousView = previousView {
+                leadingAnchor = view.leadingAnchor.constraint(equalTo: previousView.trailingAnchor,
+                                                              constant: self.innerOffset)
+            } else {
+                leadingAnchor = view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
+            }
+            
+            NSLayoutConstraint.activate([
+                leadingAnchor,
+                view.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                view.widthAnchor.constraint(equalToConstant: oneHourViewSize.width),
+                view.heightAnchor.constraint(equalToConstant: oneHourViewSize.height),
+            ])
+            
+            previousView = view
         }
         
-        hourlyScrollView.contentSize.width = contentWidth
+//        scrollView.contentSize.width = contentWidth
         
-        self.frame.size.height += hourlyScrollView.frame.height + self.verticalSpacing
+//        print(scrollView.subviews)
+//        print(self.frame.width)
+        
+        
+        
+//        let top = self.frame.height
+//        let width = self.frame.width
+        
+//        let offsetBetween: CGFloat = 20
+//        let oneHourViewSize = OneHourView.instanceFromNib().frame.size
+//        var contentWidth = offsetBetween
+        
+        
+//        let hourlyScrollView = UIScrollView(frame: CGRect(x: 0,
+//                                                          y: top,
+//                                                          width: width,
+//                                                          height: oneHourViewSize.height))
+//        hourlyScrollView.showsHorizontalScrollIndicator = false
+//        self.addSubview(hourlyScrollView)
+        
+        
+//        for index in 0..<self.hourlyForecastViews.count {
+//            let oneHourView = OneHourView.instanceFromNib()
+//            oneHourView.configure()
+//            oneHourView.frame.origin = CGPoint(x: contentWidth, y: 0)
+//            scrollView.addSubview(oneHourView)
+//            
+//            self.hourlyForecastViews[index] = oneHourView
+//            
+//            contentWidth += oneHourViewSize.width + offsetBetween            
+//        }
+        
+        
+        self.frame.size.height += hourlyScrollView.frame.height + self.verticalSpacing //??????????
         
         
         if self.viewModel.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
@@ -141,7 +206,6 @@ class WeatherInfoView: UIView {
         } else {
             self.viewModel.fetchHourlyForecast()
         }
-        
     }
     
     private func configureDailyForecast() {
@@ -194,7 +258,7 @@ class WeatherInfoView: UIView {
     }
     
     private func updateHourlyForecast(_ hourlyForecast: [HourlyForecast]?) {
-        
+                
         guard let data = hourlyForecast,
               data.count == self.hourlyForecastViews.count else { return }
         
