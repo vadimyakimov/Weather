@@ -3,11 +3,9 @@ import UIKit
 class WeatherInfoView: UIView {
     
     // MARK: - Properties
-    
-    weak var delegate: WeatherInfoViewDelegate?
-    
-    private let city: City
-    
+        
+    let viewModel: WeatherInfoViewModel
+        
     private let verticalSpacing: CGFloat = 30
     
     private let currentWeatherView = CurrentWeatherView.instanceFromNib()
@@ -17,12 +15,54 @@ class WeatherInfoView: UIView {
     // MARK: - Initializers
     
     init(for city: City) {
-        self.city = city
+        self.viewModel = WeatherInfoViewModel(city: city)
         super.init(frame: CGRect.zero)
+        
+        self.bindViewModel()
     }
     
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Binding functions
+    
+    func bindViewModel() {
+        
+        viewModel.currentWeather.bind { [unowned self] currentWeatherData in
+            self.updateCurrentWeather(currentWeatherData)
+        }
+        
+        viewModel.hourlyForecast.bind { [unowned self] hourlyForecastData in
+            self.updateHourlyForecast(hourlyForecastData)
+        }
+        
+        viewModel.dailyForecast.bind { [unowned self] dailyForecastData in
+            self.updateDailyForecast(dailyForecastData)
+        }
+        
+//            
+//        
+//        print(viewModel.city.currentWeather)
+//        print(viewModel.currentWeather.value)
+        
+//        self.viewModel.isCurrentWeatherUpdating.bind { [unowned self] isUpdating in
+//            if !isUpdating {
+//                self.updateView(self.currentWeatherView)
+//            }
+//        }
+//        
+//        self.viewModel.isHourlyForecastUpdating.bind { [unowned self] isUpdating in
+//            if !isUpdating {
+//                self.updateView(self.hourlyForecastViews)
+//            }
+//        }
+//        
+//        self.viewModel.isDailyForecastUpdating.bind { [unowned self] isUpdating in
+//            if !isUpdating {
+//                self.updateView(self.dailyForecastViews)
+//            }
+//        }
     }
     
     // MARK: - Configure functions
@@ -35,41 +75,10 @@ class WeatherInfoView: UIView {
     }
     
     func refreshWeather() {
-        let tasks = DispatchGroup()
-        
-        tasks.enter()
-        self.currentWeatherView.startSkeleton(isDayTime: city.currentWeather?.isDayTime)
-        NetworkManager.shared.getCurrentWeather(for: self.city) { currentWeather in
-            if let currentWeather = currentWeather {
-                self.updateData(currentWeather)
-            }
-            self.updateView(self.currentWeatherView)
-            tasks.leave()
-        }
-        
-        tasks.enter()
+        self.currentWeatherView.startSkeleton(isDayTime: self.viewModel.isDayTime)
         let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
-        NetworkManager.shared.getHourlyForecast(for: self.city) { dailyForecast in
-            if let dailyForecast = dailyForecast {
-                self.updateData(data: dailyForecast)
-            }
-            self.updateView(self.dailyForecastViews)
-            tasks.leave()
-        }
-
-        tasks.enter()
         let _ = self.dailyForecastViews.map({ $0.startSkeleton() })
-        NetworkManager.shared.getDailyForecast(for: self.city) { hourlyForecast in
-            if let hourlyForecast = hourlyForecast {
-                self.updateData(data: hourlyForecast)
-            }
-            self.updateView(self.hourlyForecastViews)
-            tasks.leave()
-        }
-        
-        tasks.notify(queue: .main) {
-            self.delegate?.weatherInfoView(didUpdateWeatherInfoFor: self.city)
-        }
+        self.viewModel.refreshWeather()
     }
     
     private func configureCurrentWearher() {
@@ -78,22 +87,17 @@ class WeatherInfoView: UIView {
         let width = self.frame.width
         let currentWeatherViewSide = self.currentWeatherView.frame.width
         
-        self.currentWeatherView.configure(isDayTime: self.city.currentWeather?.isDayTime)
+        self.currentWeatherView.configure(isDayTime: self.viewModel.isDayTime)
         self.currentWeatherView.frame.origin = CGPoint(x: (width - currentWeatherViewSide) / 2, y: top)
         
         self.addSubview(self.currentWeatherView)
         
         self.frame.size.height += currentWeatherViewSide + self.verticalSpacing
         
-        if self.city.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
-            self.updateView(self.currentWeatherView)
+        if self.viewModel.lastUpdated.currentWeather.timeIntervalSinceNow > -600 {
+            self.updateCurrentWeather(self.viewModel.currentWeather.value)
         } else {
-            NetworkManager.shared.getCurrentWeather(for: self.city) { currentWeather in
-                if let currentWeather = currentWeather {
-                    self.updateData(currentWeather)
-                }
-                self.updateView(self.currentWeatherView)
-            }
+            self.viewModel.fetchCurrentWeather()
         }
         
     }
@@ -132,15 +136,10 @@ class WeatherInfoView: UIView {
         self.frame.size.height += hourlyScrollView.frame.height + self.verticalSpacing
         
         
-        if self.city.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
-            self.updateView(self.hourlyForecastViews)
+        if self.viewModel.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
+            self.updateHourlyForecast(self.viewModel.hourlyForecast.value)
         } else {
-            NetworkManager.shared.getHourlyForecast(for: self.city) { hourlyForecast in
-                if let hourlyForecast = hourlyForecast {
-                    self.updateData(data: hourlyForecast)
-                }
-                self.updateView(self.hourlyForecastViews)
-            }
+            self.viewModel.fetchHourlyForecast()
         }
         
     }
@@ -173,59 +172,33 @@ class WeatherInfoView: UIView {
         
         self.frame.size.height += dailyView.frame.height + self.verticalSpacing
         
-        if self.city.lastUpdated.dailyForecast.timeIntervalSinceNow > -600 {
-            self.updateView(self.dailyForecastViews)
+        if self.viewModel.lastUpdated.dailyForecast.timeIntervalSinceNow > -600 {
+            self.updateDailyForecast(self.viewModel.dailyForecast.value)
         } else {
-            NetworkManager.shared.getDailyForecast(for: self.city) { dailyForecast in
-                if let dailyForecast = dailyForecast {
-                    self.updateData(data: dailyForecast)
-                }
-                self.updateView(self.dailyForecastViews)
-            }
+            self.viewModel.fetchDailyForecast()
         }
     }
     
-    // MARK: - View's data update functions
+    // MARK: - UI data update functions
         
-    private func updateData(_ data: CurrentWeather) {
+    private func updateCurrentWeather(_ currentWeather: CurrentWeather?) {
         
-        self.city.currentWeather = data
-        self.city.lastUpdated.currentWeather = Date()
-        self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
-    }
-    
-    private func updateData(data: [HourlyForecast]) {
+        guard let data = currentWeather else { return }
         
-        self.city.hourlyForecast = NSOrderedSet(array: data)
-        self.city.lastUpdated.hourlyForecast = Date()
-        self.delegate?.weatherInfoView(didUpdateHourlyForecastFor: self.city)
-    }
-    
-    private func updateData(data: [DailyForecast]) {
-        
-        self.city.dailyForecast = NSOrderedSet(array: data)
-        self.city.lastUpdated.dailyForecast = Date()
-        self.delegate?.weatherInfoView(didUpdateDailyForecastFor: self.city)
-    }
-    
-    private func updateView(_ view: CurrentWeatherView) {
-        
-        guard let data = self.city.currentWeather else { return }
-        
-        view.configure(isDayTime: data.isDayTime,
-                       temperature: Int(data.temperatureCelsius),
-                       weatherText: data.weatherText)
-        NetworkManager.shared.getImage(iconNumber: Int(data.weatherIcon)) { weatherIcon in
-            view.setIcon(weatherIcon)
+        self.currentWeatherView.configure(isDayTime: data.isDayTime,
+                                          temperature: Int(data.temperatureCelsius),
+                                          weatherText: data.weatherText)
+        NetworkManager.shared.getImage(iconNumber: Int(data.weatherIcon)) { [unowned self] weatherIcon in
+            self.currentWeatherView.setIcon(weatherIcon)
         }
     }
     
-    private func updateView(_ views: [OneHourView]) {
+    private func updateHourlyForecast(_ hourlyForecast: [HourlyForecast]?) {
         
-        guard let data = self.city.hourlyForecast?.array as? [HourlyForecast],
-                data.count == views.count else { return }
+        guard let data = hourlyForecast,
+              data.count == self.hourlyForecastViews.count else { return }
         
-        for (index, view) in views.enumerated() {
+        for (index, view) in self.hourlyForecastViews.enumerated() {
             view.configure(time: data[index].forecastTime,
                            temperature: Int(data[index].temperatureCelsius),
                            weatherText: data[index].weatherText)
@@ -235,12 +208,12 @@ class WeatherInfoView: UIView {
         }
     }
     
-    private func updateView(_ views: [OneDayView]) {
+    private func updateDailyForecast(_ dailyForecast: [DailyForecast]?) {
         
-        guard let data = self.city.dailyForecast?.array as? [DailyForecast],
-                data.count == views.count else { return }
+        guard let data = dailyForecast,
+              data.count == self.dailyForecastViews.count else { return }
         
-        for (index, view) in views.enumerated() {
+        for (index, view) in self.dailyForecastViews.enumerated() {
             view.configure(date: data[index].forecastDate,
                            dayTemperature: Int(data[index].dayWeather.temperatureCelsius),
                            nightTemperature: Int(data[index].nightWeather.temperatureCelsius))

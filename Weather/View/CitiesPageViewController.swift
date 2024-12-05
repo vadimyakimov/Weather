@@ -249,7 +249,6 @@ class CitiesPageViewController: EMPageViewController {
         self.backgroundGradient.endPoint = CGPoint(x: 0, y: 1)
         self.backgroundGradient.frame = self.view.bounds
         self.view.layer.insertSublayer(backgroundGradient, at: 0)
-        print(self.viewModel.citiesList.first?.currentWeather?.isDayTime)
         self.changeGradientColor(isDayTime: self.viewModel.citiesList.first?.currentWeather?.isDayTime)
     }
 

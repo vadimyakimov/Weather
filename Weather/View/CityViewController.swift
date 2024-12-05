@@ -42,7 +42,7 @@ class CityViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
-        weatherInfoView.delegate = self
+        weatherInfoView.viewModel.delegate = self
     }
 
     required init?(coder: NSCoder) {
