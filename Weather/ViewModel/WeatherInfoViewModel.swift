@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import UIKit
 
 class WeatherInfoViewModel {
+    
+    // MARK: - Properties
     
     weak var delegate: WeatherInfoViewDelegate?
     
@@ -29,33 +32,41 @@ class WeatherInfoViewModel {
         return self.city.currentWeather?.isDayTime ?? true
     }
     
-    var lastUpdated: LastUpdated {
-        return self.city.lastUpdated
-    }
-    
-    
+    // MARK: - Initializers
     
     init(city: City) {
         self.city = city
+        
     }
     
-    func refreshWeather() {
+    // MARK: - Funcs
+    
+    func refreshWeather(isForcedUpdate: Bool = false) {
+                
+        let lastUpdated = self.city.lastUpdated
         let tasks = DispatchGroup()
         
-        tasks.enter()
-        self.fetchCurrentWeather(dispatchGroup: tasks)
+        if lastUpdated.currentWeather.timeIntervalSinceNow < -600 || isForcedUpdate {
+            tasks.enter()
+            self.fetchCurrentWeather(dispatchGroup: tasks)
+        }
         
-        tasks.enter()
-        self.fetchHourlyForecast(dispatchGroup: tasks)
+        if lastUpdated.hourlyForecast.timeIntervalSinceNow < -600 || isForcedUpdate {
+            tasks.enter()
+            self.fetchHourlyForecast(dispatchGroup: tasks)
+        }
         
-        tasks.enter()
-        self.fetchDailyForecast(dispatchGroup: tasks)
+        if lastUpdated.dailyForecast.timeIntervalSinceNow < -600 || isForcedUpdate {
+            tasks.enter()
+            self.fetchDailyForecast(dispatchGroup: tasks)
+        }
         
         tasks.notify(queue: .main) {
             self.delegate?.weatherInfoView(didUpdateWeatherInfoFor: self.city)
         }
     }
     
+    // MARK: - Fetching data from network
     
     func fetchCurrentWeather(dispatchGroup: DispatchGroup? = nil) {
         NetworkManager.shared.getCurrentWeather(for: self.city) { currentWeather in
@@ -83,6 +94,14 @@ class WeatherInfoViewModel {
             dispatchGroup?.leave()
         }
     }
+    
+    func fetchImage(iconNumber: Int16, completion: @escaping(UIImage) -> Void) {
+        NetworkManager.shared.getImage(iconNumber: Int(iconNumber)) { weatherIcon in
+            completion(weatherIcon)
+        }
+    }
+    
+    // MARK: - Sating data to Core Data
     
     func updateData(_ data: CurrentWeather) {
         self.city.currentWeather = data

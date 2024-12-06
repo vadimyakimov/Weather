@@ -28,7 +28,7 @@ class OneDayView: UIView {
         self.startSkeleton()
     }
     
-    func configure(date: Date, dayTemperature: Int, nightTemperature: Int) {
+    func configure(date: Date, dayTemperature: Int, nightTemperature: Int, dayIcon: Int, nightIcon: Int) {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE"
         self.dayLabel.text = formatter.string(from: date)
@@ -39,14 +39,22 @@ class OneDayView: UIView {
         self.nightTemperatureLabel.text  = "\(nightTemperature)ºC"
         
         self.stopSkeleton()
+        
+        NetworkManager.shared.getImage(iconNumber: dayIcon) { icon in
+            self.setDayIcon(icon)
+        }
+        NetworkManager.shared.getImage(iconNumber: nightIcon) { icon in
+            self.setNightIcon(icon)
+        }
+
     }
     
-    func setDayIcon(_ icon: UIImage) {
+    private func setDayIcon(_ icon: UIImage) {
         self.dayIconImageView.image = icon
         self.dayIconImageView.hideSkeleton()
     }
     
-    func setNightIcon(_ icon: UIImage) {
+    private func setNightIcon(_ icon: UIImage) {
         self.nightIconImageView.image = icon
         self.nightIconImageView.hideSkeleton()
     }

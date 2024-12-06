@@ -28,7 +28,7 @@ class OneHourView: UIView {
         self.startSkeleton()
     }
     
-    func configure(time: Date, temperature: Int, weatherText: String) {        
+    func configure(time: Date, temperature: Int, weatherText: String, weatherIcon: Int) {        
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         self.timeLabel.text = formatter.string(from: time)
@@ -37,9 +37,13 @@ class OneHourView: UIView {
         self.layer.cornerRadius = self.cornerRadius
         
         self.stopSkeleton()
+        
+        NetworkManager.shared.getImage(iconNumber: weatherIcon) { icon in
+            self.setIcon(icon)
+        }
     }
     
-    func setIcon(_ icon: UIImage) {
+    private func setIcon(_ icon: UIImage) {
         self.iconImageView.image = icon
         self.iconImageView.hideSkeleton()
     }

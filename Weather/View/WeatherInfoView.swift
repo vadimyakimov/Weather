@@ -6,23 +6,31 @@ class WeatherInfoView: UIView {
         
     let viewModel: WeatherInfoViewModel
     
+//    var isConfigured = false
+    
+    let cityRefreshControl = UIRefreshControl()
+    
     private let verticalSpacing: CGFloat = 30
     private let innerOffset: CGFloat = 20
         
     private let currentWeatherView = CurrentWeatherView.instanceFromNib()
-    private var hourlyForecastViews = [OneHourView](repeating: OneHourView(), count: 12)
-    private var dailyForecastViews = [OneDayView](repeating: OneDayView(), count: 5)
     
-    private let hourlyScrollView = UIScrollView()
-    private let dailyScrollView = UIScrollView()
+    private let hourlyForecastContainer: HourlyForecastView
+    private let dailyForecastContainer: DailyForecastView
             
     // MARK: - Initializers
     
     init(for city: City) {
         self.viewModel = WeatherInfoViewModel(city: city)
-        super.init(frame: CGRect.zero)
+        self.hourlyForecastContainer = HourlyForecastView(verticalSpacing: self.verticalSpacing, innerOffset: self.innerOffset)
+        self.dailyForecastContainer = DailyForecastView(verticalSpacing: self.verticalSpacing)
+        super.init(frame: .zero)
         
         self.bindViewModel()
+    
+//        if !self.isConfigured {
+            self.configure()
+//        }
     }
     
     required init(coder: NSCoder) {
@@ -38,51 +46,54 @@ class WeatherInfoView: UIView {
         }
         
         viewModel.hourlyForecast.bind { [unowned self] hourlyForecastData in
-            self.updateHourlyForecast(hourlyForecastData)
+            self.hourlyForecastContainer.updateForecast(hourlyForecastData)
         }
         
         viewModel.dailyForecast.bind { [unowned self] dailyForecastData in
-            self.updateDailyForecast(dailyForecastData)
+            self.dailyForecastContainer.updateForecast(dailyForecastData)
         }
         
-//            
-//        
-//        print(viewModel.city.currentWeather)
-//        print(viewModel.currentWeather.value)
-        
-//        self.viewModel.isCurrentWeatherUpdating.bind { [unowned self] isUpdating in
-//            if !isUpdating {
-//                self.updateView(self.currentWeatherView)
-//            }
-//        }
-//        
-//        self.viewModel.isHourlyForecastUpdating.bind { [unowned self] isUpdating in
-//            if !isUpdating {
-//                self.updateView(self.hourlyForecastViews)
-//            }
-//        }
-//        
-//        self.viewModel.isDailyForecastUpdating.bind { [unowned self] isUpdating in
-//            if !isUpdating {
-//                self.updateView(self.dailyForecastViews)
-//            }
-//        }
     }
     
     // MARK: - Configure functions
     
     func configure() {
         self.frame.size.height += self.verticalSpacing / 2
+//        self.configureRefreshControl()
         self.configureCurrentWearher()
         self.configureHourlyForecast()
-//        self.configureDailyForecast()
+        self.configureDailyForecast()
     }
+    
+//    private func configureRefreshControl() {
+//
+////        self.cityRefreshControl.addTarget(self, action: #selector(refreshWeatherInfo), for: .valueChanged)
+////        self.cityRefreshControl.tintColor = .white
+//
+////        self.weatherInfoView.frame.size.width = self.view.frame.width
+//        
+//
+////        let cityScrollView = UIScrollView()
+////        cityScrollView.delegate = self
+////        cityScrollView.frame = CGRect(x: self.frameRectangle.origin.x,
+////                                      y: self.frameRectangle.origin.y + self.view.safeAreaInsets.top,
+////                                      width: self.frameRectangle.width,
+////                                      height: self.frameRectangle.height - self.view.safeAreaInsets.top)
+////        cityScrollView.contentSize = self.weatherInfoView.frame.size
+////        cityScrollView.showsVerticalScrollIndicator = false
+////
+////        cityScrollView.addSubview(self.weatherInfoView)
+////        cityScrollView.refreshControl = cityRefreshControl
+////        self.view.addSubview(cityScrollView)
+//
+//        self.isConfigured = true
+//    }
     
     func refreshWeather() {
         self.currentWeatherView.startSkeleton(isDayTime: self.viewModel.isDayTime)
-        let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
-        let _ = self.dailyForecastViews.map({ $0.startSkeleton() })
-        self.viewModel.refreshWeather()
+        self.hourlyForecastContainer.startSkeleton()
+        self.dailyForecastContainer.startSkeleton()
+        self.viewModel.refreshWeather(isForcedUpdate: true)
     }
     
     private func configureCurrentWearher() {
@@ -102,14 +113,10 @@ class WeatherInfoView: UIView {
         view.configure(isDayTime: self.viewModel.isDayTime) //?????
         
         
-        let currentWeatherViewSide = self.currentWeatherView.frame.width
-        self.frame.size.height += currentWeatherViewSide + self.verticalSpacing
+//        let currentWeatherViewSide = self.currentWeatherView.frame.width
+//        self.frame.size.height += currentWeatherViewSide + self.verticalSpacing
         
-        if self.viewModel.lastUpdated.currentWeather.timeIntervalSinceNow > -600 { //????????
-            self.updateCurrentWeather(self.viewModel.currentWeather.value)
-        } else {
-            self.viewModel.fetchCurrentWeather()
-        }
+        print("CurrentWearher \(view.hasAmbiguousLayout)")
         
     }
     
@@ -117,130 +124,55 @@ class WeatherInfoView: UIView {
         
         let oneHourViewSize = OneHourView.instanceFromNib().frame.size
                 
-        let scrollView = self.hourlyScrollView
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(scrollView)
+        let parentView = self.hourlyForecastContainer
+        parentView.showsHorizontalScrollIndicator = false
+        parentView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(parentView)
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: self.currentWeatherView.bottomAnchor,
+            parentView.topAnchor.constraint(equalTo: self.currentWeatherView.bottomAnchor,
                                             constant: self.verticalSpacing),
-//            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-//            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            scrollView.widthAnchor.constraint(equalToConstant: self.frame.width),
-            scrollView.heightAnchor.constraint(equalToConstant: oneHourViewSize.height),
+            parentView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            parentView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            parentView.heightAnchor.constraint(equalToConstant: oneHourViewSize.height),
         ])
         
-        
-        var contentWidth = self.innerOffset
-        
-        var previousView: OneHourView?
-        
-        for var view in self.hourlyForecastViews {
-            
-            contentWidth += oneHourViewSize.width + self.innerOffset
-                        
-            view = OneHourView.instanceFromNib()
-            view.configure()
-            scrollView.addSubview(view)
-            
-            var leadingAnchor: NSLayoutConstraint
-            
-            if let previousView = previousView {
-                leadingAnchor = view.leadingAnchor.constraint(equalTo: previousView.trailingAnchor,
-                                                              constant: self.innerOffset)
-            } else {
-                leadingAnchor = view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor)
-            }
-            
-            NSLayoutConstraint.activate([
-                leadingAnchor,
-                view.topAnchor.constraint(equalTo: scrollView.topAnchor),
-                view.widthAnchor.constraint(equalToConstant: oneHourViewSize.width),
-                view.heightAnchor.constraint(equalToConstant: oneHourViewSize.height),
-            ])
-            
-            previousView = view
-        }
-        
-//        scrollView.contentSize.width = contentWidth
-        
-//        print(scrollView.subviews)
-//        print(self.frame.width)
+//        parentView.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: oneHourViewSize.height)
         
         
+//        self.frame.size.height += parentView.frame.height + self.verticalSpacing //??????????
         
-//        let top = self.frame.height
-//        let width = self.frame.width
-        
-//        let offsetBetween: CGFloat = 20
-//        let oneHourViewSize = OneHourView.instanceFromNib().frame.size
-//        var contentWidth = offsetBetween
-        
-        
-//        let hourlyScrollView = UIScrollView(frame: CGRect(x: 0,
-//                                                          y: top,
-//                                                          width: width,
-//                                                          height: oneHourViewSize.height))
-//        hourlyScrollView.showsHorizontalScrollIndicator = false
-//        self.addSubview(hourlyScrollView)
-        
-        
-//        for index in 0..<self.hourlyForecastViews.count {
-//            let oneHourView = OneHourView.instanceFromNib()
-//            oneHourView.configure()
-//            oneHourView.frame.origin = CGPoint(x: contentWidth, y: 0)
-//            scrollView.addSubview(oneHourView)
-//            
-//            self.hourlyForecastViews[index] = oneHourView
-//            
-//            contentWidth += oneHourViewSize.width + offsetBetween            
-//        }
-        
-        
-        self.frame.size.height += hourlyScrollView.frame.height + self.verticalSpacing //??????????
-        
-        
-        if self.viewModel.lastUpdated.hourlyForecast.timeIntervalSinceNow > -600 {
-            self.updateHourlyForecast(self.viewModel.hourlyForecast.value)
-        } else {
-            self.viewModel.fetchHourlyForecast()
-        }
+        print("HourlyWearher \(parentView.hasAmbiguousLayout)")
     }
     
     private func configureDailyForecast() {
         
-        let top = self.frame.height
-        let width = self.frame.width
-        
-        let horizontalOffset: CGFloat = 20
-        let dailyViewCornerRadius: CGFloat = 20
         let oneDayViewHeight = OneDayView.instanceFronNib().frame.height
         
-        let dailyView = UIView(frame: CGRect(x: horizontalOffset,
-                                             y: top,
-                                             width: width - (horizontalOffset * 2),
-                                             height: oneDayViewHeight * CGFloat(self.dailyForecastViews.count)))
-        dailyView.clipsToBounds = true
-        dailyView.layer.cornerRadius = dailyViewCornerRadius
-        self.addSubview(dailyView)
+        let parentView = self.dailyForecastContainer
+        parentView.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(parentView)
         
-        for index in 0..<self.dailyForecastViews.count {
-            let oneDayView = OneDayView.instanceFronNib()
-            oneDayView.configure()
-            oneDayView.frame.origin = CGPoint(x: 0, y: oneDayViewHeight * CGFloat(index))
-            oneDayView.frame.size.width = dailyView.frame.width
-            self.dailyForecastViews[index] = oneDayView
-            dailyView.addSubview(oneDayView)
-        }
+        NSLayoutConstraint.activate([
+            parentView.topAnchor.constraint(equalTo: self.hourlyForecastContainer.bottomAnchor,
+                                            constant: self.verticalSpacing),
+            parentView.leadingAnchor.constraint(equalTo: self.leadingAnchor,
+                                                constant: self.innerOffset),
+            parentView.trailingAnchor.constraint(equalTo: self.trailingAnchor,
+                                                 constant: -self.innerOffset),
+            parentView.heightAnchor.constraint(equalToConstant: oneDayViewHeight * 5), ////////////
+            parentView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        ])
         
-        self.frame.size.height += dailyView.frame.height + self.verticalSpacing
+//        parentView.frame =  CGRect(x: self.innerOffset, y: 0, width: self.frame.width - (self.innerOffset * 2),
+//                                   height: oneDayViewHeight * CGFloat(parentView.dailyForecastViews.count))
+//        parentView.backgroundColor = .green
+//        print(self.hourlyForecastContainer)
+//        print(parentView)
         
-        if self.viewModel.lastUpdated.dailyForecast.timeIntervalSinceNow > -600 {
-            self.updateDailyForecast(self.viewModel.dailyForecast.value)
-        } else {
-            self.viewModel.fetchDailyForecast()
-        }
+//        self.frame.size.height += parentView.frame.height + self.verticalSpacing
+        
+        print("DailyWearher \(parentView.hasAmbiguousLayout)")
     }
     
     // MARK: - UI data update functions
@@ -252,42 +184,12 @@ class WeatherInfoView: UIView {
         self.currentWeatherView.configure(isDayTime: data.isDayTime,
                                           temperature: Int(data.temperatureCelsius),
                                           weatherText: data.weatherText)
-        NetworkManager.shared.getImage(iconNumber: Int(data.weatherIcon)) { [unowned self] weatherIcon in
+        self.viewModel.fetchImage(iconNumber: data.weatherIcon) { weatherIcon in
             self.currentWeatherView.setIcon(weatherIcon)
         }
     }
     
-    private func updateHourlyForecast(_ hourlyForecast: [HourlyForecast]?) {
-                
-        guard let data = hourlyForecast,
-              data.count == self.hourlyForecastViews.count else { return }
-        
-        for (index, view) in self.hourlyForecastViews.enumerated() {
-            view.configure(time: data[index].forecastTime,
-                           temperature: Int(data[index].temperatureCelsius),
-                           weatherText: data[index].weatherText)
-            NetworkManager.shared.getImage(iconNumber: Int(data[index].weatherIcon)) { weatherIcon in
-                view.setIcon(weatherIcon)
-            }
-        }
-    }
     
-    private func updateDailyForecast(_ dailyForecast: [DailyForecast]?) {
-        
-        guard let data = dailyForecast,
-              data.count == self.dailyForecastViews.count else { return }
-        
-        for (index, view) in self.dailyForecastViews.enumerated() {
-            view.configure(date: data[index].forecastDate,
-                           dayTemperature: Int(data[index].dayWeather.temperatureCelsius),
-                           nightTemperature: Int(data[index].nightWeather.temperatureCelsius))
-            NetworkManager.shared.getImage(iconNumber: Int(data[index].dayWeather.weatherIcon)) { dayIcon in
-                view.setDayIcon(dayIcon)
-            }
-            NetworkManager.shared.getImage(iconNumber: Int(data[index].nightWeather.weatherIcon)) { nightIcon in
-                view.setNightIcon(nightIcon)
-            }
-        }
-    }
+    
     
 }

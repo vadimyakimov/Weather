@@ -24,12 +24,15 @@ class CityViewController: UIViewController {
 
 
     // MARK: - Lifecycle
-
+    override func viewDidLoad() {
+        super.viewDidLoad()
+//        configure()
+    }
+    
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
-        print("viewSafeAreaInsetsDidChange")
         if !isConfigured {
-            self.configure()
+//            self.configure()
         }
     }
 
@@ -43,6 +46,8 @@ class CityViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         weatherInfoView.viewModel.delegate = self
+        
+        configure()
     }
 
     required init?(coder: NSCoder) {
@@ -58,26 +63,52 @@ class CityViewController: UIViewController {
     // MARK: - Flow funcs
 
     private func configure() {
+        
+//        self.view.translatesAutoresizingMaskIntoConstraints = false
 
-        self.cityRefreshControl.addTarget(self, action: #selector(refreshWeatherInfo), for: .valueChanged)
-        self.cityRefreshControl.tintColor = .white
+//        self.cityRefreshControl.addTarget(self, action: #selector(refreshWeatherInfo), for: .valueChanged)
+//        self.cityRefreshControl.tintColor = .white
 
-        self.weatherInfoView.frame.size.width = self.view.frame.width
-        self.weatherInfoView.configure()
+//        self.weatherInfoView.frame.size.width = self.view.frame.width
+//        self.weatherInfoView.configure()
 
         let cityScrollView = UIScrollView()
         cityScrollView.delegate = self
-        cityScrollView.frame = CGRect(x: self.frameRectangle.origin.x,
-                                      y: self.frameRectangle.origin.y + self.view.safeAreaInsets.top,
-                                      width: self.frameRectangle.width,
-                                      height: self.frameRectangle.height - self.view.safeAreaInsets.top)
-        cityScrollView.contentSize = self.weatherInfoView.frame.size
-        cityScrollView.showsVerticalScrollIndicator = false
-
-        cityScrollView.addSubview(self.weatherInfoView)
-        cityScrollView.refreshControl = cityRefreshControl
+        cityScrollView.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(cityScrollView)
+        
+        NSLayoutConstraint.activate([
+            cityScrollView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 100),
+//            cityScrollView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+//            cityScrollView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            cityScrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            cityScrollView.widthAnchor.constraint(equalTo: self.view.widthAnchor),
+            cityScrollView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor)
+        ])
+        
+                
+//        cityScrollView.contentSize = self.weatherInfoView.frame.size
+//        cityScrollView.showsVerticalScrollIndicator = false
+//        cityScrollView.refreshControl = cityRefreshControl
 
+        
+        var weatherView = self.weatherInfoView
+        weatherView.translatesAutoresizingMaskIntoConstraints = false
+        cityScrollView.addSubview(weatherView)
+        NSLayoutConstraint.activate([
+            weatherView.topAnchor.constraint(equalTo: cityScrollView.contentLayoutGuide.topAnchor),
+            weatherView.leadingAnchor.constraint(equalTo: cityScrollView.contentLayoutGuide.leadingAnchor),
+            weatherView.trailingAnchor.constraint(equalTo: cityScrollView.contentLayoutGuide.trailingAnchor),
+            weatherView.bottomAnchor.constraint(equalTo: cityScrollView.contentLayoutGuide.bottomAnchor),
+            weatherView.widthAnchor.constraint(equalTo: cityScrollView.frameLayoutGuide.widthAnchor),
+//            weatherView.heightAnchor.constraint(equalToConstant: 1000)
+        ])
+        
+        
+        print("cityScrollView \(cityScrollView.hasAmbiguousLayout)")
+        print("weatherView \(weatherView.hasAmbiguousLayout)")
+//        self.view.layoutIfNeeded()
+        
         self.isConfigured = true
     }
 
