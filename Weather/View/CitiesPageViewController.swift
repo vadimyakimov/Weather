@@ -129,7 +129,9 @@ class CitiesPageViewController: EMPageViewController {
         let yOriginCityViewController = self.nameLabelHeight + self.pageControlHeight
         let cityViewController = CityViewController(viewModel: self.viewModel.createCityViewModel(withIndex: index))
                 
-//        cityViewController.delegate = self
+        cityViewController.delegate = self
+        cityViewController.weatherInfoView.delegate = self
+        
         return cityViewController
     }
 
@@ -375,33 +377,27 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
 //    }
 //}
 
+// MARK: - Weather Info View Controller Delegate
+
+extension CitiesPageViewController: WeatherInfoViewDelegate {
+    
+    func weatherInfoView(didUpdateCurrentWeatherFor city: City) {
+        guard let controller = self.selectedViewController as? CityViewController else { return }
+        let isDayTime = controller.viewModel.city.currentWeather?.isDayTime ?? true
+        self.changeGradientColor(isDayTime: isDayTime)
+    }
+}
+
 // MARK: - City View Controller Delegate
 
-//extension CitiesPageViewController: CityViewControllerDelegate {
-//
-//    func cityViewController(didUpdateCurrentWeatherFor city: City) {
-//
-//        CitiesCoreDataStack.shared.saveContext()
-//
-//        guard let controller = self.selectedViewController as? CityViewController else { return }
-//        let isDayTime = controller.viewModel.city.currentWeather?.isDayTime ?? true
-//        self.changeGradientColor(isDayTime: isDayTime)
-//    }
-//
-//    func cityViewController(didUpdateHourlyForecastFor city: City) {
-//        CitiesCoreDataStack.shared.saveContext()
-//    }
-//
-//    func cityViewController(didUpdateDailyForecastFor city: City) {
-//        CitiesCoreDataStack.shared.saveContext()
-//    }
-//
-//    func cityViewController(scrollViewDidScroll scrollView: UIScrollView) {
-//        let fontSize = self.nameLabelFontSize - scrollView.contentOffset.y
-//        if fontSize < self.nameLabelFontSize * 2 &&
-//            fontSize > self.nameLabelMinimumFontSize {
-//            self.nameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
-//            self.newNameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
-//        }
-//    }
-//}
+extension CitiesPageViewController: CityViewControllerDelegate {
+
+    func cityViewController(scrollViewDidScroll scrollView: UIScrollView) {
+        let fontSize = self.nameLabelFontSize - scrollView.contentOffset.y
+        if fontSize < self.nameLabelFontSize * 2 &&
+            fontSize > self.nameLabelMinimumFontSize {
+            self.nameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
+            self.newNameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
+        }
+    }
+}

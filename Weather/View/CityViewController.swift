@@ -29,7 +29,7 @@ class CityViewController: UIViewController {
 
     init(viewModel: CityViewModel) {
         self.viewModel = viewModel
-        self.weatherInfoView = WeatherInfoView(for: self.viewModel.city)
+        self.weatherInfoView = WeatherInfoView(viewModel: self.viewModel.createWeatherInfoViewModel())
 
         super.init(nibName: nil, bundle: nil)
 
@@ -113,21 +113,8 @@ extension CityViewController: UIScrollViewDelegate {
 // MARK: - Weather Info View Delegate
 
 extension CityViewController: WeatherInfoViewDelegate {
-
+    
     func weatherInfoView(didUpdateWeatherInfoFor city: City) {
         self.cityRefreshControl.endRefreshing()
     }
-
-    func weatherInfoView(didUpdateCurrentWeatherFor city: City) {
-        self.delegate?.cityViewController(didUpdateCurrentWeatherFor: self.viewModel.city)
-    }
-
-    func weatherInfoView(didUpdateHourlyForecastFor city: City) {
-        self.delegate?.cityViewController(didUpdateHourlyForecastFor: self.viewModel.city)
-    }
-
-    func weatherInfoView(didUpdateDailyForecastFor city: City) {
-        self.delegate?.cityViewController(didUpdateDailyForecastFor: self.viewModel.city)
-    }
-
 }

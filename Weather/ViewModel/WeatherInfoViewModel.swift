@@ -52,7 +52,7 @@ class WeatherInfoViewModel {
         }
         
         tasks.notify(queue: .main) {
-            self.delegate?.weatherInfoView(didUpdateWeatherInfoFor: self.city)
+            self.delegate?.weatherInfoView?(didUpdateWeatherInfoFor: self.city)
         }
     }
     
@@ -96,21 +96,23 @@ class WeatherInfoViewModel {
     func updateData(_ data: CurrentWeather) {
         self.city.currentWeather = data
         self.city.lastUpdated.currentWeather = Date()
-        self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
+        CitiesCoreDataStack.shared.saveContext()
         self.didUpdateCurrentWeather?(data)
+        
+        self.delegate?.weatherInfoView?(didUpdateCurrentWeatherFor: self.city)
     }
     
     func updateData(_ data: [HourlyForecast]) {
         self.city.hourlyForecast = NSOrderedSet(array: data)
         self.city.lastUpdated.hourlyForecast = Date()
-        self.delegate?.weatherInfoView(didUpdateHourlyForecastFor: self.city)
+        CitiesCoreDataStack.shared.saveContext()
         self.didUpdateHourlyForecast?(data)
     }
     
     func updateData(_ data: [DailyForecast]) {
         self.city.dailyForecast = NSOrderedSet(array: data)
         self.city.lastUpdated.dailyForecast = Date()
-        self.delegate?.weatherInfoView(didUpdateDailyForecastFor: self.city)
+        CitiesCoreDataStack.shared.saveContext()
         self.didUpdateDailyForecast?(data)
     }
     

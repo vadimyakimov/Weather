@@ -1,8 +1,6 @@
 import Foundation
 
-protocol WeatherInfoViewDelegate: AnyObject {
-    func weatherInfoView(didUpdateWeatherInfoFor city: City)
-    func weatherInfoView(didUpdateCurrentWeatherFor city: City)
-    func weatherInfoView(didUpdateHourlyForecastFor city: City)
-    func weatherInfoView(didUpdateDailyForecastFor city: City)
+@objc protocol WeatherInfoViewDelegate: AnyObject {
+    @objc optional func weatherInfoView(didUpdateWeatherInfoFor city: City)
+    @objc optional func weatherInfoView(didUpdateCurrentWeatherFor city: City)
 }
