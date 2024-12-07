@@ -5,6 +5,7 @@ class WeatherInfoView: UIView {
     // MARK: - Properties
         
     let viewModel: WeatherInfoViewModel
+    weak var delegate: WeatherInfoViewDelegate?
     
     let cityRefreshControl = UIRefreshControl()
     
@@ -18,14 +19,15 @@ class WeatherInfoView: UIView {
             
     // MARK: - Initializers
     
-    init(for city: City) {
-        self.viewModel = WeatherInfoViewModel(city: city)
+    init(viewModel: WeatherInfoViewModel) {
+        self.viewModel = viewModel
         self.hourlyForecastContainer = HourlyForecastView(verticalSpacing: self.verticalSpacing, innerOffset: self.innerOffset)
         self.dailyForecastContainer = DailyForecastView(verticalSpacing: self.verticalSpacing)
         super.init(frame: .zero)
            
         self.bindViewModel()
         self.configure()
+        self.viewModel.refreshWeather()
     }
     
     required init(coder: NSCoder) {
@@ -34,8 +36,7 @@ class WeatherInfoView: UIView {
     
     // MARK: - Binding functions
     
-    func bindViewModel() {
-        
+    func bindViewModel() {        
         self.viewModel.didUpdateCurrentWeather = self.updateCurrentWeather(_:)
         self.viewModel.didUpdateHourlyForecast = self.hourlyForecastContainer.updateForecast(_:)
         self.viewModel.didUpdateDailyForecast = self.dailyForecastContainer.updateForecast(_:)

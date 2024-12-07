@@ -200,8 +200,7 @@ class NetworkManager {
         let city = City(context: CitiesCoreDataStack.shared.tempContext,
                         key: key,
                         name: name,
-                        isLocated: true)
-        
+                        isLocated: true)        
         return city
     }
 }

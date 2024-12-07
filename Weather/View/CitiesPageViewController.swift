@@ -12,7 +12,7 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Properties
 
-    private let viewModel = CitiesPageViewModel()
+    private let viewModel: CitiesPageViewModel
 
     override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
 
@@ -58,7 +58,8 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Initializers
     
-    init(atIndex index: Int) {
+    init(atIndex index: Int, viewModel: CitiesPageViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
         self.showCityViewController(withIndex: index)
     }
@@ -109,7 +110,7 @@ class CitiesPageViewController: EMPageViewController {
     func cityViewController(withIndex i: Int) -> CityViewController? {
 
         var index = i
-        let citiesCount = self.viewModel.citiesCount
+        let citiesCount = self.viewModel.citiesList.count
 
         if index < 0 {
             if citiesCount > 3 {
@@ -126,11 +127,8 @@ class CitiesPageViewController: EMPageViewController {
         }
 
         let yOriginCityViewController = self.nameLabelHeight + self.pageControlHeight
-        let cityViewController = CityViewController(self.viewModel.citiesList[index],
-                                                    frame: CGRect(x: 0,
-                                                                  y: yOriginCityViewController,
-                                                                  width: self.view.frame.size.width,
-                                                                  height: self.view.frame.size.height - yOriginCityViewController))
+        let cityViewController = CityViewController(viewModel: self.viewModel.createCityViewModel(withIndex: index))
+                
 //        cityViewController.delegate = self
         return cityViewController
     }
@@ -183,8 +181,8 @@ class CitiesPageViewController: EMPageViewController {
     }
 
     func updatePageControl(index: Int? = nil) {
-        if self.pageControl.numberOfPages != self.viewModel.citiesCount {
-            self.pageControl.numberOfPages = self.viewModel.citiesCount
+        if self.pageControl.numberOfPages != self.viewModel.citiesList.count {
+            self.pageControl.numberOfPages = self.viewModel.citiesList.count
             let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
             self.pageControl.frame.size = CGSize(width: size.width, height: self.pageControlHeight)
             self.pageControl.frame.origin.x = (self.view.frame.width - size.width) / 2

@@ -65,7 +65,8 @@ class MainNavigationController: UINavigationController {
             searchScreen.viewModel.delegate = self
             return searchScreen
         } else {
-            let weatherScreen = CitiesPageViewController(atIndex: self.indexPageViewControler)
+            let weatherScreen = CitiesPageViewController(atIndex: self.indexPageViewControler,
+                                                         viewModel: self.viewModel.createCitiesPageViewModel())
             return weatherScreen
         }
     }

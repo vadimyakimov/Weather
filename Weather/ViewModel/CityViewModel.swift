@@ -15,5 +15,7 @@ class CityViewModel {
         self.city = city
     }
     
-    
+    func createWeatherInfoViewModel() -> WeatherInfoViewModel {
+        return WeatherInfoViewModel(city: self.city)
+    }
 }

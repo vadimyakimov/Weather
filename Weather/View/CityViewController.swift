@@ -27,9 +27,9 @@ class CityViewController: UIViewController {
 
     // MARK: - Initializers
 
-    init(_ city: City, frame: CGRect) {
-        self.viewModel = CityViewModel(city: city)
-        self.weatherInfoView = WeatherInfoView(for: city)
+    init(viewModel: CityViewModel) {
+        self.viewModel = viewModel
+        self.weatherInfoView = WeatherInfoView(for: self.viewModel.city)
 
         super.init(nibName: nil, bundle: nil)
 
