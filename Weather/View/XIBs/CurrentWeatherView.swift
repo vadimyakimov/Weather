@@ -29,15 +29,20 @@ class CurrentWeatherView: UIView {
         self.startSkeleton(isDayTime: isDayTime)
     }
     
-    func configure(isDayTime: Bool, temperature: Int, weatherText: String) {
+    func configure(isDayTime: Bool, temperature: Int, weatherText: String, weatherIcon: Int) {
         self.backgroundColor = self.color(isDayTime: isDayTime)
         self.temperatureLabel.text = "\(temperature)ºC"
         self.textLabel.text = "\(weatherText)"
         self.layer.cornerRadius = self.cornerRadius
+        
         self.stopSkeleton()
+        
+        NetworkManager.shared.getImage(iconNumber: weatherIcon) { icon in
+            self.setIcon(icon)
+        }
     }
     
-    func setIcon(_ icon: UIImage) {
+    private func setIcon(_ icon: UIImage) {
         self.iconImageView.image = icon
         self.iconImageView.hideSkeleton()
     }

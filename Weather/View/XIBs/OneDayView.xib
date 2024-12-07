@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iN0-l3-epB" customClass="OneDayView" customModule="Weather_2" customModuleProvider="target">
+        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iN0-l3-epB" customClass="OneDayView" customModule="Weather" customModuleProvider="target">
             <rect key="frame" x="0.0" y="0.0" width="448" height="110"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -86,12 +86,12 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
-                <outlet property="dateLabel" destination="Suj-s2-GUE" id="uaK-3F-cf8"/>
-                <outlet property="dayIconImageView" destination="hdb-i5-xPk" id="6cb-YL-9MK"/>
-                <outlet property="dayLabel" destination="FhI-8c-2Oi" id="bkO-Jn-7Gj"/>
-                <outlet property="dayTemperatureLabel" destination="4Gy-KN-jKN" id="lEp-1t-d0D"/>
-                <outlet property="nightIconImageView" destination="AEr-ue-rwe" id="QVp-M2-5JS"/>
-                <outlet property="nightTemperatureLabel" destination="oLZ-ue-mRy" id="una-I4-zrt"/>
+                <outlet property="dateLabel" destination="Suj-s2-GUE" id="7UD-uc-bfg"/>
+                <outlet property="dayIconImageView" destination="hdb-i5-xPk" id="Rk3-bd-T1O"/>
+                <outlet property="dayLabel" destination="FhI-8c-2Oi" id="7VI-vc-WLI"/>
+                <outlet property="dayTemperatureLabel" destination="4Gy-KN-jKN" id="aKg-3q-oYP"/>
+                <outlet property="nightIconImageView" destination="AEr-ue-rwe" id="Gjv-cB-7SC"/>
+                <outlet property="nightTemperatureLabel" destination="oLZ-ue-mRy" id="QpD-qU-6ms"/>
             </connections>
             <point key="canvasLocation" x="-59.420289855072468" y="-123.88392857142857"/>
         </view>

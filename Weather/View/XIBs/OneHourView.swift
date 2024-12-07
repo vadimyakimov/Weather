@@ -50,7 +50,7 @@ class OneHourView: UIView {
     
     // MARK: - Skeleton funcs
     
-    func startSkeleton() {
+    func startSkeleton() {        
         self.createSkeletonFor(label: self.timeLabel)
         self.createSkeletonFor(label: self.temperatureLabel)
         self.createSkeletonFor(imageView: self.iconImageView)

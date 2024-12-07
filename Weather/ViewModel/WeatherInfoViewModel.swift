@@ -15,34 +15,24 @@ class WeatherInfoViewModel {
     weak var delegate: WeatherInfoViewDelegate?
     
     private let city: City
-    
-    var currentWeather: Bindable<CurrentWeather?> {
-        return Bindable(self.city.currentWeather)
-    }
-    
-    var hourlyForecast: Bindable<[HourlyForecast]?> {
-        return Bindable(self.city.hourlyForecast?.array as? [HourlyForecast])
-    }
-    
-    var dailyForecast: Bindable<[DailyForecast]?> {
-        return Bindable(self.city.dailyForecast?.array as? [DailyForecast])
-    }
-    
     var isDayTime: Bool {
         return self.city.currentWeather?.isDayTime ?? true
     }
+    
+    var didUpdateCurrentWeather: ((CurrentWeather) -> ())?
+    var didUpdateHourlyForecast: (([HourlyForecast]) -> ())?
+    var didUpdateDailyForecast: (([DailyForecast]) -> ())?
     
     // MARK: - Initializers
     
     init(city: City) {
         self.city = city
-        
     }
     
     // MARK: - Funcs
     
     func refreshWeather(isForcedUpdate: Bool = false) {
-                
+        
         let lastUpdated = self.city.lastUpdated
         let tasks = DispatchGroup()
         
@@ -55,7 +45,7 @@ class WeatherInfoViewModel {
             tasks.enter()
             self.fetchHourlyForecast(dispatchGroup: tasks)
         }
-        
+
         if lastUpdated.dailyForecast.timeIntervalSinceNow < -600 || isForcedUpdate {
             tasks.enter()
             self.fetchDailyForecast(dispatchGroup: tasks)
@@ -80,7 +70,7 @@ class WeatherInfoViewModel {
     func fetchHourlyForecast(dispatchGroup: DispatchGroup? = nil) {
         NetworkManager.shared.getHourlyForecast(for: self.city) { hourlyForecast in
             if let hourlyForecast = hourlyForecast {
-                self.updateData(data: hourlyForecast)
+                self.updateData(hourlyForecast)
             }
             dispatchGroup?.leave()
         }
@@ -89,7 +79,7 @@ class WeatherInfoViewModel {
     func fetchDailyForecast(dispatchGroup: DispatchGroup? = nil) {
         NetworkManager.shared.getDailyForecast(for: self.city) { dailyForecast in
             if let dailyForecast = dailyForecast {
-                self.updateData(data: dailyForecast)
+                self.updateData(dailyForecast)
             }
             dispatchGroup?.leave()
         }
@@ -107,18 +97,21 @@ class WeatherInfoViewModel {
         self.city.currentWeather = data
         self.city.lastUpdated.currentWeather = Date()
         self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
+        self.didUpdateCurrentWeather?(data)
     }
     
-     func updateData(data: [HourlyForecast]) {
+    func updateData(_ data: [HourlyForecast]) {
         self.city.hourlyForecast = NSOrderedSet(array: data)
         self.city.lastUpdated.hourlyForecast = Date()
         self.delegate?.weatherInfoView(didUpdateHourlyForecastFor: self.city)
+        self.didUpdateHourlyForecast?(data)
     }
     
-     func updateData(data: [DailyForecast]) {
+    func updateData(_ data: [DailyForecast]) {
         self.city.dailyForecast = NSOrderedSet(array: data)
         self.city.lastUpdated.dailyForecast = Date()
         self.delegate?.weatherInfoView(didUpdateDailyForecastFor: self.city)
+        self.didUpdateDailyForecast?(data)
     }
     
 }

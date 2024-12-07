@@ -64,19 +64,7 @@ class CitiesCoreDataStack {
         } catch {
             print("Failed to fetch entities: \(error.localizedDescription)")
             return []
-        }
-        
-//        let controller = NSFetchedResultsController(fetchRequest: fetchRequest,
-//                                                    managedObjectContext: coreDataStack.persistentContainer.viewContext,
-//                                                    sectionNameKeyPath: nil,
-//                                                    cacheName: nil)
-//        do {
-//            try controller.performFetch()
-//        } catch {
-//            let nserror = error as NSError
-//            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-//        }
-//        return controller.fetchedObjects ?? []
+        }        
     }
     
     func addCity(_ city: City) {

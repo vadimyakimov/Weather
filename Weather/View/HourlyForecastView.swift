@@ -31,44 +31,32 @@ class HourlyForecastView: UIScrollView {
         let oneHourViewSize = OneHourView.instanceFromNib().frame.size
                 
         self.showsHorizontalScrollIndicator = false
-                
-        var contentWidth = self.innerOffset
         
-        var previousView: OneHourView?
-        
-        for var view in self.hourlyForecastViews {
-            
-            contentWidth += oneHourViewSize.width + self.innerOffset
-                        
-            view = OneHourView.instanceFromNib()
+        for index in 0..<self.hourlyForecastViews.count {
+            let view = OneHourView.instanceFromNib()
             view.configure()
             view.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(view)
             
-            var leadingAnchor: NSLayoutConstraint
-            
-            if let previousView = previousView {
-                leadingAnchor = view.leadingAnchor.constraint(equalTo: previousView.trailingAnchor)
-            } else {
-                leadingAnchor = view.leadingAnchor.constraint(equalTo: self.leadingAnchor)
-            }
+            let leadingAnchor = (index == 0)
+                ? view.leadingAnchor.constraint(equalTo: self.contentLayoutGuide.leadingAnchor)
+                : view.leadingAnchor.constraint(equalTo: self.hourlyForecastViews[index - 1].trailingAnchor)
             leadingAnchor.constant = self.innerOffset
             
             NSLayoutConstraint.activate([
                 leadingAnchor,
-                view.topAnchor.constraint(equalTo: self.topAnchor),
+                view.topAnchor.constraint(equalTo: self.contentLayoutGuide.topAnchor),
                 view.widthAnchor.constraint(equalToConstant: oneHourViewSize.width),
                 view.heightAnchor.constraint(equalToConstant: oneHourViewSize.height),
+                
+                view.heightAnchor.constraint(equalTo: self.frameLayoutGuide.heightAnchor),
             ])
             
-            previousView = view
+            self.hourlyForecastViews[index] = view
         }
         
-        self.contentSize.width = contentWidth
-    }
-    
-    func startSkeleton() {
-        let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
+        self.hourlyForecastViews.last?.trailingAnchor.constraint(equalTo: self.contentLayoutGuide.trailingAnchor,
+                                                                 constant: -self.innerOffset).isActive = true
     }
     
     func updateForecast(_ hourlyForecast: [HourlyForecast]?) {
@@ -80,8 +68,11 @@ class HourlyForecastView: UIScrollView {
             view.configure(time: data[index].forecastTime,
                            temperature: Int(data[index].temperatureCelsius),
                            weatherText: data[index].weatherText,
-                           weatherIcon: Int(data[index].weatherIcon))            
+                           weatherIcon: Int(data[index].weatherIcon))
         }
     }
     
+    func startSkeleton() {
+        let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
+    }
 }
