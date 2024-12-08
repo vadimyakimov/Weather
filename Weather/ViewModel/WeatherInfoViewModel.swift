@@ -19,9 +19,9 @@ class WeatherInfoViewModel {
         return self.city.currentWeather?.isDayTime ?? true
     }
     
-    var didUpdateCurrentWeather: ((CurrentWeather) -> ())?
-    var didUpdateHourlyForecast: (([HourlyForecast]) -> ())?
-    var didUpdateDailyForecast: (([DailyForecast]) -> ())?
+    var didUpdateCurrentWeather: ((CurrentWeather?) -> ())?
+    var didUpdateHourlyForecast: (([HourlyForecast]?) -> ())?
+    var didUpdateDailyForecast: (([DailyForecast]?) -> ())?
     
     // MARK: - Initializers
     
@@ -39,16 +39,22 @@ class WeatherInfoViewModel {
         if lastUpdated.currentWeather.timeIntervalSinceNow < -600 || isForcedUpdate {
             tasks.enter()
             self.fetchCurrentWeather(dispatchGroup: tasks)
+        } else {
+            self.didUpdateCurrentWeather?(self.city.currentWeather)
         }
         
         if lastUpdated.hourlyForecast.timeIntervalSinceNow < -600 || isForcedUpdate {
             tasks.enter()
             self.fetchHourlyForecast(dispatchGroup: tasks)
+        } else {
+            self.didUpdateHourlyForecast?(self.city.hourlyForecast?.array as? [HourlyForecast])
         }
 
         if lastUpdated.dailyForecast.timeIntervalSinceNow < -600 || isForcedUpdate {
             tasks.enter()
             self.fetchDailyForecast(dispatchGroup: tasks)
+        } else {
+            self.didUpdateDailyForecast?(self.city.dailyForecast?.array as? [DailyForecast])
         }
         
         tasks.notify(queue: .main) {

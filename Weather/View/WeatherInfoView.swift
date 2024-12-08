@@ -27,7 +27,6 @@ class WeatherInfoView: UIView {
            
         self.bindViewModel()
         self.configure()
-        self.viewModel.refreshWeather()
     }
     
     required init(coder: NSCoder) {
@@ -48,6 +47,8 @@ class WeatherInfoView: UIView {
         self.configureCurrentWearher()
         self.configureHourlyForecast()
         self.configureDailyForecast()
+        
+        self.refreshWeather()
     }
     
     func refreshWeather() {
