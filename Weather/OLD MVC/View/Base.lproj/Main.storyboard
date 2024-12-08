@@ -115,6 +115,35 @@
             </objects>
             <point key="canvasLocation" x="486.95652173913049" y="939.50892857142856"/>
         </scene>
+        <!--View Controller-->
+        <scene sceneID="yWA-4O-q0K">
+            <objects>
+                <viewController id="bvd-BM-hkc" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="xJV-RT-kq4">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tGD-oX-OIJ">
+                                <rect key="frame" x="87" y="98" width="240" height="128"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="240" id="gr7-FB-g6U"/>
+                                    <constraint firstAttribute="height" constant="128" id="rW4-1u-YCi"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="KBy-m9-zp7"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="tGD-oX-OIJ" firstAttribute="centerX" secondItem="xJV-RT-kq4" secondAttribute="centerX" id="2Cl-OD-wdr"/>
+                            <constraint firstItem="tGD-oX-OIJ" firstAttribute="top" secondItem="KBy-m9-zp7" secondAttribute="top" constant="50" id="aMP-Ok-aEB"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="AfC-H4-iug" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1159" y="940"/>
+        </scene>
     </scenes>
     <resources>
         <systemColor name="linkColor">

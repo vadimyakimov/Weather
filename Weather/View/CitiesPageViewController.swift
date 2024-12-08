@@ -28,7 +28,7 @@ class CitiesPageViewController: EMPageViewController {
     private let pageControl = UIPageControl()
     private let pageControlHeight: CGFloat = 20
     private var previousPageControlIndex: Int?
-    
+        
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -39,21 +39,19 @@ class CitiesPageViewController: EMPageViewController {
         self.scrollView.contentInsetAdjustmentBehavior = .never
 
         self.addGradient()
-        self.view.addSubview(self.pageControl)
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        self.updatePageControl()
-        self.navigationController?.setNavigationBarHidden(true, animated: animated)
+        
+        self.configurePageControl()
+        self.addNameLabel()
     }
 
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
 
-        self.configurePageControl()
-        self.addNameLabel()
+        if let controller = self.selectedViewController as? CityViewController {
+            self.configureNameLabel(self.nameLabel, text: controller.viewModel.city.name)
+            self.configureNameLabel(self.newNameLabel)
+        }
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
     // MARK: - Initializers
@@ -71,9 +69,9 @@ class CitiesPageViewController: EMPageViewController {
     // MARK: - IBActions
 
     @IBAction func listButtonPressed() {
-//        let list = CitiesListViewController()
+        let list = OLDCitiesListViewController()
 //        list.delegate = self
-//        self.navigationController?.pushViewController(list, animated: true)
+        self.navigationController?.pushViewController(list, animated: true)
     }
 
     @IBAction func pageControlValueChanged(_ sender: Any) {
@@ -126,8 +124,8 @@ class CitiesPageViewController: EMPageViewController {
             }
         }
 
-        let yOriginCityViewController = self.nameLabelHeight + self.pageControlHeight
-        let cityViewController = CityViewController(viewModel: self.viewModel.createCityViewModel(withIndex: index))
+        let cityViewController = CityViewController(viewModel: self.viewModel.createCityViewModel(withIndex: index),
+                                                    topOffset: self.nameLabelHeight + self.pageControlHeight)
                 
         cityViewController.delegate = self
         cityViewController.weatherInfoView.delegate = self
@@ -172,9 +170,19 @@ class CitiesPageViewController: EMPageViewController {
 //  MARK: - Page Control
         
     private func configurePageControl() {
-        self.updatePageControl()
-        self.pageControl.frame.origin = CGPoint(x: (self.view.frame.width - self.pageControl.frame.width) / 2,
-                                                y: self.view.safeAreaInsets.top)
+        
+        self.pageControl.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(self.pageControl)
+        
+        let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
+        
+        NSLayoutConstraint.activate([
+            self.pageControl.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            self.pageControl.heightAnchor.constraint(equalToConstant: self.pageControlHeight),
+            self.pageControl.widthAnchor.constraint(equalToConstant: size.width),
+            self.pageControl.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+        ])
+          
         self.pageControl.hidesForSinglePage = true
 
         self.pageControl.addTarget(self, action: #selector(self.pageControlValueChanged(_:)), for: .valueChanged)
@@ -184,10 +192,16 @@ class CitiesPageViewController: EMPageViewController {
 
     func updatePageControl(index: Int? = nil) {
         if self.pageControl.numberOfPages != self.viewModel.citiesList.count {
+            
             self.pageControl.numberOfPages = self.viewModel.citiesList.count
+            
+            let pageControlWidthConstraint = self.pageControl.constraints.filter({     // Width constrain
+                guard let firstItem = $0.firstItem as? NSObject else { return false }
+                return firstItem == self.pageControl && $0.firstAttribute == .width
+            }).first
+            
             let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
-            self.pageControl.frame.size = CGSize(width: size.width, height: self.pageControlHeight)
-            self.pageControl.frame.origin.x = (self.view.frame.width - size.width) / 2
+            pageControlWidthConstraint?.constant = size.width
         }
 
         if let index = index {
@@ -210,28 +224,35 @@ class CitiesPageViewController: EMPageViewController {
     // MARK: - Name Label
 
     private func addNameLabel() {
-
-        guard let controller = self.selectedViewController as? CityViewController else { return }
-
-        self.configureNameLabel(self.newNameLabel)
+        
+        self.newNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        self.nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         self.view.addSubview(self.newNameLabel)
-
-        self.configureNameLabel(self.nameLabel, text: controller.viewModel.city.name)
         self.view.addSubview(self.nameLabel)
-
+        
+        NSLayoutConstraint.activate([
+            self.nameLabel.topAnchor.constraint(equalTo: self.pageControl.bottomAnchor),
+            self.nameLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor,
+                                                    constant: self.horizontalOffset),
+            self.nameLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor,
+                                                  constant: -self.horizontalOffset * 2),
+            self.nameLabel.heightAnchor.constraint(equalToConstant: self.nameLabelHeight),
+            
+            self.newNameLabel.topAnchor.constraint(equalTo: self.pageControl.bottomAnchor),
+            self.newNameLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor,
+                                                       constant: self.horizontalOffset),
+            self.newNameLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor,
+                                                     constant: -self.horizontalOffset * 2),
+            self.newNameLabel.heightAnchor.constraint(equalToConstant: self.nameLabelHeight),
+        ])
+        
         let recognizer = UITapGestureRecognizer(target: self,
                                                 action: #selector(self.listButtonPressed))
         self.nameLabel.addGestureRecognizer(recognizer)
     }
 
     private func configureNameLabel(_ nameLabel: UILabel, text: String? = nil) {
-
-        let screen = self.view.frame.size
-
-        nameLabel.frame = CGRect(x: self.horizontalOffset,
-                                         y: self.view.safeAreaInsets.top + self.pageControlHeight,
-                                         width: screen.width - (self.horizontalOffset * 2),
-                                         height: self.nameLabelHeight)
         nameLabel.text = text
         nameLabel.textColor = .white
         nameLabel.textAlignment = .center
@@ -245,8 +266,7 @@ class CitiesPageViewController: EMPageViewController {
 
     private func addGradient() {
         self.backgroundGradient.opacity = 1
-        self.backgroundGradient.startPoint = CGPoint(x: 0, y: 0)
-        self.backgroundGradient.endPoint = CGPoint(x: 0, y: 1)
+        self.backgroundGradient.locations = [0.0, 1.0]
         self.backgroundGradient.frame = self.view.bounds
         self.view.layer.insertSublayer(backgroundGradient, at: 0)
         self.changeGradientColor(isDayTime: self.viewModel.citiesList.first?.currentWeather?.isDayTime)
@@ -300,7 +320,7 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
         guard let destinationViewController = destinationViewController as? CityViewController,
               let startingViewController = startingViewController as? CityViewController else { return }
         
-
+        // Changing backgroung depending on which view controller takes the most part of the screen
         var visibleViewController: CityViewController
         if abs(progress) > 0.5 {
             visibleViewController = destinationViewController
@@ -309,35 +329,47 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
         }
         let isDayTime = visibleViewController.viewModel.city.currentWeather?.isDayTime ?? true
         self.changeGradientColor(isDayTime: isDayTime)
+        
+        // Changing UILabel with city name with push animation
 
         self.nameLabel.text = startingViewController.viewModel.city.name
         self.newNameLabel.text = destinationViewController.viewModel.city.name
+                        
+        let nameLabelLeadingConstraint = self.view.constraints.filter({     // Leading constrain
+            guard let firstItem = $0.firstItem as? NSObject else { return false }
+            return firstItem == self.nameLabel && $0.firstAttribute == .leading
+        }).first
         
-        
+        let newNameLabelLeadingConstraint = self.view.constraints.filter({  // Leading constrain
+            guard let firstItem = $0.firstItem as? NSObject else { return false }
+            return firstItem == self.newNameLabel && $0.firstAttribute == .leading
+        }).first
+                
         switch abs(progress) {
         case 0:
-            self.newNameLabel.frame.origin.x = self.horizontalOffset + self.view.frame.width
+            newNameLabelLeadingConstraint?.constant = self.horizontalOffset + self.view.frame.width
         case 0..<1:
-            let oldLabelGraph = -((pow(Double(progress), 3) / 2) + (progress / 2))
-            let newLabelGraph = (abs(progress) / progress) * ((pow(Double(progress), 2) / 2) -
-                                ((abs(progress) / progress) * progress * 1.5) + 1)
-
-            self.nameLabel.frame.origin.x = self.horizontalOffset + (self.view.frame.width * oldLabelGraph)
-            self.newNameLabel.frame.origin.x = self.horizontalOffset + (self.view.frame.width * newLabelGraph)
-
-
-            let oldLabelOpacityGraph = -pow(Double(progress), 2) + 1
+            
+            // Graphs for push animation
+            let oldLabelGraph = -pow(progress, 3)
+            let newLabelGraph = (progress / abs(progress)) - (abs(pow(progress, 5)) / progress)
+//            (abs(progress) / progress) * ((pow(Double(progress), 2) / 2) - ((abs(progress) / progress) * progress * 1.5) + 1)
+            
+            nameLabelLeadingConstraint?.constant = self.horizontalOffset + (self.view.frame.width * oldLabelGraph)
+            newNameLabelLeadingConstraint?.constant = self.horizontalOffset + (self.view.frame.width * newLabelGraph)
+            
+            let oldLabelOpacityGraph = -pow(progress, 2) + 1
             let newLabelOpacityGraph = pow(progress, 2)
 
             self.nameLabel.layer.opacity = Float(oldLabelOpacityGraph)
             self.newNameLabel.layer.opacity = Float(newLabelOpacityGraph)
         case 1:
             self.nameLabel.text = destinationViewController.viewModel.city.name
-            self.nameLabel.frame.origin.x = self.horizontalOffset
+            nameLabelLeadingConstraint?.constant = self.horizontalOffset
             self.nameLabel.layer.opacity = 1
 
             self.newNameLabel.text = nil
-            self.newNameLabel.frame.origin.x = self.view.frame.width
+            newNameLabelLeadingConstraint?.constant = self.view.frame.width
             self.newNameLabel.layer.opacity = 0
         default:
             break

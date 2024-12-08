@@ -48,7 +48,7 @@ class WeatherInfoView: UIView {
         self.configureHourlyForecast()
         self.configureDailyForecast()
         
-        self.refreshWeather()
+        self.viewModel.refreshWeather()
     }
     
     func refreshWeather() {

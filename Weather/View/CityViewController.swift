@@ -15,6 +15,7 @@ class CityViewController: UIViewController {
 
     var weatherInfoView: WeatherInfoView
     let cityRefreshControl = UIRefreshControl()
+    let topOffset: CGFloat
 
     weak var delegate: CityViewControllerDelegate?
 
@@ -27,13 +28,14 @@ class CityViewController: UIViewController {
 
     // MARK: - Initializers
 
-    init(viewModel: CityViewModel) {
+    init(viewModel: CityViewModel, topOffset: CGFloat) {
         self.viewModel = viewModel
         self.weatherInfoView = WeatherInfoView(viewModel: self.viewModel.createWeatherInfoViewModel())
+        self.topOffset = topOffset
 
         super.init(nibName: nil, bundle: nil)
 
-        weatherInfoView.viewModel.delegate = self
+        self.weatherInfoView.viewModel.delegate = self
     }
 
     required init?(coder: NSCoder) {
@@ -50,7 +52,8 @@ class CityViewController: UIViewController {
 
     private func configure() {
         
-        self.cityRefreshControl.addTarget(self, action: #selector(self.refreshWeatherInfo), for: .valueChanged)
+        self.cityRefreshControl.addTarget(self, action: #selector(self.refreshWeatherInfo),
+                                          for: .valueChanged)
         self.cityRefreshControl.tintColor = .white
 
         let cityScrollView = UIScrollView()
@@ -67,7 +70,8 @@ class CityViewController: UIViewController {
         cityScrollView.addSubview(weatherView)
         
         NSLayoutConstraint.activate([
-            cityScrollView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 100),
+            cityScrollView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor,
+                                                constant: self.topOffset),
             cityScrollView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             cityScrollView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             cityScrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
@@ -107,7 +111,6 @@ extension CityViewController: UIScrollViewDelegate {
         self.addFade(to: scrollView)
         self.delegate?.cityViewController(scrollViewDidScroll: scrollView)
     }
-
 }
 
 // MARK: - Weather Info View Delegate

@@ -32,7 +32,7 @@ class WeatherInfoViewModel {
     // MARK: - Funcs
     
     func refreshWeather(isForcedUpdate: Bool = false) {
-        
+                
         let lastUpdated = self.city.lastUpdated
         let tasks = DispatchGroup()
         
