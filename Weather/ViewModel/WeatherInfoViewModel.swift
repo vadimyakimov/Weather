@@ -61,7 +61,7 @@ class WeatherInfoViewModel {
         }
         
         tasks.notify(queue: .main) {
-            self.delegate?.weatherInfoView(didUpdateWeatherInfoFor: self.city)
+            self.delegate?.weatherInfoViewDidFinishUpdating()
         }
     }
     
@@ -109,7 +109,7 @@ class WeatherInfoViewModel {
         
         self.city.lastUpdated.currentWeather = Date()
         
-        self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
+        self.delegate?.weatherInfoViewDidUpdateCurrentWeather()
     }
     
     func updateData(_ data: [HourlyForecast]) {
