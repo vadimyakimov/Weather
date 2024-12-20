@@ -7,6 +7,7 @@
 
 import UIKit
 import EMPageViewController
+import CoreData
 
 class CitiesPageViewController: EMPageViewController {
     
@@ -18,19 +19,19 @@ class CitiesPageViewController: EMPageViewController {
 
     private let backgroundGradient = CAGradientLayer()
 
-    var nameLabel = UILabel()
-    var newNameLabel = UILabel()
+    private var nameLabel = UILabel()
+    private var newNameLabel = UILabel()
     private let nameLabelHeight: CGFloat = 80
-    let nameLabelFontSize: CGFloat = 60
-    let nameLabelMinimumFontSize: CGFloat = 30
-    let horizontalOffset: CGFloat = 20
+    private let nameLabelFontSize: CGFloat = 60
+    private let nameLabelMinimumFontSize: CGFloat = 30
+    private let horizontalOffset: CGFloat = 20
 
     private let pageControl = UIPageControl()
     private let pageControlHeight: CGFloat = 20
     private var previousPageControlIndex: Int?
         
-    // MARK: - Lifecycle
-
+//    // MARK: - Lifecycle
+//
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -39,9 +40,20 @@ class CitiesPageViewController: EMPageViewController {
         self.scrollView.contentInsetAdjustmentBehavior = .never
 
         self.addGradient()
+        self.showCityViewController()
         
         self.configurePageControl()
         self.addNameLabel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
 
     override func viewSafeAreaInsetsDidChange() {
@@ -51,15 +63,13 @@ class CitiesPageViewController: EMPageViewController {
             self.configureNameLabel(self.nameLabel, text: controller.viewModel.city.name)
             self.configureNameLabel(self.newNameLabel)
         }
-        self.navigationController?.setNavigationBarHidden(true, animated: true)
     }
     
     // MARK: - Initializers
     
-    init(atIndex index: Int, viewModel: CitiesPageViewModel) {
+    init(viewModel: CitiesPageViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.showCityViewController(withIndex: index)
     }
     
     required init?(coder: NSCoder) {
@@ -68,13 +78,13 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - IBActions
 
-    @IBAction func listButtonPressed() {
-        let list = OLDCitiesListViewController()
-//        list.delegate = self
+    @IBAction private func listButtonPressed() {
+        let list = CitiesListViewController(viewModel: self.viewModel.createCitiesListViewModel())
+        list.delegate = self
         self.navigationController?.pushViewController(list, animated: true)
     }
 
-    @IBAction func pageControlValueChanged(_ sender: Any) {
+    @IBAction private func pageControlValueChanged(_ sender: Any) {
         guard let pageControl = sender as? UIPageControl else { return }
 
         if pageControl.isSelected {
@@ -84,13 +94,13 @@ class CitiesPageViewController: EMPageViewController {
         }
     }
 
-    @IBAction func pageControlTouchDown(_ sender: Any) {
+    @IBAction private func pageControlTouchDown(_ sender: Any) {
         guard let pageControl = sender as? UIPageControl else { return }
         pageControl.isSelected = true
         self.previousPageControlIndex = pageControl.currentPage
     }
 
-    @IBAction func pageControlTouchUp(_ sender: Any) {
+    @IBAction private func pageControlTouchUp(_ sender: Any) {
         guard let pageControl = sender as? UIPageControl else { return }
         pageControl.isSelected = false
         self.pageControl(didUpdate: pageControl)
@@ -98,27 +108,21 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - View Controllers Management
 
-    func showCityViewController(withIndex index: Int, direction: EMPageViewControllerNavigationDirection = .forward) {
+    func showCityViewController(withIndex index: Int = 0, direction: EMPageViewControllerNavigationDirection = .forward) {
         guard let controller = self.cityViewController(withIndex: index) else { return }
 
         self.selectViewController(controller, direction: direction, animated: true, completion: nil)
         self.changeGradientColor(isDayTime: controller.viewModel.city.currentWeather?.isDayTime)
     }
 
-    func cityViewController(withIndex i: Int) -> CityViewController? {
-
+    private func cityViewController(withIndex i: Int) -> CityViewController? {
+        
         var index = i
-        let citiesCount = self.viewModel.citiesList.count
-
-        if index < 0 {
+        let citiesCount = self.viewModel.citiesCount
+        
+        if !(0..<citiesCount ~= index) {
             if citiesCount > 3 {
-                index += citiesCount
-            } else {
-                return nil
-            }
-        } else if index >= citiesCount {
-            if citiesCount > 3 {
-                index -= citiesCount
+                index = (index % citiesCount + citiesCount) % citiesCount
             } else {
                 return nil
             }
@@ -126,46 +130,33 @@ class CitiesPageViewController: EMPageViewController {
 
         let cityViewController = CityViewController(viewModel: self.viewModel.createCityViewModel(withIndex: index),
                                                     topOffset: self.nameLabelHeight + self.pageControlHeight)
-                
+//        cityViewController.view.backgroundColor = UIColor(red: CGFloat.random(in: 0...1),
+//                                                          green: CGFloat.random(in: 0...1),
+//                                                          blue: CGFloat.random(in: 0...1),
+//                                                          alpha: 1)
+        cityViewController.changeGradientColor = self.changeGradientColor
         cityViewController.delegate = self
-        cityViewController.weatherInfoView.delegate = self
+//        cityViewController.weatherInfoView.viewModel.delegate = self
         
         return cityViewController
     }
 
-//    func backToPageViewController(withIndex index: Int) {
-//        self.navigationController?.popToRootViewController(animated: true)
+//    private func updatePageViewController() {
+//        
+//        guard let controller = self.selectedViewController as? CityViewController else { return }
+//        
+//        let city = controller.viewModel.city
+//        var index: Int
+//
+//        if let i = self.viewModel.firstIndexInCityList(of: city) {
+//            index = i
+//        } else {
+//            index = self.pageControl.currentPage
+//        }
+//
 //        self.updatePageControl(index: index)
-//        self.showCityViewController(withIndex: index)
+//        self.showCityViewController(withIndex: self.pageControl.currentPage)
 //    }
-    
-        //    func checkDeletedViewControllers() {
-        //
-        //        guard self.navigationController?.topViewController == self,
-        //            let controller = self.selectedViewController as? CityViewController else { return }
-        //
-        //
-        //        let city = controller.city
-        //        var index: Int
-        //
-        //        if let i = CitiesCoreDataStack.shared.citiesList.firstIndex(of: city) {
-        //            index = i
-        //        } else {
-        //            index = self.pageControl.currentPage
-        //        }
-        //
-        //        self.updateFrame()
-        //
-        //        self.updatePageControl(index: index)
-        //        self.showCityViewController(withIndex: self.pageControl.currentPage)
-        //    }
-        //
-        //    // MARK: - Frame
-        //
-        //    private func updateFrame() {
-        //        self.view.frame.size.height += self.view.frame.origin.y
-        //        self.view.frame.origin.y = 0
-        //    }
         
 //  MARK: - Page Control
         
@@ -184,16 +175,19 @@ class CitiesPageViewController: EMPageViewController {
         ])
           
         self.pageControl.hidesForSinglePage = true
+        
+        self.updatePageControl()
 
         self.pageControl.addTarget(self, action: #selector(self.pageControlValueChanged(_:)), for: .valueChanged)
         self.pageControl.addTarget(self, action: #selector(self.pageControlTouchDown(_:)), for: .touchDown)
         self.pageControl.addTarget(self, action: #selector(self.pageControlTouchUp(_:)), for: [.touchUpInside])
     }
 
-    func updatePageControl(index: Int? = nil) {
-        if self.pageControl.numberOfPages != self.viewModel.citiesList.count {
+    private func updatePageControl(index: Int? = nil) {
+                        
+        if self.pageControl.numberOfPages != self.viewModel.citiesCount {
             
-            self.pageControl.numberOfPages = self.viewModel.citiesList.count
+            self.pageControl.numberOfPages = self.viewModel.citiesCount
             
             let pageControlWidthConstraint = self.pageControl.constraints.filter({     // Width constrain
                 guard let firstItem = $0.firstItem as? NSObject else { return false }
@@ -201,7 +195,12 @@ class CitiesPageViewController: EMPageViewController {
             }).first
             
             let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
-            pageControlWidthConstraint?.constant = size.width
+            
+            DispatchQueue.main.async {
+                pageControlWidthConstraint?.constant = size.width
+                self.pageControl.clipsToBounds = false
+                self.view.layoutIfNeeded()
+            }
         }
 
         if let index = index {
@@ -209,7 +208,7 @@ class CitiesPageViewController: EMPageViewController {
         }
     }
 
-    func pageControl(didUpdate pageControl: UIPageControl) {
+    private func pageControl(didUpdate pageControl: UIPageControl) {
         guard let previousPageControlIndex = self.previousPageControlIndex,
               pageControl.currentPage != previousPageControlIndex,
               !pageControl.isSelected else { return }
@@ -238,6 +237,7 @@ class CitiesPageViewController: EMPageViewController {
             self.nameLabel.widthAnchor.constraint(equalTo: self.view.widthAnchor,
                                                   constant: -self.horizontalOffset * 2),
             self.nameLabel.heightAnchor.constraint(equalToConstant: self.nameLabelHeight),
+            
             
             self.newNameLabel.topAnchor.constraint(equalTo: self.pageControl.bottomAnchor),
             self.newNameLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor,
@@ -269,7 +269,6 @@ class CitiesPageViewController: EMPageViewController {
         self.backgroundGradient.locations = [0.0, 1.0]
         self.backgroundGradient.frame = self.view.bounds
         self.view.layer.insertSublayer(backgroundGradient, at: 0)
-        self.changeGradientColor(isDayTime: self.viewModel.citiesList.first?.currentWeather?.isDayTime)
     }
 
     private func changeGradientColor(isDayTime: Bool?) {
@@ -293,18 +292,15 @@ extension CitiesPageViewController: EMPageViewControllerDataSource {
     
     func em_pageViewController(_ pageViewController: EMPageViewController,
                                viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
-        
-        guard let controller = viewController as? CityViewController else { return nil }
-
-        guard let index = self.viewModel.firstIndexInCityList(of: controller.viewModel.city) else { return nil }
+        guard let controller = viewController as? CityViewController,
+              let index = self.viewModel.firstIndexInCityList(of: controller.viewModel.city) else { return nil }
         return self.cityViewController(withIndex: index - 1)
     }
 
     func em_pageViewController(_ pageViewController: EMPageViewController,
                                viewControllerAfterViewController viewController: UIViewController) -> UIViewController? {
-        guard let controller = viewController as? CityViewController else { return nil }
-
-        guard let index = self.viewModel.firstIndexInCityList(of: controller.viewModel.city) else { return nil }
+        guard let controller = viewController as? CityViewController,
+              let index = self.viewModel.firstIndexInCityList(of: controller.viewModel.city) else { return nil }
         return self.cityViewController(withIndex: index + 1)
     }
 }
@@ -312,7 +308,7 @@ extension CitiesPageViewController: EMPageViewControllerDataSource {
 // MARK: - EM Page View Controller Delegate
 
 extension CitiesPageViewController: EMPageViewControllerDelegate {
-
+    
     func em_pageViewController(_ pageViewController: EMPageViewController,
                                isScrollingFrom startingViewController: UIViewController,
                                destinationViewController: UIViewController, progress: CGFloat) {
@@ -320,17 +316,18 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
         guard let destinationViewController = destinationViewController as? CityViewController,
               let startingViewController = startingViewController as? CityViewController else { return }
         
-        // Changing backgroung depending on which view controller takes the most part of the screen
+        /// Changing backgroung depending on which view controller takes the most part of the screen
+        
         var visibleViewController: CityViewController
         if abs(progress) > 0.5 {
             visibleViewController = destinationViewController
         } else {
             visibleViewController = startingViewController
         }
-        let isDayTime = visibleViewController.viewModel.city.currentWeather?.isDayTime ?? true
+        let isDayTime = visibleViewController.viewModel.city.currentWeather?.isDayTime
         self.changeGradientColor(isDayTime: isDayTime)
         
-        // Changing UILabel with city name with push animation
+        /// Changing UILabel with city name with push animation
 
         self.nameLabel.text = startingViewController.viewModel.city.name
         self.newNameLabel.text = destinationViewController.viewModel.city.name
@@ -353,7 +350,6 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
             // Graphs for push animation
             let oldLabelGraph = -pow(progress, 3)
             let newLabelGraph = (progress / abs(progress)) - (abs(pow(progress, 5)) / progress)
-//            (abs(progress) / progress) * ((pow(Double(progress), 2) / 2) - ((abs(progress) / progress) * progress * 1.5) + 1)
             
             nameLabelLeadingConstraint?.constant = self.horizontalOffset + (self.view.frame.width * oldLabelGraph)
             newNameLabelLeadingConstraint?.constant = self.horizontalOffset + (self.view.frame.width * newLabelGraph)
@@ -374,7 +370,7 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
         default:
             break
         }
-        
+
     }
 
     func em_pageViewController(_ pageViewController: EMPageViewController,
@@ -382,41 +378,11 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
                                destinationViewController: UIViewController,
                                transitionSuccessful: Bool) {
         guard transitionSuccessful,
-              let controller = destinationViewController as? CityViewController,
-              let index = self.viewModel.firstIndexInCityList(of: controller.viewModel.city) else { return }
-        self.updatePageControl(index: index)
-    }
-}
-    
-//// MARK: - Cities List View Controller Delegate
-//
-//extension CitiesPageViewController: CitiesListViewControllerDelegate {
-//
-//    func citiesListViewController(didSelectRowAt indexPath: IndexPath) {
-//        self.backToPageViewController(withIndex: indexPath.row)
-//    }
-//
-//    func citiesListViewController(shouldRemoveCityAt index: Int) {
-//        CitiesCoreDataStack.shared.deleteCity(at: index)
-//    }
-//
-//    func citiesListViewController(shouldMoveCityAt sourceIndex: Int, to destinationIndex: Int) {
-//        CitiesCoreDataStack.shared.moveCity(at: sourceIndex, to: destinationIndex)
-//    }
-//
-//    func citiesListViewControllerWillDisappear() {
-//        self.checkDeletedViewControllers()
-//    }
-//}
-
-// MARK: - Weather Info View Controller Delegate
-
-extension CitiesPageViewController: WeatherInfoViewDelegate {
-    
-    func weatherInfoView(didUpdateCurrentWeatherFor city: City) {
-        guard let controller = self.selectedViewController as? CityViewController else { return }
-        let isDayTime = controller.viewModel.city.currentWeather?.isDayTime ?? true
-        self.changeGradientColor(isDayTime: isDayTime)
+              let controller = destinationViewController as? CityViewController else { return }
+         let index = controller.viewModel.city.id
+        
+        self.updatePageControl(index: Int(index))
+        
     }
 }
 
@@ -431,5 +397,27 @@ extension CitiesPageViewController: CityViewControllerDelegate {
             self.nameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
             self.newNameLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .light)
         }
+    }
+}
+
+// MARK: - Cities List Screen Delegate
+
+extension CitiesPageViewController: CitiesListViewControllerDelegate {
+    
+    func citiesListViewController(didSelectRowAt indexPath: IndexPath) {
+        self.showCityViewController(withIndex: indexPath.row)
+        self.navigationController?.popToRootViewController(animated: true)
+    }
+    
+    func citiesListViewControllerDidChangeContent() {
+        let controller = self.selectedViewController as? CityViewController
+        guard let city = controller?.viewModel.city else { return }
+
+        /// If a city has been moved, index changes to the city's new position;
+        /// if the city has been deleted, all following cities decrement their index,
+        /// therefore the next city has the same index as the deleted one.
+        let index = min(Int(city.id), self.viewModel.citiesCount - 1)
+
+        self.showCityViewController(withIndex: index)
     }
 }

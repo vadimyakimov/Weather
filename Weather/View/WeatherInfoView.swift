@@ -5,7 +5,7 @@ class WeatherInfoView: UIView {
     // MARK: - Properties
         
     let viewModel: WeatherInfoViewModel
-    weak var delegate: WeatherInfoViewDelegate?
+//    weak var delegate: WeatherInfoViewDelegate?
     
     let cityRefreshControl = UIRefreshControl()
     
@@ -24,9 +24,9 @@ class WeatherInfoView: UIView {
         self.hourlyForecastContainer = HourlyForecastView(verticalSpacing: self.verticalSpacing, innerOffset: self.innerOffset)
         self.dailyForecastContainer = DailyForecastView(verticalSpacing: self.verticalSpacing)
         super.init(frame: .zero)
-           
-        self.bindViewModel()
+        
         self.configure()
+        self.bindViewModel()
     }
     
     required init(coder: NSCoder) {
@@ -36,9 +36,18 @@ class WeatherInfoView: UIView {
     // MARK: - Binding functions
     
     func bindViewModel() {        
-        self.viewModel.didUpdateCurrentWeather = self.updateCurrentWeather(_:)
-        self.viewModel.didUpdateHourlyForecast = self.hourlyForecastContainer.updateForecast(_:)
-        self.viewModel.didUpdateDailyForecast = self.dailyForecastContainer.updateForecast(_:)
+        self.viewModel.currentWeather.bind { [weak self] data in
+            guard let self = self else { return }
+            self.updateCurrentWeather(data)
+        }
+        self.viewModel.hourlyForecast.bind { [weak self] data in
+            guard let self = self else { return }
+            self.hourlyForecastContainer.updateForecast(data)
+        }
+        self.viewModel.dailyForecast.bind { [weak self] data in
+            guard let self = self else { return }
+            self.dailyForecastContainer.updateForecast(data)
+        }
     }
     
     // MARK: - Configure functions
@@ -110,7 +119,6 @@ class WeatherInfoView: UIView {
         
     private func updateCurrentWeather(_ currentWeather: CurrentWeather?) {
         guard let data = currentWeather else { return }
-        
         self.currentWeatherView.configure(isDayTime: data.isDayTime,
                                           temperature: Int(data.temperatureCelsius),
                                           weatherText: data.weatherText,

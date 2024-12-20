@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 class WeatherInfoViewModel {
     
@@ -14,19 +15,27 @@ class WeatherInfoViewModel {
     
     weak var delegate: WeatherInfoViewDelegate?
     
-    private let city: City
+    let city: City
+    
+    let currentWeather: Bindable<CurrentWeather?>
+    let hourlyForecast: Bindable<[HourlyForecast]?>
+    let dailyForecast: Bindable<[DailyForecast]?>
+    
+    let refreshTimeout: TimeInterval = 600
+    
+    
     var isDayTime: Bool {
         return self.city.currentWeather?.isDayTime ?? true
     }
-    
-    var didUpdateCurrentWeather: ((CurrentWeather?) -> ())?
-    var didUpdateHourlyForecast: (([HourlyForecast]?) -> ())?
-    var didUpdateDailyForecast: (([DailyForecast]?) -> ())?
     
     // MARK: - Initializers
     
     init(city: City) {
         self.city = city
+        
+        self.currentWeather = Bindable(city.currentWeather)
+        self.hourlyForecast = Bindable(city.hourlyForecast?.array as? [HourlyForecast])
+        self.dailyForecast = Bindable(city.dailyForecast?.array as? [DailyForecast])
     }
     
     // MARK: - Funcs
@@ -36,29 +45,23 @@ class WeatherInfoViewModel {
         let lastUpdated = self.city.lastUpdated
         let tasks = DispatchGroup()
         
-        if lastUpdated.currentWeather.timeIntervalSinceNow < -600 || isForcedUpdate {
+        if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
             tasks.enter()
             self.fetchCurrentWeather(dispatchGroup: tasks)
-        } else {
-            self.didUpdateCurrentWeather?(self.city.currentWeather)
         }
         
-        if lastUpdated.hourlyForecast.timeIntervalSinceNow < -600 || isForcedUpdate {
+        if lastUpdated.hourlyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
             tasks.enter()
             self.fetchHourlyForecast(dispatchGroup: tasks)
-        } else {
-            self.didUpdateHourlyForecast?(self.city.hourlyForecast?.array as? [HourlyForecast])
         }
 
-        if lastUpdated.dailyForecast.timeIntervalSinceNow < -600 || isForcedUpdate {
+        if lastUpdated.dailyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
             tasks.enter()
             self.fetchDailyForecast(dispatchGroup: tasks)
-        } else {
-            self.didUpdateDailyForecast?(self.city.dailyForecast?.array as? [DailyForecast])
         }
         
         tasks.notify(queue: .main) {
-            self.delegate?.weatherInfoView?(didUpdateWeatherInfoFor: self.city)
+            self.delegate?.weatherInfoView(didUpdateWeatherInfoFor: self.city)
         }
     }
     
@@ -97,29 +100,58 @@ class WeatherInfoViewModel {
         }
     }
     
-    // MARK: - Sating data to Core Data
+    // MARK: - CRUD
     
     func updateData(_ data: CurrentWeather) {
-        self.city.currentWeather = data
-        self.city.lastUpdated.currentWeather = Date()
-        CitiesCoreDataStack.shared.saveContext()
-        self.didUpdateCurrentWeather?(data)
         
-        self.delegate?.weatherInfoView?(didUpdateCurrentWeatherFor: self.city)
+        self.currentWeather.value = data
+        self.currentWeather.value?.city = self.city
+        
+        self.city.lastUpdated.currentWeather = Date()
+        
+        self.delegate?.weatherInfoView(didUpdateCurrentWeatherFor: self.city)
     }
     
     func updateData(_ data: [HourlyForecast]) {
-        self.city.hourlyForecast = NSOrderedSet(array: data)
+        
+        if let array = self.city.hourlyForecast?.array, !array.isEmpty {
+            array.forEach({ self.delete(object: $0) })
+        }
+        
+        self.hourlyForecast.value = data
+        self.hourlyForecast.value?.forEach { $0.city = self.city }
+        
         self.city.lastUpdated.hourlyForecast = Date()
-        CitiesCoreDataStack.shared.saveContext()
-        self.didUpdateHourlyForecast?(data)
+        
+        self.saveContext()
     }
     
     func updateData(_ data: [DailyForecast]) {
-        self.city.dailyForecast = NSOrderedSet(array: data)
+        
+        if let array = self.city.dailyForecast?.array, !array.isEmpty {
+            array.forEach({ self.delete(object: $0) })
+        }
+        
+        self.dailyForecast.value = data
+        self.dailyForecast.value?.forEach { $0.city = self.city }
+        
         self.city.lastUpdated.dailyForecast = Date()
-        CitiesCoreDataStack.shared.saveContext()
-        self.didUpdateDailyForecast?(data)
+        
+        self.saveContext()
+    }
+    
+    private func saveContext() {
+        do {
+            try self.city.managedObjectContext?.save()
+        } catch {
+            let nserror = error as NSError
+            fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+        }
+    }
+    
+    private func delete(object: Any) {
+        guard let object = object as? NSManagedObject else { return }
+        self.city.managedObjectContext?.delete(object)
     }
     
 }

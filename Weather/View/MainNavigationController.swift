@@ -12,39 +12,19 @@ class MainNavigationController: UINavigationController {
     // MARK: - Properties
     
     private let viewModel = MainNavigationViewModel()
-    
-    private var indexPageViewControler = 0
-    
+        
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        let count = CitiesCoreDataStack.shared.citiesList.count
-//        print(count)
-//        for i in 0..<count {
-//            CitiesCoreDataStack.shared.deleteCity(at: i)
-//        }
-//        print(count)
-        
-        //        let weatherScreen = Bindable(CitiesCoreDataStack.shared.citiesList)
-        //        weatherScreen.bind { citiesArray in
-        ////            print(citiesArray.count)
-        //        }
-        //        self.control
-        
+
         self.pushViewController(self.createRootViewController(), animated: true)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        self.setNavigationBarBackground()
+        self.setBackgroundColor()
     }
     
     // MARK: - UI setting funcs
     
-    private func setNavigationBarBackground() {
+    private func setBackgroundColor() {
         if #available(iOS 13.0, *) {
             let appearence = UINavigationBarAppearance()
             appearence.backgroundColor = .systemBackground
@@ -61,94 +41,29 @@ class MainNavigationController: UINavigationController {
     
     private func createRootViewController() -> UIViewController {
         if self.viewModel.isSearchRoot {
-            let searchScreen = SearchScreenViewController(isRoot: self.viewModel.isSearchRoot)
-            searchScreen.viewModel.delegate = self
+            let searchScreen = SearchScreenViewController(isRoot: self.viewModel.isSearchRoot,
+                                                          viewModel: self.viewModel.createSearchScreenViewModel())
             return searchScreen
         } else {
-            let weatherScreen = CitiesPageViewController(atIndex: self.indexPageViewControler,
-                                                         viewModel: self.viewModel.createCitiesPageViewModel())
+            let weatherScreen = CitiesPageViewController(viewModel: self.viewModel.createCitiesPageViewModel())
             return weatherScreen
         }
     }
-    
-    private func popToRootViewController(isSearchRoot: Bool) {
-        if isSearchRoot {
-            self.setViewControllers([self.createRootViewController()], animated: true)
-        } else {
-            self.popToRootViewController(animated: true)
-        }
-    }
-    
 }
 
+// MARK: - 
 // MARK: - Search Screen Delegate
 
 extension MainNavigationController: SearchScreenViewControllerDelegate {
-    
-    func searchScreenViewController(isRoot: Bool, didSelectAutocompletedCity city: City) {
-        
-        if let index = self.viewModel.firstIndexInCityList(of: city) {
-            self.indexPageViewControler = index
+    func searchScreenViewController(didDirectToCityWithIndex index: Int) {
+        if self.viewControllers.count == 1 {
+            let rootController = self.createRootViewController()
+            self.setViewControllers([rootController], animated: true)
         } else {
-            self.viewModel.addNewCity(city)
-            self.indexPageViewControler = self.viewModel.citiesCount - 1
+            if let rootController = self.viewControllers.first as? CitiesPageViewController {
+                rootController.showCityViewController(withIndex: index)
+            }
+            self.popToRootViewController(animated: true)
         }
-        self.popToRootViewController(isSearchRoot: isRoot)
     }
-    
-    func searchScreenViewController(isRoot: Bool, didLoadLocalCity city: City) {
-        self.viewModel.addNewCity(city)
-        self.indexPageViewControler = 0
-        self.popToRootViewController(isSearchRoot: isRoot)
-    }
-    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//class Fisrt: UIViewController {
-//
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//
-//        self.navigationController?.setNavigationBarHidden(false, animated: true)
-//    }
-//
-//}
-//
-//class Second: UIViewController {
-//
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//
-//        self.navigationController?.setViewControllers([self], animated: true)
-//        self.navigationController?.setNavigationBarHidden(true, animated: true)
-//    }
-//
-//}

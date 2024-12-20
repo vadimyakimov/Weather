@@ -10,11 +10,13 @@ import UIKit
 class SearchScreenViewController: UIViewController {
     
     // MARK: - Properties
-        
-    var viewModel: SearchScreenViewModel
     
-    var searchTableView = UITableView()
-    let autocompleteSearchController = UISearchController()
+    private var viewModel: SearchScreenViewModel
+    
+    private let isRoot: Bool
+    
+    private let searchTableView = UITableView()
+    private let autocompleteSearchController = UISearchController()
     
     
     // MARK: - Lifecycle
@@ -22,26 +24,27 @@ class SearchScreenViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.viewModel.delegate = self.navigationController as? SearchScreenViewControllerDelegate
         self.bindViewModel()
-        
-        self.registerForKeyboardNotifications()
-        
+                
         self.addSearchController()
         self.addSearchTableView()
         
-        //        self.navigationController?.isNavigationBarHidden = false
+        self.registerForKeyboardNotifications()
     }
+    
     
     // MARK: - Initializers
     
-        init(isRoot: Bool = false) {
-            self.viewModel = SearchScreenViewModel(isRoot: isRoot)
-            super.init(nibName: nil, bundle: nil)
-        }
+    init(isRoot: Bool = false, viewModel: SearchScreenViewModel) {
+        self.viewModel = viewModel
+        self.isRoot = isRoot
+        super.init(nibName: nil, bundle: nil)
+    }
     
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -49,26 +52,26 @@ class SearchScreenViewController: UIViewController {
     
     // MARK: - Binding funcs
     
-    func bindViewModel() {
-        
+    private func bindViewModel() {
+
         self.viewModel.citiesAutocompleteArray.bind { [unowned self] _ in
             self.searchTableView.reloadData()
         }
-        
+
         self.viewModel.isLocationLoading.bind { [unowned self] isLoading in
             self.setLoadingAnimation(isLoading)
         }
-        
+
         self.viewModel.locationError.bind { [unowned self] error in
             if error != nil {
-                self.showLocationErrorAlert()                
+                self.showLocationErrorAlert()
             }
         }
     }
     
     // MARK: - NotificationCenter funcs
     
-    func registerForKeyboardNotifications() {
+    private func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(handle(keyboardNotification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(handle(keyboardNotification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -77,53 +80,34 @@ class SearchScreenViewController: UIViewController {
     
     @IBAction private func handle(keyboardNotification notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let keyboardRectangle = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
               let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval
         else { return }
         
-        var isKeyboardShown: Bool
+        let tableViewBottomConstraint = self.view.constraints.filter({     // Bottom constrain
+            guard let firstItem = $0.firstItem as? NSObject else { return false }
+            return firstItem == self.searchTableView && $0.firstAttribute == .bottom
+        }).first
         
         switch notification.name {
         case UIResponder.keyboardWillShowNotification:
-            isKeyboardShown = true
+            tableViewBottomConstraint?.constant = -keyboardFrame.height
         default:
-            isKeyboardShown = false
+            tableViewBottomConstraint?.constant = 0
         }
         
-        self.updateSearchTableViewFrame(isKeyboardShown: isKeyboardShown,
-                                        keyboardHeight: keyboardRectangle.height,
-                                        withDuration: animationDuration)
-    }
-    
-    // MARK: - UI configuration funcs
-    
-    private func updateSearchTableViewFrame(isKeyboardShown: Bool,
-                                            keyboardHeight: CGFloat,
-                                            withDuration duration: TimeInterval) {
-        var height = self.view.frame.height
-        
-        if isKeyboardShown {
-            height -= keyboardHeight
-            if let navigationBarHeight = self.navigationController?.navigationBar.frame.height {
-                height += navigationBarHeight
-                height -= self.autocompleteSearchController.searchBar.frame.height
-            }
+        UIView.animate(withDuration: animationDuration) {
+            self.view.layoutIfNeeded()
         }
-        
-        UIView.animate(withDuration: duration) {
-            self.searchTableView.frame.size.height = height
-        }
-        self.view.layoutIfNeeded()
     }
     
     private func addSearchController() {
-        
+                
         self.autocompleteSearchController.searchResultsUpdater = self
         self.autocompleteSearchController.delegate = self
-        
-        if self.viewModel.isRoot {
+                
+        if self.isRoot {
             self.navigationItem.titleView = self.autocompleteSearchController.searchBar
-            self.navigationItem.hidesBackButton = true
             self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
         } else {
             self.navigationItem.searchController = self.autocompleteSearchController
@@ -138,15 +122,23 @@ class SearchScreenViewController: UIViewController {
         self.searchTableView.delegate = self
         self.searchTableView.dataSource = self
         
-        self.searchTableView.frame = self.view.bounds
+        self.searchTableView.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(self.searchTableView)
+        
+        NSLayoutConstraint.activate([
+            self.searchTableView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            self.searchTableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            self.searchTableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            self.searchTableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+        ])
+                
         self.searchTableView.rowHeight = CityTableViewCell.cellHeight
         self.searchTableView.separatorStyle = .none
-        self.view.addSubview(self.searchTableView)
     }
     
     // MARK: - Location funcs
-        
-    func setLoadingAnimation(_ isLoading: Bool) {
+    
+    private func setLoadingAnimation(_ isLoading: Bool) {
         guard let cell = self.searchTableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? CityTableViewCell else { return }
         if isLoading {
             cell.startLoading()
@@ -155,7 +147,7 @@ class SearchScreenViewController: UIViewController {
         }
     }
     
-    func showLocationErrorAlert() {
+    private func showLocationErrorAlert() {
         let errorTitle = "Failed to find your location".localized()
         let errorMessage = "Check if your location is allowed in the settings, or try again later".localized()
         
@@ -174,20 +166,20 @@ class SearchScreenViewController: UIViewController {
         
         self.present(alert, animated: true)
     }
-    
 }
 
-//MARK: - Search Results Updating
+// MARK: -
+// MARK: - Search Results Updating
 
 extension SearchScreenViewController: UISearchResultsUpdating {
-
+    
     func updateSearchResults(for searchController: UISearchController) {
         guard let searchText = searchController.searchBar.text, !searchText.isEmpty else { return }
         self.viewModel.fetchAutocompleteArray(for: searchText)
     }
 }
 
-//MARK: - Search Controller Delegate
+// MARK: - Search Controller Delegate
 
 extension SearchScreenViewController: UISearchControllerDelegate {
     func presentSearchController(_ searchController: UISearchController) {
@@ -199,21 +191,21 @@ extension SearchScreenViewController: UISearchControllerDelegate {
 // MARK: - Table View Data Source
 
 extension SearchScreenViewController: UITableViewDataSource {
-
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
-
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return 1 // For detecting location
         } else {
-            return self.viewModel.getCitiesCount()
+            return self.viewModel.citiesCount
         }
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        
         let cell = CityTableViewCell.instanceFronNib()
         let width = self.view.frame.width
         if indexPath.section == 0 {
@@ -229,10 +221,10 @@ extension SearchScreenViewController: UITableViewDataSource {
 // MARK: - Table View Updating
 
 extension SearchScreenViewController: UITableViewDelegate {
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.autocompleteSearchController.searchBar.resignFirstResponder()
         self.autocompleteSearchController.hidesNavigationBarDuringPresentation = false
-        self.viewModel.passSelectedRow(at: indexPath)
+        self.viewModel.handleSelectedRow(at: indexPath)
     }
 }

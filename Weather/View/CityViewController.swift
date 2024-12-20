@@ -12,13 +12,13 @@ class CityViewController: UIViewController {
     // MARK: - Properties
     
     let viewModel: CityViewModel
+    
+    weak var delegate: CityViewControllerDelegate?
 
     var weatherInfoView: WeatherInfoView
     let cityRefreshControl = UIRefreshControl()
     let topOffset: CGFloat
-
-    weak var delegate: CityViewControllerDelegate?
-
+    var changeGradientColor: ((Bool?) -> Void)?
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -117,7 +117,12 @@ extension CityViewController: UIScrollViewDelegate {
 
 extension CityViewController: WeatherInfoViewDelegate {
     
-    func weatherInfoView(didUpdateWeatherInfoFor city: City) {
+    func weatherInfoViewDidFinishUpdating() {
         self.cityRefreshControl.endRefreshing()
+    }
+    
+    func weatherInfoViewDidUpdateCurrentWeather() {
+        let isDayTime = self.viewModel.city.currentWeather?.isDayTime
+        self.changeGradientColor?(isDayTime)
     }
 }

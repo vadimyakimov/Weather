@@ -9,7 +9,7 @@ public class City: NSManagedObject {
     }
     
     init(context: NSManagedObjectContext, id: Int16? = nil, key: String, name: String, isLocated: Bool = false) {
-        
+                
         if let cityEntity = NSEntityDescription.entity(forEntityName: "City", in: context) {
             super.init(entity: cityEntity, insertInto: context)
         } else {

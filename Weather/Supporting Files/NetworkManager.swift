@@ -99,13 +99,13 @@ class NetworkManager {
         }
     }
     
-    func autocomplete(for text: String, complete: @escaping ([City]) -> ()) {
+    func autocomplete(for text: String, context: NSManagedObjectContext, complete: @escaping ([City]) -> ()) {
         guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
         
         let url = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
         
         self.fetchRequest(with: url) { data in
-            guard let parsedCityArray = self.parseCityAutocompleteArray(from: data) else { return }
+            guard let parsedCityArray = self.parseCityAutocompleteArray(from: data, context: context) else { return }
             DispatchQueue.main.async {
                 complete(parsedCityArray)
             }
@@ -172,11 +172,11 @@ class NetworkManager {
         return dailyForecastArray
     }
     
-    private func parseCityAutocompleteArray(from data: Any?) -> [City]? {
+    private func parseCityAutocompleteArray(from data: Any?, context: NSManagedObjectContext) -> [City]? {
         
         guard let dataArray = data as? [[String : Any]] else { return nil }
         
-        var autocompletedCitiesArray = [City]()
+        var autocompletedCitiesArray = [City]()        
         
         for dataDictionary in dataArray {
             if let key = dataDictionary[self.keyCityID] as? String,
@@ -201,6 +201,6 @@ class NetworkManager {
                         key: key,
                         name: name,
                         isLocated: true)        
-        return city
+        return City()
     }
 }

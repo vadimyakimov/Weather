@@ -4,38 +4,41 @@
 //
 //  Created by Вадим on 02.12.2024.
 //
+import CoreData
 
 class MainNavigationViewModel {
+    
+    // MARK: - Properties
+    
+    private let coreData = CitiesCoreDataStack.shared
+    private let frc: NSFetchedResultsController<City>
         
     var isSearchRoot: Bool {
-        return CitiesCoreDataStack.shared.citiesList.isEmpty
+        return self.frc.fetchedObjects?.isEmpty ?? true
     }
-    var citiesCount: Int {
-        return CitiesCoreDataStack.shared.citiesList.count
-    }
-           
-    // MARK: - Working with data
     
-    func addNewCity(_ city: City) {
+    // MARK: - Initializers
+    
+    init() {
+        let fetchRequest = City.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(City.id), ascending: true)]
+        let context = self.coreData.context
         
-        CitiesCoreDataStack.shared.addCity(city)
+        self.frc = NSFetchedResultsController(fetchRequest: fetchRequest,
+                                              managedObjectContext: context,
+                                              sectionNameKeyPath: nil,
+                                              cacheName: nil)
+        try? self.frc.performFetch()
+    }
+       
+    // MARK: - Create view models
         
-        if city.isLocated {
-            if CitiesCoreDataStack.shared.citiesList.first?.isLocated == true {
-                CitiesCoreDataStack.shared.deleteCity(at: 0)
-            }
-            CitiesCoreDataStack.shared.moveCity(at: self.citiesCount - 1, to: 0)
-        }
-    }
-    
-    func firstIndexInCityList(of city: City) -> Int? {
-        return CitiesCoreDataStack.shared.citiesList.firstIndex(of: city)
-    }
-    
     func createCitiesPageViewModel() -> CitiesPageViewModel {
-        return CitiesPageViewModel(citiesList: CitiesCoreDataStack.shared.citiesList)
+        return CitiesPageViewModel(fetchedResultsController: self.frc)
     }
     
+    func createSearchScreenViewModel() -> SearchScreenViewModel {
+        return SearchScreenViewModel(fetchedResultsController: self.frc)
+    }
 }
-
 
