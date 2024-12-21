@@ -32,7 +32,7 @@ class CurrentWeatherView: UIView {
     func configure(isDayTime: Bool, temperature: Int, weatherText: String, weatherIcon: Int) {
         self.backgroundColor = self.color(isDayTime: isDayTime)
         self.temperatureLabel.text = "\(temperature)ºC"
-        self.textLabel.text = "\(weatherText)"
+        self.textLabel.text = weatherText
         self.layer.cornerRadius = self.cornerRadius
         
         self.stopSkeleton()

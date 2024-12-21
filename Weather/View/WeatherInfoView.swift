@@ -5,7 +5,6 @@ class WeatherInfoView: UIView {
     // MARK: - Properties
         
     let viewModel: WeatherInfoViewModel
-//    weak var delegate: WeatherInfoViewDelegate?
     
     let cityRefreshControl = UIRefreshControl()
     
@@ -38,15 +37,21 @@ class WeatherInfoView: UIView {
     func bindViewModel() {        
         self.viewModel.currentWeather.bind { [weak self] data in
             guard let self = self else { return }
-            self.updateCurrentWeather(data)
+            DispatchQueue.main.async {
+                self.updateCurrentWeather(data)
+            }
         }
         self.viewModel.hourlyForecast.bind { [weak self] data in
             guard let self = self else { return }
-            self.hourlyForecastContainer.updateForecast(data)
+            DispatchQueue.main.async {
+                self.hourlyForecastContainer.updateForecast(data)
+            }
         }
         self.viewModel.dailyForecast.bind { [weak self] data in
             guard let self = self else { return }
-            self.dailyForecastContainer.updateForecast(data)
+            DispatchQueue.main.async {
+                self.dailyForecastContainer.updateForecast(data)
+            }
         }
     }
     
