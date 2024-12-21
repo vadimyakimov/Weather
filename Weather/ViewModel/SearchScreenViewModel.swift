@@ -54,11 +54,7 @@ class SearchScreenViewModel: NSObject {
         let id: Int
         
         if city.isLocated {
-            if self.savedCitiesList?.first?.isLocated == true {
-                self.deleteFirstCity()
-            } else {
-                self.freePlaceForFirstCity()
-            }
+            self.freeAtFirstIndex()
             id = 0
         } else {
             id = count
@@ -98,12 +94,13 @@ class SearchScreenViewModel: NSObject {
         context.delete(city)
     }
     
-    private func freePlaceForFirstCity() {
-        guard let savedCitiesList = self.savedCitiesList,
-              savedCitiesList.first?.id != 0 else { return }
+    private func freeAtFirstIndex() {
+        guard let savedCitiesList = self.savedCitiesList else { return }
         
-        for city in savedCitiesList {
-            city.id += 1
+        if savedCitiesList.first?.isLocated == true {
+            self.deleteFirstCity()
+        } else {
+            savedCitiesList.forEach({ $0.id += 1 })
         }
     }
     

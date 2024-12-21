@@ -200,6 +200,6 @@ class NetworkManager {
                         key: key,
                         name: name,
                         isLocated: true)        
-        return City()
+        return city
     }
 }
