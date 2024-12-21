@@ -8,11 +8,16 @@ public class DailyForecast: NSManagedObject {
         super.init(entity: entity, insertInto: context)
     }
     
-    init(for city: City, forecastDate: Date, dayTemperatureCelsius: Double, dayWeatherIcon: Int, dayWeatherText: String, nightTemperatureCelsius: Double, nightWeatherIcon: Int, nightWeatherText: String) {
-        
-        let context = city.managedObjectContext!
-        
-        if let entity = NSEntityDescription.entity(forEntityName: "DailyForecast", in: context) {
+    init(for context: NSManagedObjectContext,
+         forecastDate: Date,
+         dayTemperatureCelsius: Double,
+         dayWeatherIcon: Int,
+         dayWeatherText: String,
+         nightTemperatureCelsius: Double,
+         nightWeatherIcon: Int,
+         nightWeatherText: String) {
+               
+        if let entity = NSEntityDescription.entity(forEntityName: String(DailyForecast.self), in: context) {
             super.init(entity: entity, insertInto: context)
         } else {
             super.init(context: context)
@@ -20,18 +25,19 @@ public class DailyForecast: NSManagedObject {
         
         self.forecastDate = forecastDate
                 
-        self.dayWeather = WeatherInfo(for: city,
+        self.dayWeather = WeatherInfo(for: context,
                                       temperatureCelsius: dayTemperatureCelsius,
                                       weatherIcon: dayWeatherIcon,
                                       weatherText: dayWeatherText)
         
-        self.nightWeather = WeatherInfo(for: city,
+        self.nightWeather = WeatherInfo(for: context,
                                         temperatureCelsius: nightTemperatureCelsius,
                                         weatherIcon: nightWeatherIcon,
                                         weatherText: nightWeatherText)
     }
     
-    init?(for city: City, data: [String : Any]) {
+    init?(for context: NSManagedObjectContext, data: [String : Any]) {
+        
         let temperatureDictionary = data[NetworkManager.shared.keyTemperature] as? [String : Any]
         let temperatureMinimumDictionary = temperatureDictionary?[NetworkManager.shared.keyMinimum] as? [String : Any]
         let temperatureMaximumDictionary = temperatureDictionary?[NetworkManager.shared.keyMaximum] as? [String : Any]
@@ -48,11 +54,8 @@ public class DailyForecast: NSManagedObject {
         
         guard let epochDate = data[NetworkManager.shared.keyDailyDate] as? TimeInterval else { return nil }
         let date = Date(timeIntervalSince1970: epochDate)
-        
-        
-        let context = city.managedObjectContext!
-        
-        if let entity = NSEntityDescription.entity(forEntityName: "DailyForecast", in: context) {
+                
+        if let entity = NSEntityDescription.entity(forEntityName: String(DailyForecast.self), in: context) {
             super.init(entity: entity, insertInto: context)
         } else {
             super.init(context: context)
@@ -60,15 +63,14 @@ public class DailyForecast: NSManagedObject {
         
         self.forecastDate = date
                 
-        self.dayWeather = WeatherInfo(for: city,
+        self.dayWeather = WeatherInfo(for: context,
                                       temperatureCelsius: temperatureMaximumValue,
                                       weatherIcon: dayIcon,
                                       weatherText: dayText)
         
-        self.nightWeather = WeatherInfo(for: city,
+        self.nightWeather = WeatherInfo(for: context,
                                         temperatureCelsius: temperatureMinimumValue,
                                         weatherIcon: nightIcon,
                                         weatherText: nightText)
-        
     }
 }

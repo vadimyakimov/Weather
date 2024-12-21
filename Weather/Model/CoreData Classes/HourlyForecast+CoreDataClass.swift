@@ -8,16 +8,22 @@ public class HourlyForecast: WeatherInfo {
         super.init(entity: entity, insertInto: context)
     }
     
-    init(for city: City, forecastTime: Date, temperatureCelsius: Double, weatherIcon: Int, weatherText: String) {
-        super.init(for: city,
+    init(for context: NSManagedObjectContext,
+         forecastTime: Date,
+         temperatureCelsius: Double,
+         weatherIcon: Int,
+         weatherText: String) {
+        
+        super.init(for: context,
                    temperatureCelsius: temperatureCelsius,
                    weatherIcon: weatherIcon,
                    weatherText: weatherText,
-                   entityName: "HourlyForecast")        
+                   entityName: String(HourlyForecast.self))
         self.forecastTime = forecastTime
     }
     
-    init?(for city: City, data: [String : Any]) {
+    init?(for context: NSManagedObjectContext, data: [String : Any]) {
+        
         let temperatureDictionary = data[NetworkManager.shared.keyTemperature] as? [String:Any]
         guard let temperatureCelsius = temperatureDictionary?[NetworkManager.shared.keyTemperatureValue] as? Double else { return nil }
         guard let weatherIcon = data[NetworkManager.shared.keyWeatherIcon] as? Int else { return nil }
@@ -25,11 +31,11 @@ public class HourlyForecast: WeatherInfo {
         guard let epochDate = data[NetworkManager.shared.keyHourlyDate] as? TimeInterval else { return nil }
         let date = Date(timeIntervalSince1970: epochDate)
         
-        super.init(for: city,
+        super.init(for: context,
                    temperatureCelsius: temperatureCelsius,
                    weatherIcon: weatherIcon,
                    weatherText: weatherText,
-                   entityName: "HourlyForecast")
+                   entityName: String(HourlyForecast.self))
         self.forecastTime = date
     }
 }

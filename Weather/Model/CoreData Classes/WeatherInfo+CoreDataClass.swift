@@ -8,10 +8,12 @@ public class WeatherInfo: NSManagedObject {
         super.init(entity: entity, insertInto: context)
     }
     
-    init(for city: City, temperatureCelsius: Double, weatherIcon: Int, weatherText: String, entityName: String = "WeatherInfo") {
-        
-        let context = city.managedObjectContext!
-        
+    init(for context: NSManagedObjectContext,
+         temperatureCelsius: Double,
+         weatherIcon: Int,
+         weatherText: String,
+         entityName: String = String(WeatherInfo.self)) {
+                
         if let entity = NSEntityDescription.entity(forEntityName: entityName, in: context) {
             super.init(entity: entity, insertInto: context)
         } else {

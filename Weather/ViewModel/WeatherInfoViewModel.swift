@@ -45,9 +45,9 @@ class WeatherInfoViewModel {
         let lastUpdated = self.city.lastUpdated
         let tasks = DispatchGroup()
         
-//        if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-//            self.fetchCurrentWeather(dispatchGroup: tasks)
-//        }
+        if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
+            self.fetchCurrentWeather(dispatchGroup: tasks)
+        }
         
         if lastUpdated.hourlyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
             self.fetchHourlyForecast(dispatchGroup: tasks)
@@ -62,14 +62,22 @@ class WeatherInfoViewModel {
         }
     }
     
+    private func newBackgroundContext() -> NSManagedObjectContext {
+        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        context.parent = self.city.managedObjectContext
+        return context
+    }
+    
     // MARK: - Fetching data from network
     
     func fetchCurrentWeather(dispatchGroup: DispatchGroup? = nil) {
         dispatchGroup?.enter()
         
-        NetworkManager.shared.getCurrentWeather(for: self.city) { currentWeather in
+        let backgroundContext = self.newBackgroundContext()
+                
+        NetworkManager.shared.getCurrentWeather(by: self.city.key, for: backgroundContext) { currentWeather in
             if let currentWeather = currentWeather {
-                self.updateData(currentWeather)
+                self.updateData(currentWeather, context: backgroundContext)
             }
             dispatchGroup?.leave()
         }
@@ -77,9 +85,12 @@ class WeatherInfoViewModel {
     
     func fetchHourlyForecast(dispatchGroup: DispatchGroup? = nil) {
         dispatchGroup?.enter()
-        NetworkManager.shared.getHourlyForecast(for: self.city) { hourlyForecast in
+        
+        let backgroundContext = self.newBackgroundContext()
+                
+        NetworkManager.shared.getHourlyForecast(by: self.city.key, for: backgroundContext) { hourlyForecast in
             if let hourlyForecast = hourlyForecast {
-                self.updateData(hourlyForecast)
+                self.updateData(hourlyForecast, context: backgroundContext)
             }
             dispatchGroup?.leave()
         }
@@ -87,9 +98,12 @@ class WeatherInfoViewModel {
     
     func fetchDailyForecast(dispatchGroup: DispatchGroup? = nil) {
         dispatchGroup?.enter()
-        NetworkManager.shared.getDailyForecast(for: self.city) { dailyForecast in
+        
+        let backgroundContext = self.newBackgroundContext()
+        
+        NetworkManager.shared.getDailyForecast(by: self.city.key, for: backgroundContext) { dailyForecast in
             if let dailyForecast = dailyForecast {
-                self.updateData(dailyForecast)
+                self.updateData(dailyForecast, context: backgroundContext)
             }
             dispatchGroup?.leave()
         }
@@ -100,69 +114,89 @@ class WeatherInfoViewModel {
             completion(weatherIcon)
         }
     }
-    
+        
     // MARK: - CRUD
     
-    func updateData(_ data: CurrentWeather) {
+    func updateData(_ data: CurrentWeather, context: NSManagedObjectContext) {
         
-        self.delete(object: self.city.currentWeather)
-        
+        self.safePerformAndSave(context) {
+            
+            let city = try? context.existingObject(with: self.city.objectID) as? City
+            
+            self.delete(object: city?.currentWeather, at: context)
+            
             self.currentWeather.value = data
-        self.currentWeather.value?.city = self.city
+            self.currentWeather.value?.city = city
             
-            self.city.lastUpdated.currentWeather = Date()
-            
-            self.delegate?.weatherInfoViewDidUpdateCurrentWeather()
-            
-            self.saveContext()
-    }
-    
-    func updateData(_ data: [HourlyForecast]) {
-                  
-        if let array = self.city.hourlyForecast?.array, !array.isEmpty {
-            array.forEach({ self.delete(object: $0) })
+            city?.lastUpdated.currentWeather = Date()
         }
         
-        self.hourlyForecast.value = data
-        self.hourlyForecast.value?.forEach { $0.city = self.city }
-            
-            self.city.lastUpdated.hourlyForecast = Date()
-        
-//        self.city.setValue(<#T##value: Any?##Any?#>, forKey: <#T##String#>)
-            
-            
-            self.saveContext()
+        self.delegate?.weatherInfoViewDidUpdateCurrentWeather()
     }
     
-    func updateData(_ data: [DailyForecast]) {
-                   
+    func updateData(_ data: [HourlyForecast], context: NSManagedObjectContext) {
+                  
+        self.safePerformAndSave(context) {
+            
+            let city = try? context.existingObject(with: self.city.objectID) as? City
+            
+            if let array = city?.hourlyForecast?.array, !array.isEmpty {
+                array.forEach({ self.delete(object: $0, at: context) })
+            }
+            
+            self.hourlyForecast.value = data
+            self.hourlyForecast.value?.forEach { $0.city = city }
+            
+            city?.lastUpdated.hourlyForecast = Date()
+        }
+    }
+    
+    func updateData(_ data: [DailyForecast], context: NSManagedObjectContext) {
         
-            if let array = self.city.dailyForecast?.array, !array.isEmpty {
-                array.forEach({ self.delete(object: $0) })
+        self.safePerformAndSave(context) {
+            
+            let city = try? context.existingObject(with: self.city.objectID) as? City
+            
+            if let array = city?.dailyForecast?.array, !array.isEmpty {
+                array.forEach({ self.delete(object: $0, at: context) })
             }
             
             self.dailyForecast.value = data
-        self.dailyForecast.value?.forEach { $0.city = self.city }
+            self.dailyForecast.value?.forEach { $0.city = city }
             
-            self.city.lastUpdated.dailyForecast = Date()
+            city?.lastUpdated.dailyForecast = Date()
             
-            self.saveContext()
+        }
     }
     
-    private func saveContext() {
-//        self.city.managedObjectContext?.perform {
+    private func safePerformAndSave(_ context: NSManagedObjectContext, block: @escaping () -> Void) {
+        
+        guard context.parent == self.city.managedObjectContext else { return }
+        
+        context.perform {
+            
+            block()
+            
             do {
-                try self.city.managedObjectContext?.save()
+                try context.save()
+                self.city.managedObjectContext?.performAndWait {
+                    do {
+                        try self.city.managedObjectContext?.save()
+                    } catch {
+                        let nserror = error as NSError
+                        fatalError("Unresolved error while saving view context \(nserror), \(nserror.userInfo)")
+                    }
+                }
             } catch {
                 let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                fatalError("Unresolved error while saving background context \(nserror), \(nserror.userInfo)")
             }
-//        }
+        }
     }
     
-    private func delete(object: Any?) {
+    private func delete(object: Any?, at context: NSManagedObjectContext) {
         guard let object = object as? NSManagedObject else { return }
-        self.city.managedObjectContext?.delete(object)
+        context.delete(object)
     }
     
 }

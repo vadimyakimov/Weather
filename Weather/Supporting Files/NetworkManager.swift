@@ -60,39 +60,36 @@ class NetworkManager {
         }
     }
     
-    func getCurrentWeather(for city: City, complete: @escaping(CurrentWeather?) -> ()) {
+    func getCurrentWeather(by cityKey: String, for context: NSManagedObjectContext, complete: @escaping(CurrentWeather?) -> ()) {
         
-        let cityKey = city.key
         let url = "\(self.baseURL)/currentconditions/v1/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.language)"
         
         self.fetchRequest(with: url) { data in
-            let currentWeather = CurrentWeather(for: city, data: data)
+            let currentWeather = CurrentWeather(for: context, data: data)
             DispatchQueue.main.async {
                 complete(currentWeather)
             }
         }
     }
     
-    func getHourlyForecast(for city: City, complete: @escaping([HourlyForecast]?) -> ()) {
+    func getHourlyForecast(by cityKey: String, for context: NSManagedObjectContext, complete: @escaping([HourlyForecast]?) -> ()) {
         
-        let cityKey = city.key
         let url = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(cityKey)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
         
         self.fetchRequest(with: url) { data in
-            let hourlyForecast = self.parseHourlyForecast(for: city, data: data)
+            let hourlyForecast = self.parseHourlyForecast(for: context, data: data)
             DispatchQueue.main.async {
                 complete(hourlyForecast)
             }
         }
     }
     
-    func getDailyForecast(for city: City, complete: @escaping([DailyForecast]?) -> ()) {
+    func getDailyForecast(by cityKey: String, for context: NSManagedObjectContext, complete: @escaping([DailyForecast]?) -> ()) {
         
-        let cityKey = city.key
         let url = "\(self.baseURL)/forecasts/v1/daily/5day/\(cityKey)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
         
         self.fetchRequest(with: url) { data in
-            let dailyForecast = self.parseDailyForecast(for: city, data: data)
+            let dailyForecast = self.parseDailyForecast(for: context, data: data)
             DispatchQueue.main.async {
                 complete(dailyForecast)
             }
@@ -146,27 +143,27 @@ class NetworkManager {
     
     //MARK: - Parsing functions
     
-    private func parseHourlyForecast(for city: City, data: Any?) -> [HourlyForecast]? {
+    private func parseHourlyForecast(for context: NSManagedObjectContext, data: Any?) -> [HourlyForecast]? {
         
         guard let dataArray = data as? [[String : Any]] else { return nil }
         
         var hourlyForecastArray: [HourlyForecast] = []
         
         for dataDictionary in dataArray {
-            guard let hourlyForecastItem = HourlyForecast(for: city, data: dataDictionary) else { continue }
+            guard let hourlyForecastItem = HourlyForecast(for: context, data: dataDictionary) else { continue }
             hourlyForecastArray.append(hourlyForecastItem)
         }
         return hourlyForecastArray
     }
     
-    private func parseDailyForecast(for city: City, data: Any?) -> [DailyForecast]? {
+    private func parseDailyForecast(for context: NSManagedObjectContext, data: Any?) -> [DailyForecast]? {
         
         guard let dataArray = (data as? [String : Any])?[self.keyDailyForecast] as? [[String : Any]] else { return nil }
         
         var dailyForecastArray: [DailyForecast] = []
         
         for dataDictionary in dataArray {
-            guard let dailyForecastItem = DailyForecast(for: city, data: dataDictionary) else { continue }
+            guard let dailyForecastItem = DailyForecast(for: context, data: dataDictionary) else { continue }
             dailyForecastArray.append(dailyForecastItem)
         }
         return dailyForecastArray

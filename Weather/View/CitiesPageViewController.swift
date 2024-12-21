@@ -33,6 +33,7 @@ class CitiesPageViewController: EMPageViewController {
 //    // MARK: - Lifecycle
 //
     override func viewDidLoad() {
+                
         super.viewDidLoad()
 
         self.dataSource = self
