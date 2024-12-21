@@ -41,6 +41,10 @@ class CityViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    deinit {
+        self.cityRefreshControl.removeTarget(self, action: nil, for: .allEvents)
+    }
 
     // MARK: - IBActions
 

@@ -77,6 +77,10 @@ class CitiesPageViewController: EMPageViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        self.pageControl.removeTarget(self, action: nil, for: .allEvents)
+    }
+    
     // MARK: - IBActions
 
     @IBAction private func listButtonPressed() {
@@ -142,24 +146,7 @@ class CitiesPageViewController: EMPageViewController {
         }        
         return cityViewController
     }
-
-//    private func updatePageViewController() {
-//        
-//        guard let controller = self.selectedViewController as? CityViewController else { return }
-//        
-//        let city = controller.viewModel.city
-//        var index: Int
-//
-//        if let i = self.viewModel.firstIndexInCityList(of: city) {
-//            index = i
-//        } else {
-//            index = self.pageControl.currentPage
-//        }
-//
-//        self.updatePageControl(index: index)
-//        self.showCityViewController(withIndex: self.pageControl.currentPage)
-//    }
-        
+    
 //  MARK: - Page Control
         
     private func configurePageControl() {
