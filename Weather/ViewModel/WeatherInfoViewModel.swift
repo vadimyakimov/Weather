@@ -129,9 +129,10 @@ class WeatherInfoViewModel {
             self.currentWeather.value?.city = city
             
             city?.lastUpdated.currentWeather = Date()
+        } completion: {
+            self.delegate?.weatherInfoViewDidUpdateCurrentWeather()
         }
         
-        self.delegate?.weatherInfoViewDidUpdateCurrentWeather()
     }
     
     func updateData(_ data: [HourlyForecast], context: NSManagedObjectContext) {
@@ -169,7 +170,9 @@ class WeatherInfoViewModel {
         }
     }
     
-    private func safePerformAndSave(_ context: NSManagedObjectContext, block: @escaping () -> Void) {
+    private func safePerformAndSave(_ context: NSManagedObjectContext,
+                                    block: @escaping () -> Void,
+                                    completion: (() -> Void)? = nil) {
         
         guard context.parent == self.city.managedObjectContext else { return }
         
@@ -182,6 +185,7 @@ class WeatherInfoViewModel {
                 self.city.managedObjectContext?.performAndWait {
                     do {
                         try self.city.managedObjectContext?.save()
+                        completion?()
                     } catch {
                         let nserror = error as NSError
                         fatalError("Unresolved error while saving view context \(nserror), \(nserror.userInfo)")

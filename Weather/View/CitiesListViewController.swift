@@ -191,9 +191,6 @@ extension CitiesListViewController: NSFetchedResultsControllerDelegate {
         
         guard self.citiesListTableView.window != nil else { return }
         
-        print("Type: \(type), indexPath: \(String(describing: indexPath)), newIndexPath: \(String(describing: newIndexPath))")
-
-        
         self.citiesListTableView.performBatchUpdates {
             switch type {
             case .delete:
@@ -207,7 +204,5 @@ extension CitiesListViewController: NSFetchedResultsControllerDelegate {
                 break
             }
         }
-        
-        
     }
 }

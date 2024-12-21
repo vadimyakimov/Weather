@@ -17,7 +17,7 @@ class CitiesPageViewController: EMPageViewController {
 
     override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
 
-    private let backgroundGradient = CAGradientLayer()
+    private let backgroundGradient = BackgroundGradient()
 
     private var nameLabel = UILabel()
     private var newNameLabel = UILabel()
@@ -113,7 +113,7 @@ class CitiesPageViewController: EMPageViewController {
         guard let controller = self.cityViewController(withIndex: index) else { return }
 
         self.selectViewController(controller, direction: direction, animated: true, completion: nil)
-        self.changeGradientColor(isDayTime: controller.viewModel.city.currentWeather?.isDayTime)
+        self.changeGradientColor(for: controller)
     }
 
     private func cityViewController(withIndex i: Int) -> CityViewController? {
@@ -135,10 +135,11 @@ class CitiesPageViewController: EMPageViewController {
 //                                                          green: CGFloat.random(in: 0...1),
 //                                                          blue: CGFloat.random(in: 0...1),
 //                                                          alpha: 1)
-        cityViewController.changeGradientColor = self.changeGradientColor
-        cityViewController.delegate = self
-//        cityViewController.weatherInfoView.viewModel.delegate = self
         
+        cityViewController.delegate = self
+        cityViewController.changeGradientColor = { [unowned self] controller in
+            self.changeGradientColor(for: controller)
+        }        
         return cityViewController
     }
 
@@ -266,22 +267,15 @@ class CitiesPageViewController: EMPageViewController {
     // MARK: - Background Gradient
 
     private func addGradient() {
-        self.backgroundGradient.opacity = 1
-        self.backgroundGradient.locations = [0.0, 1.0]
         self.backgroundGradient.frame = self.view.bounds
         self.view.layer.insertSublayer(backgroundGradient, at: 0)
     }
 
-    private func changeGradientColor(isDayTime: Bool?) {
-        if isDayTime == false {
-            self.backgroundGradient.colors = [UIColor(red: 0.25, green: 0, blue: 0.57, alpha: 1).cgColor,
-                                    UIColor(red: 0, green: 0.35, blue: 0.53, alpha: 1).cgColor,
-                                    UIColor(red: 0.02, green: 0, blue: 0.36, alpha: 1).cgColor]
-        } else {
-            self.backgroundGradient.colors = [UIColor(red: 1, green: 0.7, blue: 0.48, alpha: 1).cgColor,
-                                    UIColor(red: 1, green: 0.49, blue: 0.49, alpha: 1).cgColor,
-                                    UIColor(red: 1, green: 0.82, blue: 0.24, alpha: 1).cgColor]
-        }
+    private func changeGradientColor(for controller: CityViewController, forceChange: Bool = false) {
+        
+        guard forceChange || self.selectedViewController == controller else { return }
+                        
+        self.backgroundGradient.isDayTime = controller.viewModel.city.currentWeather?.isDayTime
     }
 }
 
@@ -318,15 +312,11 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
               let startingViewController = startingViewController as? CityViewController else { return }
         
         /// Changing backgroung depending on which view controller takes the most part of the screen
-        
-        var visibleViewController: CityViewController
         if abs(progress) > 0.5 {
-            visibleViewController = destinationViewController
+            self.changeGradientColor(for: destinationViewController, forceChange: true)
         } else {
-            visibleViewController = startingViewController
+            self.changeGradientColor(for: startingViewController, forceChange: true)
         }
-        let isDayTime = visibleViewController.viewModel.city.currentWeather?.isDayTime
-        self.changeGradientColor(isDayTime: isDayTime)
         
         /// Changing UILabel with city name with push animation
 
@@ -348,7 +338,7 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
             newNameLabelLeadingConstraint?.constant = self.horizontalOffset + self.view.frame.width
         case 0..<1:
             
-            // Graphs for push animation
+            /// Graphs for push animation
             let oldLabelGraph = -pow(progress, 3)
             let newLabelGraph = (progress / abs(progress)) - (abs(pow(progress, 5)) / progress)
             

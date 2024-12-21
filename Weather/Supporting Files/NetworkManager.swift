@@ -40,7 +40,9 @@ class NetworkManager {
     
     // MARK: - Initializers
     
-    private init() {}
+    private init() {
+        print(self.keyAccuAPI)
+    }
     
     // MARK: - Server connection functions
     

@@ -18,7 +18,7 @@ class CityViewController: UIViewController {
     var weatherInfoView: WeatherInfoView
     let cityRefreshControl = UIRefreshControl()
     let topOffset: CGFloat
-    var changeGradientColor: ((Bool?) -> Void)?
+    var changeGradientColor: ((CityViewController) -> Void)?
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -122,7 +122,6 @@ extension CityViewController: WeatherInfoViewDelegate {
     }
     
     func weatherInfoViewDidUpdateCurrentWeather() {
-        let isDayTime = self.viewModel.city.currentWeather?.isDayTime
-        self.changeGradientColor?(isDayTime)
+        self.changeGradientColor?(self)
     }
 }
