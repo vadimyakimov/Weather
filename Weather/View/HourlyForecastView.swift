@@ -59,17 +59,26 @@ class HourlyForecastView: UIScrollView {
                                                                  constant: -self.innerOffset).isActive = true
     }
     
-    func updateForecast(_ hourlyForecast: [HourlyForecast]?) {
+    func updateForecast(_ hourlyForecast: [HourlyForecast]?, isMetric: Bool) {
                 
         guard let data = hourlyForecast,
               data.count == self.hourlyForecastViews.count else { return }
         
         for (index, view) in self.hourlyForecastViews.enumerated() {
+            
+            let temperature = Temperature(temperatureCelsius: data[index].temperatureCelsius,
+                                          temperatureFahrenheit: data[index].temperatureFahrenheit,
+                                          isMetric: isMetric)
+            
             view.configure(time: data[index].forecastTime,
-                           temperature: Int(data[index].temperatureCelsius),
+                           temperature: temperature,
                            weatherText: data[index].weatherText,
                            weatherIcon: Int(data[index].weatherIcon))
         }
+    }
+    
+    func setMetricUnit(_ isMetric: Bool) {
+        self.hourlyForecastViews.forEach({ $0.temperature?.isMetric = isMetric })
     }
     
     func startSkeleton() {

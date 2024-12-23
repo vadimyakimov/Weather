@@ -44,14 +44,20 @@ class WeatherInfoView: UIView {
         self.viewModel.hourlyForecast.bind { [weak self] data in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                self.hourlyForecastContainer.updateForecast(data)
+                self.hourlyForecastContainer.updateForecast(data, isMetric: self.viewModel.isMetric.value)
             }
         }
         self.viewModel.dailyForecast.bind { [weak self] data in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                self.dailyForecastContainer.updateForecast(data)
+                self.dailyForecastContainer.updateForecast(data, isMetric: self.viewModel.isMetric.value)
             }
+        }
+        self.viewModel.isMetric.bind { isMetric in
+            self.currentWeatherView.temperature?.isMetric = isMetric
+            self.hourlyForecastContainer.setMetricUnit(isMetric)
+            self.dailyForecastContainer.setMetricUnit(isMetric)
+            
         }
     }
     
@@ -124,8 +130,13 @@ class WeatherInfoView: UIView {
         
     private func updateCurrentWeather(_ currentWeather: CurrentWeather?) {
         guard let data = currentWeather else { return }
+        
+        let temperature = Temperature(temperatureCelsius: data.temperatureCelsius,
+                                      temperatureFahrenheit: data.temperatureFahrenheit,
+                                      isMetric: self.viewModel.isMetric.value)
+        
         self.currentWeatherView.configure(isDayTime: data.isDayTime,
-                                          temperature: Int(data.temperatureCelsius),
+                                          temperature: temperature,
                                           weatherText: data.weatherText,
                                           weatherIcon: Int(data.weatherIcon))
     }

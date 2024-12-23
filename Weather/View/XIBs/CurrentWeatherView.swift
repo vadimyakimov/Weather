@@ -12,6 +12,8 @@ class CurrentWeatherView: UIView {
     
     // MARK: - Properties
     
+    var temperature: Temperature?
+    
     private let cornerRadius: CGFloat = 30
     private let dayColor = UIColor(red: 0.52, green: 0, blue: 0.16, alpha: 1)
     private let nightColor = UIColor(red: 0.26, green: 0.47, blue: 1, alpha: 1)
@@ -29,11 +31,15 @@ class CurrentWeatherView: UIView {
         self.startSkeleton(isDayTime: isDayTime)
     }
     
-    func configure(isDayTime: Bool, temperature: Int, weatherText: String, weatherIcon: Int) {
+    func configure(isDayTime: Bool, temperature: Temperature, weatherText: String, weatherIcon: Int) {
         self.backgroundColor = self.color(isDayTime: isDayTime)
-        self.temperatureLabel.text = "\(temperature)ºC"
         self.textLabel.text = weatherText
         self.layer.cornerRadius = self.cornerRadius
+        
+        self.temperature = temperature
+        temperature.bind { value in
+            self.temperatureLabel.text = value
+        }
         
         self.stopSkeleton()
         

@@ -12,12 +12,17 @@ class MainNavigationController: UINavigationController {
     // MARK: - Properties
     
     private let viewModel = MainNavigationViewModel()
+    
+    @objc dynamic var string: String?
+    
         
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        UserDefaults.standard.synchronize()
+                        
         self.pushViewController(self.createRootViewController(), animated: true)
         self.setBackgroundColor()
     }

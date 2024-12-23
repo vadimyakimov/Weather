@@ -55,17 +55,32 @@ class DailyForecastView: UIView {
         self.dailyForecastViews.last?.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
     }
     
-    func updateForecast(_ dailyForecast: [DailyForecast]?) {
+    func updateForecast(_ dailyForecast: [DailyForecast]?, isMetric: Bool) {
         
         guard let data = dailyForecast,
               data.count == self.dailyForecastViews.count else { return }
         
         for (index, view) in self.dailyForecastViews.enumerated() {
+            
+            let dayTemperature = Temperature(temperatureCelsius: data[index].dayWeather.temperatureCelsius,
+                                             temperatureFahrenheit: data[index].dayWeather.temperatureFahrenheit,
+                                             isMetric: isMetric)
+            let nightTemperature = Temperature(temperatureCelsius: data[index].nightWeather.temperatureCelsius,
+                                             temperatureFahrenheit: data[index].nightWeather.temperatureFahrenheit,
+                                             isMetric: isMetric)
+            
             view.configure(date: data[index].forecastDate,
-                           dayTemperature: Int(data[index].dayWeather.temperatureCelsius),
-                           nightTemperature: Int(data[index].nightWeather.temperatureCelsius),
+                           dayTemperature: dayTemperature,
+                           nightTemperature: nightTemperature,
                            dayIcon: Int(data[index].dayWeather.weatherIcon),
                            nightIcon: Int(data[index].nightWeather.weatherIcon))
+        }
+    }
+    
+    func setMetricUnit(_ isMetric: Bool) {
+        self.dailyForecastViews.forEach {
+            $0.dayTemperature?.isMetric = isMetric
+            $0.nightTemperature?.isMetric = isMetric
         }
     }
     

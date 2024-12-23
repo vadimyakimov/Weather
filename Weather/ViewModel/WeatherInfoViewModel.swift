@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import CoreData
 
-class WeatherInfoViewModel {
+class WeatherInfoViewModel: NSObject {
     
     // MARK: - Properties
     
@@ -23,10 +23,11 @@ class WeatherInfoViewModel {
     
     let refreshTimeout: TimeInterval = 600
     
-    
     var isDayTime: Bool {
         return self.city.currentWeather?.isDayTime ?? true
     }
+    
+    let isMetric: Bindable<Bool>
     
     // MARK: - Initializers
     
@@ -36,26 +37,52 @@ class WeatherInfoViewModel {
         self.currentWeather = Bindable(city.currentWeather)
         self.hourlyForecast = Bindable(city.hourlyForecast?.array as? [HourlyForecast])
         self.dailyForecast = Bindable(city.dailyForecast?.array as? [DailyForecast])
+        
+        let isMetric = UserDefaults.standard.bool(forKey: "is_metric")
+        self.isMetric = Bindable(isMetric)
+        
+        super.init()
+        
+        self.setupUserDefaultsObservers()
+    }
+    
+    deinit {
+        UserDefaults.standard.removeObserver(self, forKeyPath: "is_metric")
     }
     
     // MARK: - Funcs
     
+    override func observeValue(forKeyPath keyPath: String?,
+                               of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?,
+                               context: UnsafeMutableRawPointer?) {
+
+        if keyPath == "is_metric",
+           let newValue = change?[.newKey] as? Bool {
+            self.isMetric.value = newValue
+        }
+    }
+   
+    func setupUserDefaultsObservers() {
+        UserDefaults.standard.addObserver(self, forKeyPath: "is_metric", options: [.new], context: nil)
+    }
+    
     func refreshWeather(isForcedUpdate: Bool = false) {
-                
+        
         let lastUpdated = self.city.lastUpdated
         let tasks = DispatchGroup()
         
-        if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-            self.fetchCurrentWeather(dispatchGroup: tasks)
-        }
-        
-        if lastUpdated.hourlyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-            self.fetchHourlyForecast(dispatchGroup: tasks)
-        }
-
-        if lastUpdated.dailyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-            self.fetchDailyForecast(dispatchGroup: tasks)
-        }
+        //        if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
+        //            self.fetchCurrentWeather(dispatchGroup: tasks)
+        //        }
+        //
+        //        if lastUpdated.hourlyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
+        //            self.fetchHourlyForecast(dispatchGroup: tasks)
+        //        }
+        //
+        //        if lastUpdated.dailyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
+        //            self.fetchDailyForecast(dispatchGroup: tasks)
+        //        }
         
         tasks.notify(queue: .main) {
             self.delegate?.weatherInfoViewDidFinishUpdating()
@@ -74,7 +101,7 @@ class WeatherInfoViewModel {
         dispatchGroup?.enter()
         
         let backgroundContext = self.newBackgroundContext()
-                
+        
         NetworkManager.shared.getCurrentWeather(by: self.city.key, for: backgroundContext) { currentWeather in
             if let currentWeather = currentWeather {
                 self.updateData(currentWeather, context: backgroundContext)
@@ -87,7 +114,7 @@ class WeatherInfoViewModel {
         dispatchGroup?.enter()
         
         let backgroundContext = self.newBackgroundContext()
-                
+        
         NetworkManager.shared.getHourlyForecast(by: self.city.key, for: backgroundContext) { hourlyForecast in
             if let hourlyForecast = hourlyForecast {
                 self.updateData(hourlyForecast, context: backgroundContext)
@@ -114,7 +141,7 @@ class WeatherInfoViewModel {
             completion(weatherIcon)
         }
     }
-        
+    
     // MARK: - CRUD
     
     func updateData(_ data: CurrentWeather, context: NSManagedObjectContext) {
@@ -136,7 +163,7 @@ class WeatherInfoViewModel {
     }
     
     func updateData(_ data: [HourlyForecast], context: NSManagedObjectContext) {
-                  
+        
         self.safePerformAndSave(context) {
             
             let city = try? context.existingObject(with: self.city.objectID) as? City

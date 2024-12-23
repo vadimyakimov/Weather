@@ -12,6 +12,8 @@ class OneHourView: UIView {
     
     // MARK: - Properties
     
+    var temperature: Temperature?
+    
     private let cornerRadius: CGFloat = 20
     private let skeletonCustomCornerRadius = 8
     
@@ -28,13 +30,17 @@ class OneHourView: UIView {
         self.startSkeleton()
     }
     
-    func configure(time: Date, temperature: Int, weatherText: String, weatherIcon: Int) {        
+    func configure(time: Date, temperature: Temperature, weatherText: String, weatherIcon: Int) {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         self.timeLabel.text = formatter.string(from: time)
-        self.temperatureLabel.text = "\(temperature)ºC"
         self.textLabel.text = weatherText
         self.layer.cornerRadius = self.cornerRadius
+        
+        self.temperature = temperature
+        temperature.bind { value in
+            self.temperatureLabel.text = value
+        }
         
         self.stopSkeleton()
         
