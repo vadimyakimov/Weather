@@ -9,7 +9,17 @@ import Foundation
 
 class CityViewModel {
     
-    let city: City
+    private let city: City
+    
+    var cityName: String {
+        self.city.name
+    }
+    var isDayTime: Bool? {
+        self.city.currentWeather?.isDayTime
+    }
+    var cityId: Int {
+        Int(self.city.id)
+    }
     
     init(city: City) {
         self.city = city

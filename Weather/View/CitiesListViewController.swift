@@ -51,8 +51,9 @@ class CitiesListViewController: UIViewController {
     // MARK: - IBActions
 
     @IBAction private func goToSearchScreen() {
-        let isSearchRoot = self.viewModel.citiesList.isEmpty ? true : false
-        let searchScreen = SearchScreenViewController(isRoot: isSearchRoot, viewModel: self.viewModel.createSearchScreenViewModel())
+        let isSearchRoot = self.viewModel.isListEmpty ? true : false
+        let searchScreen = SearchScreenViewController(isRoot: isSearchRoot,
+                                                      viewModel: self.viewModel.createSearchScreenViewModel())
         if isSearchRoot {
             self.navigationController?.setViewControllers([searchScreen], animated: true)
         } else {
@@ -89,7 +90,7 @@ class CitiesListViewController: UIViewController {
 extension CitiesListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.viewModel.citiesList.count
+        return self.viewModel.citiesCount
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -114,7 +115,7 @@ extension CitiesListViewController: UITableViewDelegate {
         if editingStyle == .delete {
             self.viewModel.removeCityAt(indexPath.row)
         }
-        if self.viewModel.citiesList.isEmpty {
+        if self.viewModel.isListEmpty {
             self.goToSearchScreen()
         }
     }
@@ -132,7 +133,7 @@ extension CitiesListViewController: UITableViewDragDelegate, UITableViewDropDele
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         
-        let item = self.viewModel.citiesList[indexPath.row]
+        let item = self.viewModel.city(at: indexPath.row) 
         
         guard !item.isLocated else { return [] }
         
@@ -147,7 +148,7 @@ extension CitiesListViewController: UITableViewDragDelegate, UITableViewDropDele
     func tableView(_ tableView: UITableView,
                    dropSessionDidUpdate session: UIDropSession,
                    withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
-        if self.viewModel.citiesList.first?.isLocated == true, destinationIndexPath?.row == 0 {
+        if self.viewModel.hasLocatedCity == true, destinationIndexPath?.row == 0 {
             return UITableViewDropProposal(operation: .forbidden)
         }
         return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)

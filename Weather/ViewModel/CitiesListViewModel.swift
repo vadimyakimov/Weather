@@ -14,8 +14,17 @@ class CitiesListViewModel: NSObject {
         
     let frc: NSFetchedResultsController<City>
     
-    var citiesList: [City] {
+    private var citiesList: [City] {
         self.frc.fetchedObjects ?? []
+    }
+    var hasLocatedCity: Bool {
+        self.citiesList.first?.isLocated ?? false
+    }
+    var isListEmpty: Bool {
+        self.citiesList.isEmpty
+    }
+    var citiesCount: Int {
+        self.citiesList.count
     }
     
     // MARK: - Initializers
@@ -74,6 +83,10 @@ class CitiesListViewModel: NSObject {
     }
     
     // MARK: - Flow funcs
+    
+    func city(at index: Int) -> City {
+        return self.citiesList[index]
+    }
     
     func getIndexPathsArray(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) -> [IndexPath] {
         

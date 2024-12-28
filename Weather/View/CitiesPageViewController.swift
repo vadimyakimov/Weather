@@ -61,7 +61,7 @@ class CitiesPageViewController: EMPageViewController {
         super.viewSafeAreaInsetsDidChange()
 
         if let controller = self.selectedViewController as? CityViewController {
-            self.configureNameLabel(self.nameLabel, text: controller.viewModel.city.name)
+            self.configureNameLabel(self.nameLabel, text: controller.viewModel.cityName)
             self.configureNameLabel(self.newNameLabel)
         }
     }
@@ -243,7 +243,7 @@ class CitiesPageViewController: EMPageViewController {
         
         guard forceChange || self.selectedViewController == controller else { return }
                         
-        self.backgroundGradient.isDayTime = controller.viewModel.city.currentWeather?.isDayTime
+        self.backgroundGradient.isDayTime = controller.viewModel.isDayTime
     }
 }
 
@@ -255,15 +255,15 @@ extension CitiesPageViewController: EMPageViewControllerDataSource {
     
     func em_pageViewController(_ pageViewController: EMPageViewController,
                                viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
-        guard let controller = viewController as? CityViewController,
-              let index = self.viewModel.firstIndexInCityList(of: controller.viewModel.city) else { return nil }
+        guard let controller = viewController as? CityViewController else { return nil }
+        let index = controller.viewModel.cityId
         return self.cityViewController(withIndex: index - 1)
     }
 
     func em_pageViewController(_ pageViewController: EMPageViewController,
                                viewControllerAfterViewController viewController: UIViewController) -> UIViewController? {
-        guard let controller = viewController as? CityViewController,
-              let index = self.viewModel.firstIndexInCityList(of: controller.viewModel.city) else { return nil }
+        guard let controller = viewController as? CityViewController else { return nil }
+        let index = controller.viewModel.cityId
         return self.cityViewController(withIndex: index + 1)
     }
 }
@@ -288,8 +288,8 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
         
         /// Changing UILabel with city name with push animation
 
-        self.nameLabel.text = startingViewController.viewModel.city.name
-        self.newNameLabel.text = destinationViewController.viewModel.city.name
+        self.nameLabel.text = startingViewController.viewModel.cityName
+        self.newNameLabel.text = destinationViewController.viewModel.cityName
                         
         let nameLabelLeadingConstraint = self.view.constraints.filter({     // Leading constrain
             guard let firstItem = $0.firstItem as? NSObject else { return false }
@@ -319,7 +319,7 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
             self.nameLabel.layer.opacity = Float(oldLabelOpacityGraph)
             self.newNameLabel.layer.opacity = Float(newLabelOpacityGraph)
         case 1:
-            self.nameLabel.text = destinationViewController.viewModel.city.name
+            self.nameLabel.text = destinationViewController.viewModel.cityName
             nameLabelLeadingConstraint?.constant = self.horizontalOffset
             self.nameLabel.layer.opacity = 1
 
@@ -338,9 +338,9 @@ extension CitiesPageViewController: EMPageViewControllerDelegate {
                                transitionSuccessful: Bool) {
         guard transitionSuccessful,
               let controller = destinationViewController as? CityViewController else { return }
-         let index = controller.viewModel.city.id
+         let index = controller.viewModel.cityId
         
-        self.updatePageControl(index: Int(index))
+        self.updatePageControl(index: index)
         
     }
 }
@@ -370,12 +370,12 @@ extension CitiesPageViewController: CitiesListViewControllerDelegate {
     
     func citiesListViewControllerDidChangeContent() {
         let controller = self.selectedViewController as? CityViewController
-        guard let city = controller?.viewModel.city else { return }
+        guard let cityId = controller?.viewModel.cityId else { return }
 
         /// If a city has been moved, index changes to the city's new position;
         /// if the city has been deleted, all following cities decrement their index,
         /// therefore the next city has the same index as the deleted one.
-        let index = min(Int(city.id), self.viewModel.citiesCount - 1)
+        let index = min(cityId, self.viewModel.citiesCount - 1)
 
         self.showCityViewController(withIndex: index)
     }
