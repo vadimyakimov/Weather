@@ -9,6 +9,12 @@ import Foundation
 import CoreLocation
 import CoreData
 
+enum GeoDetectingState {
+    case initial
+    case loading
+    case error
+}
+
 class SearchScreenViewModel: NSObject {
     
     // MARK: - Properties
@@ -29,8 +35,7 @@ class SearchScreenViewModel: NSObject {
     }
     
     private lazy var locationManager = CLLocationManager()
-    var isLocationLoading = Bindable(false)
-    var locationError = Bindable<Error?>(nil)
+    let isLocationLoading: Bindable<GeoDetectingState> = Bindable(.initial)
     
     private lazy var autocompleteTimer = Timer()
     private let timerInterval = 0.7
@@ -157,7 +162,7 @@ class SearchScreenViewModel: NSObject {
     
     private func requestLocation() {
         
-        self.isLocationLoading.value = true
+        self.isLocationLoading.value = .loading
         
         self.locationManager.delegate = self
         self.locationManager.requestWhenInUseAuthorization()
@@ -174,7 +179,7 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         guard let location = manager.location else {
-            self.locationError.value = NSError()
+            self.isLocationLoading.value = .error
             return
         }
         
@@ -186,20 +191,12 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        
-        self.isLocationLoading.value = false
-        
-        if #available(iOS 14.0, *), locationManager.authorizationStatus == .notDetermined {
-            return
-        } else {
-            self.locationError.value = error
-        }
+        self.isLocationLoading.value = .error
     }
     
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {        
         if status == .authorizedAlways || status == .authorizedWhenInUse {
-            self.isLocationLoading.value = true
+            self.isLocationLoading.value = .loading
             manager.requestLocation()
         }
     }

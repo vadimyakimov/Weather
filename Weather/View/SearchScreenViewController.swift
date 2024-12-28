@@ -53,17 +53,19 @@ class SearchScreenViewController: UIViewController {
     // MARK: - Binding funcs
     
     private func bindViewModel() {
-
+        
         self.viewModel.citiesAutocompleteArray.bind { [unowned self] _ in
             self.searchTableView.reloadData()
         }
-
-        self.viewModel.isLocationLoading.bind { [unowned self] isLoading in
-            self.setLoadingAnimation(isLoading)
-        }
-
-        self.viewModel.locationError.bind { [unowned self] error in
-            if error != nil {
+        
+        self.viewModel.isLocationLoading.bind { [unowned self] state in            
+            switch state {
+            case .initial:
+                self.setLoadingAnimation(false)
+            case .loading:
+                self.setLoadingAnimation(true)
+            case .error:
+                self.setLoadingAnimation(false)
                 self.showLocationErrorAlert()
             }
         }
