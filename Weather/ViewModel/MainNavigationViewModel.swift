@@ -10,7 +10,7 @@ class MainNavigationViewModel {
     
     // MARK: - Properties
     
-    private let coreData = CitiesCoreDataStack.shared
+    private let coreData = CitiesCoreDataStack()
     private let frc: NSFetchedResultsController<City>
         
     var isSearchRoot: Bool {

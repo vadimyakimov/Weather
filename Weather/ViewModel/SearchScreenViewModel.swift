@@ -184,7 +184,9 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
         }
         
         Task {
-            guard let city = await NetworkManager.shared.geopositionCity(for: location.coordinate) else { return }
+            let city = await NetworkManager.shared.geopositionCity(for: location.coordinate,
+                                                                   context: self.tempContext)
+            guard let city else { return }
             let index = self.addNewCity(city)
             self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
         }

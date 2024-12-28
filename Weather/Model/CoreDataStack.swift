@@ -5,8 +5,6 @@ import CoreData
 class CitiesCoreDataStack {
         
     // MARK: - Core Data stack
-    
-    static let shared = CitiesCoreDataStack()
 
     private var containerName = "Cities"
     
@@ -32,27 +30,4 @@ class CitiesCoreDataStack {
         self.tempContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         self.tempContext.parent = self.context
     }
-
-    // MARK: - Core Data context funcs
-    
-//    func safeModification(_ closure: @escaping() -> ()) {
-//        
-//        self.context.performAndWait {
-//            closure()
-//            self.saveContext()
-//        }
-//                
-//    }
-
-//    func saveContext () {
-//        if self.context.hasChanges {
-//            do {
-//                try context.save()
-//            } catch {
-//                let nserror = error as NSError
-//                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-//            }
-//        }
-//    }
-    
 }

@@ -95,11 +95,11 @@ class NetworkManager {
         return parsedCityArray
     }
     
-    func geopositionCity(for location: CLLocationCoordinate2D) async -> City? {
+    func geopositionCity(for location: CLLocationCoordinate2D, context: NSManagedObjectContext) async -> City? {
         let url = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.language)"
         
         let json = await self.getJSON(from: url)
-        let parsedCity = self.parseGeopositionCity(from: json)
+        let parsedCity = self.parseGeopositionCity(from: json, context: context)
         return parsedCity
     }
     
@@ -166,7 +166,7 @@ class NetworkManager {
         for dataDictionary in dataArray {
             if let key = dataDictionary[self.keyCityID] as? String,
                let name = dataDictionary[self.keyCityName] as? String {
-                let city = City(context: CitiesCoreDataStack.shared.tempContext,
+                let city = City(context: context,
                                 key: key,
                                 name: name)
                 autocompletedCitiesArray.append(city)
@@ -176,13 +176,13 @@ class NetworkManager {
         return autocompletedCitiesArray
     }
     
-    private func parseGeopositionCity(from data: Any?) -> City? {
+    private func parseGeopositionCity(from data: Any?, context: NSManagedObjectContext) -> City? {
         
         guard let dataDictionary = data as? [String : Any] else { return nil }
         guard let key = dataDictionary[self.keyCityID] as? String else { return nil }
         guard let name = dataDictionary[self.keyCityName] as? String else { return nil }
         
-        let city = City(context: CitiesCoreDataStack.shared.tempContext,
+        let city = City(context: context,
                         key: key,
                         name: name,
                         isLocated: true)        
