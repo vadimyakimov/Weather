@@ -5,7 +5,7 @@ import CoreData
 extension WeatherInfo {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<WeatherInfo> {
-        return NSFetchRequest<WeatherInfo>(entityName: "WeatherInfo")
+        return NSFetchRequest<WeatherInfo>(entityName: String(WeatherInfo.self))
     }
 
     @NSManaged public var temperatureCelsius: Int16

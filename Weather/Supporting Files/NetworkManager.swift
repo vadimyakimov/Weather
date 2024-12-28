@@ -11,32 +11,8 @@ class NetworkManager {
     
     lazy var keyAccuAPI = APIKeys.shared.getRandomAPIKey()
     
-    let baseURL = "https://dataservice.accuweather.com"
-    let language = "language=" + "en-us".localized()
-    
-    let keyCityName = "LocalizedName"
-    let keyCityID = "Key"
-    
-    let keyIsDayTime = "IsDayTime"
-    let keyWeatherIcon = "WeatherIcon"
-    let keyWeatherText = "WeatherText"
-    let keyForecastWeatherText = "IconPhrase"
-    let keyDailyForecastWeatherIcon = "Icon"
-    
-    let keyTemperature = "Temperature"
-    let keyTemperatureValue = "Value"
-    let keyCelsius = "Metric"
-    
-    let keyMinimum = "Minimum"
-    let keyMaximum = "Maximum"
-    
-    let keyDay = "Day"
-    let keyNight = "Night"
-    
-    let keyDailyForecast = "DailyForecasts"
-    
-    let keyHourlyDate = "EpochDateTime"
-    let keyDailyDate = "EpochDate"
+    let languageURLKey = "language=" + "en-us".localized()
+       
     
     // MARK: - Initializers
     
@@ -49,7 +25,7 @@ class NetworkManager {
     func getImage(iconNumber: Int) async -> UIImage? {
         
         let numberFormatted = String(format: "%02d", iconNumber)
-        let urlString = "https://developer.accuweather.com/sites/default/files/" + numberFormatted + "-s.png"
+        let urlString = "https://developer.accuweather.com/sites/default/files/\(numberFormatted)-s.png"
         
         guard let data = await self.fetchRequest(from: urlString) else { return nil }
         
@@ -58,7 +34,7 @@ class NetworkManager {
     
     func getCurrentWeather(by cityKey: String, for context: NSManagedObjectContext) async -> CurrentWeather? {
         
-        let url = "\(self.baseURL)/currentconditions/v1/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.language)"
+        let url = "\(String(.baseURL))/currentconditions/v1/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)"
         
         let json = await self.getJSON(from: url)
         let currentWeather = CurrentWeather(for: context, data: json)
@@ -68,7 +44,7 @@ class NetworkManager {
     
     func getHourlyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [HourlyForecast]? {
         
-        let url = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(cityKey)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
+        let url = "\(String(.baseURL))/forecasts/v1/hourly/12hour/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)&metric=true"
         
         let json = await self.getJSON(from: url)
         let hourlyForecast = self.parseHourlyForecast(for: context, data: json)
@@ -77,7 +53,7 @@ class NetworkManager {
     
     func getDailyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [DailyForecast]? {
         
-        let url = "\(self.baseURL)/forecasts/v1/daily/5day/\(cityKey)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
+        let url = "\(String(.baseURL))/forecasts/v1/daily/5day/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)&metric=true"
         
         let json = await self.getJSON(from: url)
         let dailyForecast = self.parseDailyForecast(for: context, data: json)
@@ -88,7 +64,7 @@ class NetworkManager {
         
         guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
         
-        let url = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
+        let url = "\(String(.baseURL))/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.languageURLKey)"
         
         let json = await self.getJSON(from: url)
         let parsedCityArray = self.parseCityAutocompleteArray(from: json, context: context)
@@ -96,7 +72,7 @@ class NetworkManager {
     }
     
     func geopositionCity(for location: CLLocationCoordinate2D, context: NSManagedObjectContext) async -> City? {
-        let url = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.language)"
+        let url = "\(String(.baseURL))/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.languageURLKey)"
         
         let json = await self.getJSON(from: url)
         let parsedCity = self.parseGeopositionCity(from: json, context: context)
@@ -146,7 +122,7 @@ class NetworkManager {
     
     private func parseDailyForecast(for context: NSManagedObjectContext, data: Any?) -> [DailyForecast]? {
         
-        guard let dataArray = (data as? [String : Any])?[self.keyDailyForecast] as? [[String : Any]] else { return nil }
+        guard let dataArray = (data as? [String : Any])?[String(.dailyForecast)] as? [[String : Any]] else { return nil }
         
         var dailyForecastArray: [DailyForecast] = []
         
@@ -164,8 +140,8 @@ class NetworkManager {
         var autocompletedCitiesArray = [City]()        
         
         for dataDictionary in dataArray {
-            if let key = dataDictionary[self.keyCityID] as? String,
-               let name = dataDictionary[self.keyCityName] as? String {
+            if let key = dataDictionary[String(.cityID)] as? String,
+               let name = dataDictionary[String(.cityName)] as? String {
                 let city = City(context: context,
                                 key: key,
                                 name: name)
@@ -179,8 +155,8 @@ class NetworkManager {
     private func parseGeopositionCity(from data: Any?, context: NSManagedObjectContext) -> City? {
         
         guard let dataDictionary = data as? [String : Any] else { return nil }
-        guard let key = dataDictionary[self.keyCityID] as? String else { return nil }
-        guard let name = dataDictionary[self.keyCityName] as? String else { return nil }
+        guard let key = dataDictionary[String(.cityID)] as? String else { return nil }
+        guard let name = dataDictionary[String(.cityName)] as? String else { return nil }
         
         let city = City(context: context,
                         key: key,

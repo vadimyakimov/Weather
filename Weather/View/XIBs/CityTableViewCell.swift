@@ -17,7 +17,7 @@ class CityTableViewCell: UITableViewCell {
     // MARK: - Initializers
     
     static func instanceFronNib() -> CityTableViewCell {
-        guard let cell = UINib(nibName: "CityTableViewCell",
+        guard let cell = UINib(nibName: String(CityTableViewCell.self),
                                bundle: nil).instantiate(withOwner: nil, options: nil).first as? CityTableViewCell
         else { return CityTableViewCell() }
         

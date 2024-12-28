@@ -24,11 +24,11 @@ public class HourlyForecast: WeatherInfo {
     
     init?(for context: NSManagedObjectContext, data: [String : Any]) {
         
-        let temperatureDictionary = data[NetworkManager.shared.keyTemperature] as? [String:Any]
-        guard let temperatureCelsius = temperatureDictionary?[NetworkManager.shared.keyTemperatureValue] as? Double else { return nil }
-        guard let weatherIcon = data[NetworkManager.shared.keyWeatherIcon] as? Int else { return nil }
-        guard let weatherText = data[NetworkManager.shared.keyForecastWeatherText] as? String else { return nil }
-        guard let epochDate = data[NetworkManager.shared.keyHourlyDate] as? TimeInterval else { return nil }
+        let temperatureDictionary = data[String(.temperature)] as? [String:Any]
+        guard let temperatureCelsius = temperatureDictionary?[String(.temperatureValue)] as? Double else { return nil }
+        guard let weatherIcon = data[String(.weatherIcon)] as? Int else { return nil }
+        guard let weatherText = data[String(.weatherText)] as? String else { return nil }
+        guard let epochDate = data[String(.hourlyDate)] as? TimeInterval else { return nil }
         let date = Date(timeIntervalSince1970: epochDate)
         
         super.init(for: context,

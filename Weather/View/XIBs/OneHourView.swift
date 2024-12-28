@@ -20,7 +20,7 @@ class OneHourView: UIView {
     // MARK: - Initializers
     
     static func instanceFromNib() -> OneHourView {
-        return UINib(nibName: "OneHourView", bundle: nil).instantiate(withOwner: nil, options: nil).first as! OneHourView
+        return UINib(nibName: String(OneHourView.self), bundle: nil).instantiate(withOwner: nil, options: nil).first as! OneHourView
     }
     
     // MARK: - Configuration funcs

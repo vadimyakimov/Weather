@@ -5,11 +5,9 @@ import CoreData
 class CitiesCoreDataStack {
         
     // MARK: - Core Data stack
-
-    private var containerName = "Cities"
     
     private lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: self.containerName)
+        let container = NSPersistentContainer(name: String(.coreDataContainerName))
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
@@ -26,7 +24,7 @@ class CitiesCoreDataStack {
           
     // MARK: - Initializers
     
-    private init() {
+    init() {
         self.tempContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         self.tempContext.parent = self.context
     }

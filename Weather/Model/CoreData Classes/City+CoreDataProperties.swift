@@ -5,7 +5,7 @@ import CoreData
 extension City {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<City> {
-        return NSFetchRequest<City>(entityName: "City")
+        return NSFetchRequest<City>(entityName: String(City.self))
     }
 
     @NSManaged public var id: Int16

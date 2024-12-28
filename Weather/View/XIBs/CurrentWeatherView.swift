@@ -21,7 +21,7 @@ class CurrentWeatherView: UIView {
     // MARK: - Initializers
     
     static func instanceFromNib() -> CurrentWeatherView {
-        return UINib(nibName: "CurrentWeatherView", bundle: nil).instantiate(withOwner: nil, options: nil).first as! CurrentWeatherView
+        return UINib(nibName: String(CurrentWeatherView.self), bundle: nil).instantiate(withOwner: nil, options: nil).first as! CurrentWeatherView
     }
     
     // MARK: - Configuration funcs

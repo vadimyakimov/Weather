@@ -5,7 +5,7 @@ import CoreData
 extension DailyForecast {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<DailyForecast> {
-        return NSFetchRequest<DailyForecast>(entityName: "DailyForecast")
+        return NSFetchRequest<DailyForecast>(entityName: String(DailyForecast.self))
     }
 
     @NSManaged public var forecastDate: Date

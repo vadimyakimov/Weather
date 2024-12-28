@@ -38,21 +38,21 @@ public class DailyForecast: NSManagedObject {
     
     init?(for context: NSManagedObjectContext, data: [String : Any]) {
         
-        let temperatureDictionary = data[NetworkManager.shared.keyTemperature] as? [String : Any]
-        let temperatureMinimumDictionary = temperatureDictionary?[NetworkManager.shared.keyMinimum] as? [String : Any]
-        let temperatureMaximumDictionary = temperatureDictionary?[NetworkManager.shared.keyMaximum] as? [String : Any]
-        guard let temperatureMinimumValue = temperatureMinimumDictionary?[NetworkManager.shared.keyTemperatureValue] as? Double else { return nil }
-        guard let temperatureMaximumValue = temperatureMaximumDictionary?[NetworkManager.shared.keyTemperatureValue] as? Double else { return nil }
+        let temperatureDictionary = data[String(.temperature)] as? [String : Any]
+        let temperatureMinimumDictionary = temperatureDictionary?[String(.minimum)] as? [String : Any]
+        let temperatureMaximumDictionary = temperatureDictionary?[String(.maximum)] as? [String : Any]
+        guard let temperatureMinimumValue = temperatureMinimumDictionary?[String(.temperatureValue)] as? Double else { return nil }
+        guard let temperatureMaximumValue = temperatureMaximumDictionary?[String(.temperatureValue)] as? Double else { return nil }
         
-        let dayDictionary = data[NetworkManager.shared.keyDay] as? [String : Any]
-        guard let dayIcon = dayDictionary?[NetworkManager.shared.keyDailyForecastWeatherIcon] as? Int else { return nil }
-        guard let dayText = dayDictionary?[NetworkManager.shared.keyForecastWeatherText] as? String else { return nil }
+        let dayDictionary = data[String(.day)] as? [String : Any]
+        guard let dayIcon = dayDictionary?[String(.dailyForecastWeatherIcon)] as? Int else { return nil }
+        guard let dayText = dayDictionary?[String(.forecastWeatherText)] as? String else { return nil }
         
-        let nightDictionary = data[NetworkManager.shared.keyNight] as? [String : Any]
-        guard let nightIcon = nightDictionary?[NetworkManager.shared.keyDailyForecastWeatherIcon] as? Int else { return nil }
-        guard let nightText = nightDictionary?[NetworkManager.shared.keyForecastWeatherText] as? String else { return nil }
+        let nightDictionary = data[String(.night)] as? [String : Any]
+        guard let nightIcon = nightDictionary?[String(.dailyForecastWeatherIcon)] as? Int else { return nil }
+        guard let nightText = nightDictionary?[String(.forecastWeatherText)] as? String else { return nil }
         
-        guard let epochDate = data[NetworkManager.shared.keyDailyDate] as? TimeInterval else { return nil }
+        guard let epochDate = data[String(.dailyDate)] as? TimeInterval else { return nil }
         let date = Date(timeIntervalSince1970: epochDate)
                 
         if let entity = NSEntityDescription.entity(forEntityName: String(DailyForecast.self), in: context) {

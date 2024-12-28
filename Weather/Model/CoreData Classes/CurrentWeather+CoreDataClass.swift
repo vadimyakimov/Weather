@@ -26,13 +26,13 @@ public class CurrentWeather: WeatherInfo {
         
         guard let dataDictionary = (data as? [[String : Any]])?.first else { return nil }
 
-        let temperatureDictionary = dataDictionary[NetworkManager.shared.keyTemperature] as? [String:Any]
-        let temperatureCelsiusDictionary = temperatureDictionary?[NetworkManager.shared.keyCelsius] as? [String:Any]
-        guard let temperatureCelsius = temperatureCelsiusDictionary?[NetworkManager.shared.keyTemperatureValue] as? Double else { return nil }
+        let temperatureDictionary = dataDictionary[String(.temperature)] as? [String:Any]
+        let temperatureCelsiusDictionary = temperatureDictionary?[String(.celsius)] as? [String:Any]
+        guard let temperatureCelsius = temperatureCelsiusDictionary?[String(.temperatureValue)] as? Double else { return nil }
 
-        guard let isDayTime = dataDictionary[NetworkManager.shared.keyIsDayTime] as? Bool else { return nil }
-        guard let weatherIcon = dataDictionary[NetworkManager.shared.keyWeatherIcon] as? Int else { return nil }
-        guard let weatherText = dataDictionary[NetworkManager.shared.keyWeatherText] as? String else { return nil }
+        guard let isDayTime = dataDictionary[String(.isDayTime)] as? Bool else { return nil }
+        guard let weatherIcon = dataDictionary[String(.weatherIcon)] as? Int else { return nil }
+        guard let weatherText = dataDictionary[String(.weatherText)] as? String else { return nil }
                 
         super.init(for: context,
                    temperatureCelsius: temperatureCelsius,

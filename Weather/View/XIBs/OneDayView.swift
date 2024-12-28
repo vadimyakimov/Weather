@@ -22,7 +22,7 @@ class OneDayView: UIView {
     // MARK: - Initializers
     
     static func instanceFronNib() -> OneDayView {
-        return UINib(nibName: "OneDayView", bundle: nil).instantiate(withOwner: nil, options: nil).first as! OneDayView
+        return UINib(nibName: String(OneDayView.self), bundle: nil).instantiate(withOwner: nil, options: nil).first as! OneDayView
     }
     
     // MARK: - Configuration funcs

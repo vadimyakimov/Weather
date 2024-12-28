@@ -38,7 +38,7 @@ class WeatherInfoViewModel: NSObject {
         self.hourlyForecast = Bindable(city.hourlyForecast?.array as? [HourlyForecast])
         self.dailyForecast = Bindable(city.dailyForecast?.array as? [DailyForecast])
         
-        let isImperial = UserDefaults.standard.bool(forKey: "is_imperial")
+        let isImperial = UserDefaults.standard.bool(forKey: String(.temperatureUnitSetting))
         self.isImperial = Bindable(isImperial)
         
         super.init()
@@ -47,7 +47,7 @@ class WeatherInfoViewModel: NSObject {
     }
     
     deinit {
-        UserDefaults.standard.removeObserver(self, forKeyPath: "is_imperial")
+        UserDefaults.standard.removeObserver(self, forKeyPath: String(.temperatureUnitSetting))
     }
     
     // MARK: - Funcs
@@ -57,14 +57,14 @@ class WeatherInfoViewModel: NSObject {
                                change: [NSKeyValueChangeKey : Any]?,
                                context: UnsafeMutableRawPointer?) {
 
-        if keyPath == "is_imperial",
+        if keyPath == String(.temperatureUnitSetting),
            let newValue = change?[.newKey] as? Bool {
             self.isImperial.value = newValue
         }
     }
    
     func setupUserDefaultsObservers() {
-        UserDefaults.standard.addObserver(self, forKeyPath: "is_imperial", options: [.new], context: nil)
+        UserDefaults.standard.addObserver(self, forKeyPath: String(.temperatureUnitSetting), options: [.new], context: nil)
     }
     
     func refreshWeather(isForcedUpdate: Bool = false) {
