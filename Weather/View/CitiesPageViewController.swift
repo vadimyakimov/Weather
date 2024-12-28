@@ -153,16 +153,13 @@ class CitiesPageViewController: EMPageViewController {
         
         self.pageControl.translatesAutoresizingMaskIntoConstraints = false
         self.view.addSubview(self.pageControl)
-        
-        let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
-        
+                
         NSLayoutConstraint.activate([
             self.pageControl.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
             self.pageControl.heightAnchor.constraint(equalToConstant: self.pageControlHeight),
-            self.pageControl.widthAnchor.constraint(equalToConstant: size.width),
             self.pageControl.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
         ])
-          
+                  
         self.pageControl.hidesForSinglePage = true
         
         self.updatePageControl()
@@ -173,26 +170,10 @@ class CitiesPageViewController: EMPageViewController {
     }
 
     private func updatePageControl(index: Int? = nil) {
-                        
-        if self.pageControl.numberOfPages != self.viewModel.citiesCount {
-            
-            self.pageControl.numberOfPages = self.viewModel.citiesCount
-            
-            let pageControlWidthConstraint = self.pageControl.constraints.filter({     // Width constrain
-                guard let firstItem = $0.firstItem as? NSObject else { return false }
-                return firstItem == self.pageControl && $0.firstAttribute == .width
-            }).first
-            
-            let size = self.pageControl.size(forNumberOfPages: self.pageControl.numberOfPages)
-            
-            DispatchQueue.main.async {
-                pageControlWidthConstraint?.constant = size.width
-                self.pageControl.clipsToBounds = false
-                self.view.layoutIfNeeded()
-            }
-        }
+        
+        self.pageControl.numberOfPages = self.viewModel.citiesCount
 
-        if let index = index {
+        if let index {
             self.pageControl.currentPage = index
         }
     }
