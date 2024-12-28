@@ -50,11 +50,13 @@ class OneDayView: UIView {
         
         self.stopSkeleton()
         
-        NetworkManager.shared.getImage(iconNumber: dayIcon) { icon in
-            self.setDayIcon(icon)
-        }
-        NetworkManager.shared.getImage(iconNumber: nightIcon) { icon in
-            self.setNightIcon(icon)
+        Task {
+            if let image = await NetworkManager.shared.getImage(iconNumber: dayIcon) {
+                self.setDayIcon(image)
+            }
+            if let image = await NetworkManager.shared.getImage(iconNumber: nightIcon) {
+                self.setNightIcon(image)
+            }
         }
     }
     

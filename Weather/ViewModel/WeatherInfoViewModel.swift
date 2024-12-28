@@ -70,22 +70,27 @@ class WeatherInfoViewModel: NSObject {
     func refreshWeather(isForcedUpdate: Bool = false) {
         
         let lastUpdated = self.city.lastUpdated
-        let tasks = DispatchGroup()
         
-        //        if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-        //            self.fetchCurrentWeather(dispatchGroup: tasks)
-        //        }
-        //
-        //        if lastUpdated.hourlyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-        //            self.fetchHourlyForecast(dispatchGroup: tasks)
-        //        }
-        //
-        //        if lastUpdated.dailyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-        //            self.fetchDailyForecast(dispatchGroup: tasks)
-        //        }
+        Task {
+            await withTaskGroup(of: Void.self) { group in
+                if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
+                    group.addTask {
+                        await self.fetchCurrentWeather()
+                    }
+                }
         
-        tasks.notify(queue: .main) {
-            self.delegate?.weatherInfoViewDidFinishUpdating()
+                if lastUpdated.hourlyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
+                    group.addTask {
+                        await self.fetchHourlyForecast()
+                    }
+                }
+        
+                if lastUpdated.dailyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
+                    group.addTask {
+                        await self.fetchDailyForecast()
+                    }
+                }
+            }
         }
     }
     
@@ -97,48 +102,27 @@ class WeatherInfoViewModel: NSObject {
     
     // MARK: - Fetching data from network
     
-    func fetchCurrentWeather(dispatchGroup: DispatchGroup? = nil) {
-        dispatchGroup?.enter()
-        
+    func fetchCurrentWeather() async {
         let backgroundContext = self.newBackgroundContext()
         
-        NetworkManager.shared.getCurrentWeather(by: self.city.key, for: backgroundContext) { currentWeather in
-            if let currentWeather = currentWeather {
-                self.updateData(currentWeather, context: backgroundContext)
-            }
-            dispatchGroup?.leave()
+        if let currentWeather = await NetworkManager.shared.getCurrentWeather(by: self.city.key, for: backgroundContext) {
+            self.updateData(currentWeather, context: backgroundContext)
         }
     }
     
-    func fetchHourlyForecast(dispatchGroup: DispatchGroup? = nil) {
-        dispatchGroup?.enter()
-        
+    func fetchHourlyForecast() async {
         let backgroundContext = self.newBackgroundContext()
         
-        NetworkManager.shared.getHourlyForecast(by: self.city.key, for: backgroundContext) { hourlyForecast in
-            if let hourlyForecast = hourlyForecast {
-                self.updateData(hourlyForecast, context: backgroundContext)
-            }
-            dispatchGroup?.leave()
+        if let hourlyForecast = await NetworkManager.shared.getHourlyForecast(by: self.city.key, for: backgroundContext) {
+            self.updateData(hourlyForecast, context: backgroundContext)
         }
     }
     
-    func fetchDailyForecast(dispatchGroup: DispatchGroup? = nil) {
-        dispatchGroup?.enter()
-        
+    func fetchDailyForecast() async {
         let backgroundContext = self.newBackgroundContext()
         
-        NetworkManager.shared.getDailyForecast(by: self.city.key, for: backgroundContext) { dailyForecast in
-            if let dailyForecast = dailyForecast {
-                self.updateData(dailyForecast, context: backgroundContext)
-            }
-            dispatchGroup?.leave()
-        }
-    }
-    
-    func fetchImage(iconNumber: Int16, completion: @escaping(UIImage) -> Void) {
-        NetworkManager.shared.getImage(iconNumber: Int(iconNumber)) { weatherIcon in
-            completion(weatherIcon)
+        if let dailyForecast = await NetworkManager.shared.getDailyForecast(by: self.city.key, for: backgroundContext) {
+            self.updateData(dailyForecast, context: backgroundContext)
         }
     }
     

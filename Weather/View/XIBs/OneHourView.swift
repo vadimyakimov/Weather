@@ -44,8 +44,10 @@ class OneHourView: UIView {
         
         self.stopSkeleton()
         
-        NetworkManager.shared.getImage(iconNumber: weatherIcon) { icon in
-            self.setIcon(icon)
+        Task {
+            if let image = await NetworkManager.shared.getImage(iconNumber: weatherIcon) {
+                self.setIcon(image)
+            }
         }
     }
     

@@ -37,21 +37,15 @@ class WeatherInfoView: UIView {
     func bindViewModel() {        
         self.viewModel.currentWeather.bind { [weak self] data in
             guard let self = self else { return }
-            DispatchQueue.main.async {
-                self.updateCurrentWeather(data)
-            }
+            self.updateCurrentWeather(data)
         }
         self.viewModel.hourlyForecast.bind { [weak self] data in
             guard let self = self else { return }
-            DispatchQueue.main.async {
-                self.hourlyForecastContainer.updateForecast(data, isImperial: self.viewModel.isImperial.value)
-            }
+            self.hourlyForecastContainer.updateForecast(data, isImperial: self.viewModel.isImperial.value)
         }
         self.viewModel.dailyForecast.bind { [weak self] data in
             guard let self = self else { return }
-            DispatchQueue.main.async {
-                self.dailyForecastContainer.updateForecast(data, isImperial: self.viewModel.isImperial.value)
-            }
+            self.dailyForecastContainer.updateForecast(data, isImperial: self.viewModel.isImperial.value)
         }
         self.viewModel.isImperial.bind { isImperial in
             self.currentWeatherView.temperature?.isImperial = isImperial

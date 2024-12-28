@@ -46,101 +46,87 @@ class NetworkManager {
     
     // MARK: - Server connection functions
     
-    func getImage(iconNumber: Int, complete: @escaping(UIImage) -> ()) {
+    func getImage(iconNumber: Int) async -> UIImage? {
         
         let numberFormatted = String(format: "%02d", iconNumber)
         let urlString = "https://developer.accuweather.com/sites/default/files/" + numberFormatted + "-s.png"
-        guard let url = URL(string: urlString) else { return }
         
-        DispatchQueue.global().async {
-            if let imageData = try? Data(contentsOf: url),
-               let loadedImage = UIImage(data: imageData) {
-                DispatchQueue.main.async {
-                    complete(loadedImage)
-                }
-            }
-        }
+        guard let data = await self.fetchRequest(from: urlString) else { return nil }
+        
+        return UIImage(data: data)
     }
     
-    func getCurrentWeather(by cityKey: String, for context: NSManagedObjectContext, complete: @escaping(CurrentWeather?) -> ()) {
+    func getCurrentWeather(by cityKey: String, for context: NSManagedObjectContext) async -> CurrentWeather? {
         
         let url = "\(self.baseURL)/currentconditions/v1/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.language)"
         
-        self.fetchRequest(with: url) { data in
-            let currentWeather = CurrentWeather(for: context, data: data)
-            DispatchQueue.main.async {
-                complete(currentWeather)
-            }
-        }
+        let json = await self.getJSON(from: url)
+        let currentWeather = CurrentWeather(for: context, data: json)
+        
+        return currentWeather
     }
     
-    func getHourlyForecast(by cityKey: String, for context: NSManagedObjectContext, complete: @escaping([HourlyForecast]?) -> ()) {
+    func getHourlyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [HourlyForecast]? {
         
         let url = "\(self.baseURL)/forecasts/v1/hourly/12hour/\(cityKey)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
         
-        self.fetchRequest(with: url) { data in
-            let hourlyForecast = self.parseHourlyForecast(for: context, data: data)
-            DispatchQueue.main.async {
-                complete(hourlyForecast)
-            }
-        }
+        let json = await self.getJSON(from: url)
+        let hourlyForecast = self.parseHourlyForecast(for: context, data: json)
+        return hourlyForecast
     }
     
-    func getDailyForecast(by cityKey: String, for context: NSManagedObjectContext, complete: @escaping([DailyForecast]?) -> ()) {
+    func getDailyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [DailyForecast]? {
         
         let url = "\(self.baseURL)/forecasts/v1/daily/5day/\(cityKey)?apikey=\(self.keyAccuAPI)&\(language)&metric=true"
         
-        self.fetchRequest(with: url) { data in
-            let dailyForecast = self.parseDailyForecast(for: context, data: data)
-            DispatchQueue.main.async {
-                complete(dailyForecast)
-            }
-        }
+        let json = await self.getJSON(from: url)
+        let dailyForecast = self.parseDailyForecast(for: context, data: json)
+        return dailyForecast
     }
     
-    func autocomplete(for text: String, context: NSManagedObjectContext, complete: @escaping ([City]) -> ()) {
-        guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return }
+    func autocomplete(for text: String, context: NSManagedObjectContext) async -> [City]? {
+        
+        guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
         
         let url = "\(self.baseURL)/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.language)"
         
-        self.fetchRequest(with: url) { data in
-            guard let parsedCityArray = self.parseCityAutocompleteArray(from: data, context: context) else { return }
-            DispatchQueue.main.async {
-                complete(parsedCityArray)
-            }
-        }
+        let json = await self.getJSON(from: url)
+        let parsedCityArray = self.parseCityAutocompleteArray(from: json, context: context)
+        return parsedCityArray
     }
     
-    func geopositionCity(for location: CLLocationCoordinate2D, complete: @escaping (City) -> ()) {
+    func geopositionCity(for location: CLLocationCoordinate2D) async -> City? {
         let url = "\(self.baseURL)/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.language)"
         
-        self.fetchRequest(with: url) { data in
-            guard let parsedCity = self.parseGeopositionCity(from: data) else { return }
-            DispatchQueue.main.async {
-                complete(parsedCity)
-            }
-        }
-        
+        let json = await self.getJSON(from: url)
+        let parsedCity = self.parseGeopositionCity(from: json)
+        return parsedCity
     }
     
-    private func fetchRequest(with urlString: String, complete: @escaping(Any?) -> ()) {
+    private func fetchRequest(from urlString: String) async -> Data? {
         
-        guard let url = URL(string: urlString) else {
-            DispatchQueue.main.async { complete(nil) }
-            return
+        guard let url = URL(string: urlString) else { return nil }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return data
+        } catch {
+            print("Error during fetchRequest: \(error.localizedDescription)")
+            return nil
         }
+    }
+    
+    private func getJSON(from urlString: String) async -> Any? {
         
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                DispatchQueue.main.async { complete(nil) }
-                return
-            }
-            
-            let jsonData = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-            complete(jsonData)
+        guard let data = await self.fetchRequest(from: urlString) else { return nil }
+        
+        do {
+            let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+            return json
+        } catch {
+            print("Error during getJSON: \(error.localizedDescription)")
+            return nil
         }
-        
-        task.resume()
     }
     
     //MARK: - Parsing functions

@@ -118,13 +118,16 @@ class SearchScreenViewModel: NSObject {
     // MARK: - Getting data
     
     func fetchAutocompleteArray(for searchText: String) {
-        
         self.autocompleteTimer.invalidate()
         self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval,
                                                       repeats: false,
                                                       block: { [unowned self] _ in
-            NetworkManager.shared.autocomplete(for: searchText, context: self.tempContext) { [unowned self] cityArray in
-                self.citiesAutocompleteArray.value = cityArray
+            Task {
+                guard let citiesArray = await NetworkManager.shared.autocomplete(for: searchText, context: self.tempContext) else {
+                    self.autocompleteTimer.invalidate()
+                    return
+                }
+                self.citiesAutocompleteArray.value = citiesArray
                 self.autocompleteTimer.invalidate()
             }
         })
@@ -174,7 +177,9 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
             self.locationError.value = NSError()
             return
         }
-        NetworkManager.shared.geopositionCity(for: location.coordinate) { [unowned self] city in
+        
+        Task {
+            guard let city = await NetworkManager.shared.geopositionCity(for: location.coordinate) else { return }
             let index = self.addNewCity(city)
             self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
         }

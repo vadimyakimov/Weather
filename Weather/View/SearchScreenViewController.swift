@@ -156,7 +156,7 @@ class SearchScreenViewController: UIViewController {
         let settingsAction = UIAlertAction(title: "Settings".localized(), style: .default) { action in
             if let bundleId = Bundle.main.bundleIdentifier,
                let url = URL(string: "\(UIApplication.openSettingsURLString)&path=LOCATION/\(bundleId)") {
-                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                UIApplication.shared.open(url, options: [:])
             }
         }
         alert.addAction(settingsAction)
