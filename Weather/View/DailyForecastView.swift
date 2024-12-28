@@ -55,7 +55,7 @@ class DailyForecastView: UIView {
         self.dailyForecastViews.last?.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
     }
     
-    func updateForecast(_ dailyForecast: [DailyForecast]?, isMetric: Bool) {
+    func updateForecast(_ dailyForecast: [DailyForecast]?, isImperial: Bool) {
         
         guard let data = dailyForecast,
               data.count == self.dailyForecastViews.count else { return }
@@ -64,10 +64,10 @@ class DailyForecastView: UIView {
             
             let dayTemperature = Temperature(temperatureCelsius: data[index].dayWeather.temperatureCelsius,
                                              temperatureFahrenheit: data[index].dayWeather.temperatureFahrenheit,
-                                             isMetric: isMetric)
+                                             isImperial: isImperial)
             let nightTemperature = Temperature(temperatureCelsius: data[index].nightWeather.temperatureCelsius,
                                              temperatureFahrenheit: data[index].nightWeather.temperatureFahrenheit,
-                                             isMetric: isMetric)
+                                               isImperial: isImperial)
             
             view.configure(date: data[index].forecastDate,
                            dayTemperature: dayTemperature,
@@ -77,10 +77,10 @@ class DailyForecastView: UIView {
         }
     }
     
-    func setMetricUnit(_ isMetric: Bool) {
+    func setMetricUnit(_ isImperial: Bool) {
         self.dailyForecastViews.forEach {
-            $0.dayTemperature?.isMetric = isMetric
-            $0.nightTemperature?.isMetric = isMetric
+            $0.dayTemperature?.isImperial = isImperial
+            $0.nightTemperature?.isImperial = isImperial
         }
     }
     

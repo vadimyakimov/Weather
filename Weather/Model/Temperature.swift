@@ -8,7 +8,7 @@
 class Temperature {
     typealias Listener = (String) -> Void
     
-    var isMetric: Bool {
+    var isImperial: Bool {
         didSet {
             self.listener?(self.temperature)
         }
@@ -18,19 +18,19 @@ class Temperature {
     
     private var temperature: String {
         get {
-            if isMetric {
-                return "\(self.temperatureTuple.celsius)ºC"
-            } else {
+            if isImperial {
                 return "\(self.temperatureTuple.fahrenheit)ºF"
+            } else {                
+                return "\(self.temperatureTuple.celsius)ºC"
             }
         }
     }
     
     private var listener: Listener?
     
-    init(temperatureCelsius: Int16, temperatureFahrenheit: Int16, isMetric: Bool) {
+    init(temperatureCelsius: Int16, temperatureFahrenheit: Int16, isImperial: Bool) {
         self.temperatureTuple = (temperatureCelsius, temperatureFahrenheit)
-        self.isMetric = isMetric
+        self.isImperial = isImperial
     }
     
     func bind(_ listener: Listener?) {

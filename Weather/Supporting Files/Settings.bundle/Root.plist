@@ -12,9 +12,9 @@
 			<key>Title</key>
 			<string>Temperature unit</string>
 			<key>Key</key>
-			<string>is_metric</string>
+			<string>is_imperial</string>
 			<key>DefaultValue</key>
-			<true/>
+			<false/>
 			<key>Titles</key>
 			<array>
 				<string>Celcius</string>
@@ -22,8 +22,8 @@
 			</array>
 			<key>Values</key>
 			<array>
-				<true/>
 				<false/>
+				<true/>
 			</array>
 		</dict>
 	</array>

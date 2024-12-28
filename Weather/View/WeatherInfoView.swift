@@ -44,19 +44,19 @@ class WeatherInfoView: UIView {
         self.viewModel.hourlyForecast.bind { [weak self] data in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                self.hourlyForecastContainer.updateForecast(data, isMetric: self.viewModel.isMetric.value)
+                self.hourlyForecastContainer.updateForecast(data, isImperial: self.viewModel.isImperial.value)
             }
         }
         self.viewModel.dailyForecast.bind { [weak self] data in
             guard let self = self else { return }
             DispatchQueue.main.async {
-                self.dailyForecastContainer.updateForecast(data, isMetric: self.viewModel.isMetric.value)
+                self.dailyForecastContainer.updateForecast(data, isImperial: self.viewModel.isImperial.value)
             }
         }
-        self.viewModel.isMetric.bind { isMetric in
-            self.currentWeatherView.temperature?.isMetric = isMetric
-            self.hourlyForecastContainer.setMetricUnit(isMetric)
-            self.dailyForecastContainer.setMetricUnit(isMetric)
+        self.viewModel.isImperial.bind { isImperial in
+            self.currentWeatherView.temperature?.isImperial = isImperial
+            self.hourlyForecastContainer.setMetricUnit(isImperial)
+            self.dailyForecastContainer.setMetricUnit(isImperial)
             
         }
     }
@@ -133,7 +133,7 @@ class WeatherInfoView: UIView {
         
         let temperature = Temperature(temperatureCelsius: data.temperatureCelsius,
                                       temperatureFahrenheit: data.temperatureFahrenheit,
-                                      isMetric: self.viewModel.isMetric.value)
+                                      isImperial: self.viewModel.isImperial.value)
         
         self.currentWeatherView.configure(isDayTime: data.isDayTime,
                                           temperature: temperature,
