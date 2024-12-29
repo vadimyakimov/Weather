@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import CoreLocation
 import CoreData
+import Kingfisher
 
 class NetworkManager {
     
@@ -22,14 +23,19 @@ class NetworkManager {
     
     // MARK: - Server connection functions
     
-    func getImage(iconNumber: Int) async -> UIImage? {
+    func getImage(_ iconNumber: Int) async -> UIImage? {
         
         let numberFormatted = String(format: "%02d", iconNumber)
         let urlString = "https://developer.accuweather.com/sites/default/files/\(numberFormatted)-s.png"
-        
-        guard let data = await self.fetchRequest(from: urlString) else { return nil }
-        
-        return UIImage(data: data)
+        guard let url = URL(string: urlString) else { return nil }
+                
+        do {
+            let result = try await KingfisherManager.shared.retrieveImage(with: url)
+            return result.image
+        } catch {
+            print("Error during getImage: \(error.localizedDescription)")
+            return nil
+        }
     }
     
     func getCurrentWeather(by cityKey: String, for context: NSManagedObjectContext) async -> CurrentWeather? {

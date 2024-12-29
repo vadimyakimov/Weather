@@ -51,21 +51,25 @@ class OneDayView: UIView {
         self.stopSkeleton()
         
         Task {
-            if let image = await NetworkManager.shared.getImage(iconNumber: dayIcon) {
-                self.setDayIcon(image)
-            }
-            if let image = await NetworkManager.shared.getImage(iconNumber: nightIcon) {
-                self.setNightIcon(image)
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    let dayImage = await NetworkManager.shared.getImage(dayIcon)
+                    await self.setDayIcon(dayImage)
+                }
+                group.addTask {
+                    let nightImage = await NetworkManager.shared.getImage(nightIcon)
+                    await self.setNightIcon(nightImage)
+                }
             }
         }
     }
     
-    private func setDayIcon(_ icon: UIImage) {
+    private func setDayIcon(_ icon: UIImage?) {
         self.dayIconImageView.image = icon
         self.dayIconImageView.hideSkeleton()
     }
     
-    private func setNightIcon(_ icon: UIImage) {
+    private func setNightIcon(_ icon: UIImage?) {
         self.nightIconImageView.image = icon
         self.nightIconImageView.hideSkeleton()
     }

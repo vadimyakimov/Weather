@@ -27,7 +27,7 @@ public class HourlyForecast: WeatherInfo {
         let temperatureDictionary = data[String(.temperature)] as? [String:Any]
         guard let temperatureCelsius = temperatureDictionary?[String(.temperatureValue)] as? Double else { return nil }
         guard let weatherIcon = data[String(.weatherIcon)] as? Int else { return nil }
-        guard let weatherText = data[String(.weatherText)] as? String else { return nil }
+        guard let weatherText = data[String(.forecastWeatherText)] as? String else { return nil }
         guard let epochDate = data[String(.hourlyDate)] as? TimeInterval else { return nil }
         let date = Date(timeIntervalSince1970: epochDate)
         

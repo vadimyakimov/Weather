@@ -44,13 +44,12 @@ class CurrentWeatherView: UIView {
         self.stopSkeleton()
         
         Task {
-            if let image = await NetworkManager.shared.getImage(iconNumber: weatherIcon) {
-                self.setIcon(image)
-            }
+            let image = await NetworkManager.shared.getImage(weatherIcon)
+            self.setIcon(image)
         }
     }
     
-    private func setIcon(_ icon: UIImage) {
+    private func setIcon(_ icon: UIImage?) {
         self.iconImageView.image = icon
         self.iconImageView.hideSkeleton()
     }
