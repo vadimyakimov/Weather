@@ -122,7 +122,9 @@ extension CityViewController: UIScrollViewDelegate {
 extension CityViewController: WeatherInfoViewDelegate {
     
     func weatherInfoViewDidFinishUpdating() {
-        self.cityRefreshControl.endRefreshing()
+        Task {
+            self.cityRefreshControl.endRefreshing()
+        }
     }
     
     func weatherInfoViewDidUpdateCurrentWeather() {

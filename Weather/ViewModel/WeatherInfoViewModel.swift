@@ -91,6 +91,7 @@ class WeatherInfoViewModel: NSObject {
                     }
                 }
             }
+            self.delegate?.weatherInfoViewDidFinishUpdating()
         }
     }
     
