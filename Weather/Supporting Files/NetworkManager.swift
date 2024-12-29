@@ -10,7 +10,7 @@ class NetworkManager {
     
     //MARK: API keys
     
-    lazy var keyAccuAPI = APIKeys.shared.getRandomAPIKey()
+    let keyAccuAPI = APIKeys().getRandomAPIKey()
     
     let languageURLKey = "language=" + "en-us".localized()
        
