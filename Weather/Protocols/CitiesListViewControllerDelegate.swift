@@ -8,6 +8,7 @@
 import Foundation
 import CoreData
 
+@MainActor
 protocol CitiesListViewControllerDelegate: AnyObject {
     func citiesListViewController(didSelectRowAt indexPath: IndexPath)
     func citiesListViewControllerDidChangeContent()

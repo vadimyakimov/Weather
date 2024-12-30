@@ -27,23 +27,27 @@ class CurrentWeatherView: UIView {
     // MARK: - Configuration funcs
     
     func configure(isDayTime: Bool?) {
-        self.layer.cornerRadius = self.cornerRadius
-        self.startSkeleton(isDayTime: isDayTime)
+        Task { [unowned self] in
+            self.layer.cornerRadius = self.cornerRadius
+            self.startSkeleton(isDayTime: isDayTime)
+        }        
     }
     
     func configure(isDayTime: Bool, temperature: Temperature, weatherText: String, weatherIcon: Int) {
+        
+        self.temperature = temperature
+        temperature.bind { [unowned self] value in
+            self.temperatureLabel.text = value
+        }
+        
         self.backgroundColor = self.color(isDayTime: isDayTime)
         self.textLabel.text = weatherText
         self.layer.cornerRadius = self.cornerRadius
         
-        self.temperature = temperature
-        temperature.bind { value in
-            self.temperatureLabel.text = value
-        }
-        
-        self.stopSkeleton()
-        
-        Task {
+        Task { [unowned self] in
+            
+            self.stopSkeleton()
+            
             let image = await NetworkManager.shared.getImage(weatherIcon)
             self.setIcon(image)
         }

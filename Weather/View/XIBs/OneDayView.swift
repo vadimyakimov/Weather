@@ -28,29 +28,33 @@ class OneDayView: UIView {
     // MARK: - Configuration funcs
     
     func configure() {
-        self.startSkeleton()
+        Task { [unowned self] in
+            self.startSkeleton()
+        }
     }
     
     func configure(date: Date, dayTemperature: Temperature, nightTemperature: Temperature, dayIcon: Int, nightIcon: Int) {
+        
+        self.dayTemperature = dayTemperature
+        dayTemperature.bind { [unowned self] value in
+            self.dayTemperatureLabel.text = value
+        }
+        
+        self.nightTemperature = nightTemperature
+        nightTemperature.bind { [unowned self] value in
+            self.nightTemperatureLabel.text = value
+        }
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE"
         self.dayLabel.text = formatter.string(from: date)
         formatter.dateFormat = "dd"
         self.dateLabel.text = formatter.string(from: date)
-                
-        self.dayTemperature = dayTemperature
-        dayTemperature.bind { value in
-            self.dayTemperatureLabel.text = value
-        }
         
-        self.nightTemperature = nightTemperature
-        nightTemperature.bind { value in
-            self.nightTemperatureLabel.text = value
-        }
-        
-        self.stopSkeleton()
-        
-        Task {
+        Task { [unowned self] in
+            
+            self.stopSkeleton()
+            
             await withTaskGroup(of: Void.self) { group in
                 group.addTask {
                     let dayImage = await NetworkManager.shared.getImage(dayIcon)

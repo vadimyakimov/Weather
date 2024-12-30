@@ -60,17 +60,16 @@ class MainNavigationController: UINavigationController {
 // MARK: - Search Screen Delegate
 
 extension MainNavigationController: SearchScreenViewControllerDelegate {
+    
     func searchScreenViewController(didDirectToCityWithIndex index: Int) {
-        Task {
-            if self.viewControllers.count == 1 {
-                let rootController = self.createRootViewController()
-                self.setViewControllers([rootController], animated: true)
-            } else {
-                if let rootController = self.viewControllers.first as? CitiesPageViewController {
-                    rootController.showCityViewController(withIndex: index)
-                }
-                self.popToRootViewController(animated: true)
+        if self.viewControllers.count == 1 {
+            let rootController = self.createRootViewController()
+            self.setViewControllers([rootController], animated: true)
+        } else {
+            if let rootController = self.viewControllers.first as? CitiesPageViewController {
+                rootController.showCityViewController(withIndex: index)
             }
+            self.popToRootViewController(animated: true)
         }
     }
 }

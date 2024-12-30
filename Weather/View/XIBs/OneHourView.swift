@@ -26,25 +26,29 @@ class OneHourView: UIView {
     // MARK: - Configuration funcs
     
     func configure() {
-        self.layer.cornerRadius = self.cornerRadius
-        self.startSkeleton()
+        Task { [unowned self] in
+            self.layer.cornerRadius = self.cornerRadius
+            self.startSkeleton()
+        }
     }
     
     func configure(time: Date, temperature: Temperature, weatherText: String, weatherIcon: Int) {
+        
+        self.temperature = temperature
+        temperature.bind { [unowned self] value in
+            self.temperatureLabel.text = value
+        }
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         self.timeLabel.text = formatter.string(from: time)
         self.textLabel.text = weatherText
         self.layer.cornerRadius = self.cornerRadius
         
-        self.temperature = temperature
-        temperature.bind { value in
-            self.temperatureLabel.text = value
-        }
-        
-        self.stopSkeleton()
-                
-        Task {
+        Task { [unowned self] in
+            
+            self.stopSkeleton()
+            
             let image = await NetworkManager.shared.getImage(weatherIcon)
             self.setIcon(image)
         }
@@ -57,7 +61,7 @@ class OneHourView: UIView {
     
     // MARK: - Skeleton funcs
     
-    func startSkeleton() {        
+    func startSkeleton() {
         self.createSkeletonFor(label: self.timeLabel)
         self.createSkeletonFor(label: self.temperatureLabel)
         self.createSkeletonFor(imageView: self.iconImageView)

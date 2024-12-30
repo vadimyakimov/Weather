@@ -46,7 +46,7 @@
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Wednesday" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FhI-8c-2Oi">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Day" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FhI-8c-2Oi">
                     <rect key="frame" x="149" y="20" width="150" height="25"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="150" id="PXM-V9-HtO"/>
@@ -56,7 +56,7 @@
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="30" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Suj-s2-GUE">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="NN" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Suj-s2-GUE">
                     <rect key="frame" x="189" y="45" width="70" height="45"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="70" id="w57-Le-yQs"/>
@@ -86,12 +86,12 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
-                <outlet property="dateLabel" destination="Suj-s2-GUE" id="7UD-uc-bfg"/>
-                <outlet property="dayIconImageView" destination="hdb-i5-xPk" id="Rk3-bd-T1O"/>
-                <outlet property="dayLabel" destination="FhI-8c-2Oi" id="7VI-vc-WLI"/>
-                <outlet property="dayTemperatureLabel" destination="4Gy-KN-jKN" id="aKg-3q-oYP"/>
-                <outlet property="nightIconImageView" destination="AEr-ue-rwe" id="Gjv-cB-7SC"/>
-                <outlet property="nightTemperatureLabel" destination="oLZ-ue-mRy" id="QpD-qU-6ms"/>
+                <outlet property="dateLabel" destination="Suj-s2-GUE" id="ZgI-Xr-8dP"/>
+                <outlet property="dayIconImageView" destination="hdb-i5-xPk" id="ZZP-Ke-Fon"/>
+                <outlet property="dayLabel" destination="FhI-8c-2Oi" id="eJr-Pq-0eM"/>
+                <outlet property="dayTemperatureLabel" destination="4Gy-KN-jKN" id="dBc-sL-8xk"/>
+                <outlet property="nightIconImageView" destination="AEr-ue-rwe" id="LFf-IA-VDp"/>
+                <outlet property="nightTemperatureLabel" destination="oLZ-ue-mRy" id="9kS-nP-PUA"/>
             </connections>
             <point key="canvasLocation" x="-59.420289855072468" y="-123.88392857142857"/>
         </view>

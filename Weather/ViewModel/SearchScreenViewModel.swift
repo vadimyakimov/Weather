@@ -150,10 +150,14 @@ class SearchScreenViewModel: NSObject {
             guard let city = self.getCity(atIndexPath: indexPath) else { return }
             
             if let index = self.savedCitiesList?.firstIndex(where: { $0.key == city.key }) {
-                self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
+                Task { [unowned self] in
+                    await self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
+                }
             } else {
                 let index = self.addNewCity(city)
-                self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
+                Task { [unowned self] in
+                    await self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
+                }
             }
         }
     }
@@ -181,12 +185,12 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
             return
         }
         
-        Task {
+        Task { [unowned self] in
             let city = await NetworkManager.shared.geopositionCity(for: location.coordinate,
                                                                    context: self.tempContext)
             guard let city else { return }
             let index = self.addNewCity(city)
-            self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
+            await self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
         }
     }
     

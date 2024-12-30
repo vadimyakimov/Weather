@@ -71,7 +71,7 @@ class WeatherInfoViewModel: NSObject {
         
         let lastUpdated = self.city.lastUpdated
         
-        Task {
+        Task { [unowned self] in
             await withTaskGroup(of: Void.self) { group in
                 if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
                     group.addTask {
@@ -86,12 +86,12 @@ class WeatherInfoViewModel: NSObject {
                 }
         
                 if lastUpdated.dailyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-                    group.addTask {
+                    group.addTask { 
                         await self.fetchDailyForecast()
                     }
                 }
             }
-            self.delegate?.weatherInfoViewDidFinishUpdating()
+            await self.delegate?.weatherInfoViewDidFinishUpdating()
         }
     }
     
@@ -142,7 +142,9 @@ class WeatherInfoViewModel: NSObject {
             
             city?.lastUpdated.currentWeather = Date()
         } completion: {
-            self.delegate?.weatherInfoViewDidUpdateCurrentWeather()
+            Task { [unowned self] in
+                await self.delegate?.weatherInfoViewDidUpdateCurrentWeather()
+            }
         }
         
     }
