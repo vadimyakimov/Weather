@@ -641,7 +641,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vadimyakimov.Weather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.5;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -674,7 +675,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vadimyakimov.Weather;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.5;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

@@ -36,9 +36,9 @@ class SearchScreenViewModel: NSObject {
     
     private lazy var locationManager = CLLocationManager()
     let isLocationLoading: Bindable<GeoDetectingState> = Bindable(.initial)
-    
-    private lazy var autocompleteTimer = Timer()
-    private let timerInterval = 0.7
+        
+    private var autocompleteTask: Task<Void, Error>?
+    private let taskDelay = 0.7
     
     // MARK: - Initializer
     
@@ -123,19 +123,17 @@ class SearchScreenViewModel: NSObject {
     // MARK: - Getting data
     
     func fetchAutocompleteArray(for searchText: String) {
-        self.autocompleteTimer.invalidate()
-        self.autocompleteTimer = Timer.scheduledTimer(withTimeInterval: self.timerInterval,
-                                                      repeats: false,
-                                                      block: { [unowned self] _ in
-            Task {
-                guard let citiesArray = await NetworkManager.shared.autocomplete(for: searchText, context: self.tempContext) else {
-                    self.autocompleteTimer.invalidate()
-                    return
-                }
+        
+        self.autocompleteTask?.cancel()
+        
+        self.autocompleteTask = Task { [unowned self] in
+            
+                try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
+                guard !Task.isCancelled else { return }
+            
+                guard let citiesArray = await NetworkManager.shared.autocomplete(for: searchText, context: self.tempContext) else { return }
                 self.citiesAutocompleteArray.value = citiesArray
-                self.autocompleteTimer.invalidate()
-            }
-        })
+        }
     }
     
     func getCity(atIndexPath indexPath: IndexPath) -> City? {

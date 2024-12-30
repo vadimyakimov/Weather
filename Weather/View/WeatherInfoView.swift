@@ -5,9 +5,7 @@ class WeatherInfoView: UIView {
     // MARK: - Properties
         
     let viewModel: WeatherInfoViewModel
-    
-    let cityRefreshControl = UIRefreshControl()
-    
+        
     private let verticalSpacing: CGFloat = 30
     private let innerOffset: CGFloat = 20
         
