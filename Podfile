@@ -9,5 +9,6 @@ target 'Weather' do
   pod 'SkeletonView'
   pod 'EMPageViewController'
   pod 'Kingfisher', '~> 8.0'
-
+  pod 'FirebaseCrashlytics'
+  
 end

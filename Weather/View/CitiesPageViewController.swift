@@ -30,8 +30,8 @@ class CitiesPageViewController: EMPageViewController {
     private let pageControlHeight: CGFloat = 20
     private var previousPageControlIndex: Int?
         
-//    // MARK: - Lifecycle
-//
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
                 
         super.viewDidLoad()
