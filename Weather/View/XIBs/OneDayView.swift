@@ -20,20 +20,29 @@ class OneDayView: UIView {
     private let skeletonCustomCornerRadius = 8
     
     // MARK: - Initializers
-    
+           
     static func instanceFronNib() -> OneDayView {
-        return UINib(nibName: String(OneDayView.self), bundle: nil).instantiate(withOwner: nil, options: nil).first as! OneDayView
+        return UINib(nibName: String(OneDayView.self), bundle: nil).instantiate(withOwner: self).first as! OneDayView
     }
     
     // MARK: - Configuration funcs
     
     func configure() {
-        Task { [unowned self] in
-            self.startSkeleton()
-        }
+        
+        self.isSkeletonable = true
+        self.createSkeletonFor(label: self.dayLabel)
+        self.createSkeletonFor(label: self.dateLabel)
+        self.createSkeletonFor(label: self.dayTemperatureLabel)
+        self.createSkeletonFor(label: self.nightTemperatureLabel)
+        self.createSkeletonFor(imageView: self.dayIconImageView)
+        self.createSkeletonFor(imageView: self.nightIconImageView)
+        
+        self.startSkeleton()
     }
     
     func configure(date: Date, dayTemperature: Temperature, nightTemperature: Temperature, dayIcon: Int, nightIcon: Int) {
+        
+        self.stopSkeleton()
         
         self.dayTemperature = dayTemperature
         dayTemperature.bind { [unowned self] value in
@@ -52,9 +61,7 @@ class OneDayView: UIView {
         self.dateLabel.text = formatter.string(from: date)
         
         Task { [unowned self] in
-            
-            self.stopSkeleton()
-            
+                        
             await withTaskGroup(of: Void.self) { group in
                 group.addTask {
                     let dayImage = await NetworkManager.shared.getImage(dayIcon)
@@ -81,36 +88,26 @@ class OneDayView: UIView {
     // MARK: - Skeleton funcs
     
     func startSkeleton() {
-        self.createSkeletonFor(label: self.dayLabel)
-        self.createSkeletonFor(label: self.dateLabel)
-        self.createSkeletonFor(label: self.dayTemperatureLabel)
-        self.createSkeletonFor(label: self.nightTemperatureLabel)
-        self.createSkeletonFor(imageView: self.dayIconImageView)
-        self.createSkeletonFor(imageView: self.nightIconImageView)
-    }
-    
-    private func stopSkeleton() {
-        self.dayLabel.hideSkeleton()
-        self.dateLabel.hideSkeleton()
-        self.dayTemperatureLabel.hideSkeleton()
-        self.nightTemperatureLabel.hideSkeleton()
-    }
-    
-    private func createSkeletonFor(label: UILabel) {
         let baseColor = UIColor(red: 0.7, green: 0.7, blue: 0.7, alpha: 0.2)
         let secondaryColor = UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 0.3)
         let gradient = SkeletonGradient(baseColor: baseColor, secondaryColor: secondaryColor)
         
+        self.showAnimatedGradientSkeleton(usingGradient: gradient)
+    }
+    
+    private func stopSkeleton() {
+        self.hideSkeleton()
+    }
+    
+    private func createSkeletonFor(label: UILabel) {
         label.isSkeletonable = true
         label.skeletonTextLineHeight = .relativeToFont
         label.lastLineFillPercent = 100
         label.linesCornerRadius = self.skeletonCustomCornerRadius
-        label.showAnimatedGradientSkeleton(usingGradient: gradient)
     }
     
     private func createSkeletonFor(imageView: UIImageView) {
         imageView.isSkeletonable = true
         imageView.isHiddenWhenSkeletonIsActive = true
-        imageView.showAnimatedGradientSkeleton()
     }
 }

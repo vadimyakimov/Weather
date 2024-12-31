@@ -185,6 +185,8 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
             return
         }
         
+        self.isLocationLoading.value = .initial
+        
         Task { [unowned self] in
             let city = await NetworkManager.shared.geopositionCity(for: location.coordinate,
                                                                    context: self.tempContext)

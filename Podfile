@@ -6,7 +6,7 @@ target 'Weather' do
   use_frameworks!
 
   # Pods for Weather
-  pod 'SkeletonView'
+  pod 'SkeletonView', :git => 'https://github.com/Juanpe/SkeletonView.git'
   pod 'EMPageViewController'
   pod 'Kingfisher', '~> 8.0'
   pod 'FirebaseCrashlytics'

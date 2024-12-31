@@ -17,6 +17,7 @@ class SearchScreenViewController: UIViewController {
     
     private let searchTableView = UITableView()
     private let autocompleteSearchController = UISearchController()
+    private var alertController: UIAlertController?
     
     
     // MARK: - Lifecycle
@@ -61,6 +62,7 @@ class SearchScreenViewController: UIViewController {
         self.viewModel.isLocationLoading.bind { [unowned self] state in            
             switch state {
             case .initial:
+                self.alertController?.dismiss(animated: false)
                 self.setLoadingAnimation(false)
             case .loading:
                 self.setLoadingAnimation(true)
@@ -153,7 +155,8 @@ class SearchScreenViewController: UIViewController {
         let errorTitle = "Failed to find your location".localized()
         let errorMessage = "Check if your location is allowed in the settings, or try again later".localized()
         
-        let alert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        self.alertController = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        var alert = self.alertController
         
         let settingsAction = UIAlertAction(title: "Settings".localized(), style: .default) { action in
             if let bundleId = Bundle.main.bundleIdentifier,
@@ -161,11 +164,12 @@ class SearchScreenViewController: UIViewController {
                 UIApplication.shared.open(url, options: [:])
             }
         }
-        alert.addAction(settingsAction)
+        alert?.addAction(settingsAction)
         
         let cancelAction = UIAlertAction(title: "Cancel".localized(), style: .cancel, handler: nil)
-        alert.addAction(cancelAction)
+        alert?.addAction(cancelAction)
         
+        guard let alert else { return }
         self.present(alert, animated: true)
     }
 }

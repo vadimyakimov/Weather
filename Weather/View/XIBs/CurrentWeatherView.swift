@@ -27,13 +27,19 @@ class CurrentWeatherView: UIView {
     // MARK: - Configuration funcs
     
     func configure(isDayTime: Bool?) {
-        Task { [unowned self] in
-            self.layer.cornerRadius = self.cornerRadius
-            self.startSkeleton(isDayTime: isDayTime)
-        }        
+        self.layer.cornerRadius = self.cornerRadius
+        
+        self.isSkeletonable = true
+        self.skeletonCornerRadius = Float(self.cornerRadius)
+        self.iconImageView.isSkeletonable = true
+        self.iconImageView.isHiddenWhenSkeletonIsActive = true
+        
+        self.startSkeleton(isDayTime: isDayTime)
     }
     
     func configure(isDayTime: Bool, temperature: Temperature, weatherText: String, weatherIcon: Int) {
+        
+        self.stopSkeleton()
         
         self.temperature = temperature
         temperature.bind { [unowned self] value in
@@ -45,9 +51,6 @@ class CurrentWeatherView: UIView {
         self.layer.cornerRadius = self.cornerRadius
         
         Task { [unowned self] in
-            
-            self.stopSkeleton()
-            
             let image = await NetworkManager.shared.getImage(weatherIcon)
             self.setIcon(image)
         }
@@ -61,14 +64,7 @@ class CurrentWeatherView: UIView {
     // MARK: - Skeleton funcs
     
     func startSkeleton(isDayTime: Bool?) {
-        
-        self.isSkeletonable = true
-        self.skeletonCornerRadius = Float(self.cornerRadius)
         self.showAnimatedSkeleton(usingColor: self.color(isDayTime: isDayTime))
-        
-        self.iconImageView.isSkeletonable = true
-        self.iconImageView.isHiddenWhenSkeletonIsActive = true
-        self.iconImageView.showSkeleton()
     }
     
     private func stopSkeleton() {

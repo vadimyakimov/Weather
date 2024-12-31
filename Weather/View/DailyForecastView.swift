@@ -12,10 +12,17 @@ class DailyForecastView: UIView {
     let dailyViewCornerRadius: CGFloat = 20
     let verticalSpacing: CGFloat
     
-    var dailyForecastViews = [OneDayView].init(repeating: OneDayView(), count: 5)
+    private var dailyForecastViews: [OneDayView]
     
     init(verticalSpacing: CGFloat) {
         self.verticalSpacing = verticalSpacing
+        
+        self.dailyForecastViews = (0..<5).map { _ in
+            let view = OneDayView.instanceFronNib()
+            view.configure()
+            return view
+        }
+        
         super.init(frame: .zero)
         
         self.configure()
@@ -30,11 +37,7 @@ class DailyForecastView: UIView {
         self.clipsToBounds = true
         self.layer.cornerRadius = self.dailyViewCornerRadius
         
-        let oneDayViewHeight = OneDayView.instanceFronNib().frame.height
-        
-        for index in 0..<self.dailyForecastViews.count {
-            let view = OneDayView.instanceFronNib()
-            view.configure()
+        for (index, view) in self.dailyForecastViews.enumerated() {
             view.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(view)
             
@@ -46,17 +49,15 @@ class DailyForecastView: UIView {
                 topAnchor,
                 view.leadingAnchor.constraint(equalTo: self.leadingAnchor),
                 view.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-                view.heightAnchor.constraint(equalToConstant: oneDayViewHeight),
+                view.heightAnchor.constraint(equalToConstant: view.frame.height),
             ])
-            
-            self.dailyForecastViews[index] = view
         }
         
         self.dailyForecastViews.last?.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
     }
     
-    func updateForecast(_ dailyForecast: [DailyForecast]?, isImperial: Bool) {
-        
+    func updateForecast(_ dailyForecast: [DailyForecast]?, isImperial: Bool) {        
+                
         guard let data = dailyForecast,
               data.count == self.dailyForecastViews.count else { return }
         

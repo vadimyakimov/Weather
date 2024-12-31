@@ -12,11 +12,18 @@ class HourlyForecastView: UIScrollView {
     let verticalSpacing: CGFloat
     let innerOffset: CGFloat
     
-    private var hourlyForecastViews = [OneHourView](repeating: OneHourView(), count: 12)
+    private var hourlyForecastViews: [OneHourView]
 
     init(verticalSpacing: CGFloat, innerOffset: CGFloat) {
         self.verticalSpacing = verticalSpacing
         self.innerOffset = innerOffset
+        
+        self.hourlyForecastViews = (0..<12).map { _ in
+            let view = OneHourView.instanceFromNib()
+            view.configure()
+            return view
+        }
+        
         super.init(frame: .zero)
         
         self.configure()
@@ -32,9 +39,7 @@ class HourlyForecastView: UIScrollView {
                 
         self.showsHorizontalScrollIndicator = false
         
-        for index in 0..<self.hourlyForecastViews.count {
-            let view = OneHourView.instanceFromNib()
-            view.configure()
+        for (index, view) in self.hourlyForecastViews.enumerated() {
             view.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(view)
             
@@ -51,8 +56,6 @@ class HourlyForecastView: UIScrollView {
                 
                 view.heightAnchor.constraint(equalTo: self.frameLayoutGuide.heightAnchor),
             ])
-            
-            self.hourlyForecastViews[index] = view
         }
         
         self.hourlyForecastViews.last?.trailingAnchor.constraint(equalTo: self.contentLayoutGuide.trailingAnchor,
