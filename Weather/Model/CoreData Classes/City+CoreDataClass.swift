@@ -2,7 +2,7 @@ import Foundation
 import CoreData
 
 
-public class City: NSManagedObject {
+public class City: NSManagedObject, CityDataProviding {
     
     override public init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
         super.init(entity: entity, insertInto: context)

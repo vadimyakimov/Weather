@@ -12,17 +12,15 @@ class DailyForecastView: UIView {
     let dailyViewCornerRadius: CGFloat = 20
     let verticalSpacing: CGFloat
     
-    private var dailyForecastViews: [OneDayView]
+    private var dailyForecastViews: [OneDayView] = (0..<5).map { _ in
+        let view = OneDayView.instanceFronNib()
+        view.configure()
+        return view
+    }
     
     init(verticalSpacing: CGFloat) {
         self.verticalSpacing = verticalSpacing
-        
-        self.dailyForecastViews = (0..<5).map { _ in
-            let view = OneDayView.instanceFronNib()
-            view.configure()
-            return view
-        }
-        
+                
         super.init(frame: .zero)
         
         self.configure()
@@ -56,7 +54,7 @@ class DailyForecastView: UIView {
         self.dailyForecastViews.last?.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
     }
     
-    func updateForecast(_ dailyForecast: [DailyForecast]?, isImperial: Bool) {        
+    func updateForecast(_ dailyForecast: [DailyForecastProviding]?, isImperial: Bool) {
                 
         guard let data = dailyForecast,
               data.count == self.dailyForecastViews.count else { return }

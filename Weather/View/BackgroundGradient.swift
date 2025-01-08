@@ -12,7 +12,7 @@ class BackgroundGradient: CAGradientLayer {
     
     // MARK: - Properties
     
-    var isDayTime: Bool? {
+    var isDayTime: Bool = true {
         didSet {
             if oldValue != self.isDayTime {
                 self.updateGradient()
@@ -48,8 +48,7 @@ class BackgroundGradient: CAGradientLayer {
     // MARK: - Funcs
     
     private func updateGradient() {
-        let isDayTime = self.isDayTime ?? true
-        self.colors = isDayTime ? self.dayColors : self.nightColors
+        self.colors = self.isDayTime ? self.dayColors : self.nightColors
     }
     
 }

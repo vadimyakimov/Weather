@@ -38,7 +38,7 @@ class NetworkManager {
         }
     }
     
-    func getCurrentWeather(by cityKey: String, for context: NSManagedObjectContext) async -> CurrentWeather? {
+    func getCurrentWeather(by cityKey: String, for context: NSManagedObjectContext) async -> CurrentWeatherProviding? {
         
         let url = "\(String(.baseURL))/currentconditions/v1/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)"
         
@@ -48,7 +48,7 @@ class NetworkManager {
         return currentWeather
     }
     
-    func getHourlyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [HourlyForecast]? {
+    func getHourlyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [HourlyForecastProviding]? {
         
         let url = "\(String(.baseURL))/forecasts/v1/hourly/12hour/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)&metric=true"
         
@@ -57,7 +57,7 @@ class NetworkManager {
         return hourlyForecast
     }
     
-    func getDailyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [DailyForecast]? {
+    func getDailyForecast(by cityKey: String, for context: NSManagedObjectContext) async -> [DailyForecastProviding]? {
         
         let url = "\(String(.baseURL))/forecasts/v1/daily/5day/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)&metric=true"
         
@@ -66,7 +66,7 @@ class NetworkManager {
         return dailyForecast
     }
     
-    func autocomplete(for text: String, context: NSManagedObjectContext) async -> [City]? {
+    func autocomplete(for text: String, context: NSManagedObjectContext) async -> [CityDataProviding]? {
         
         guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
         
@@ -77,7 +77,7 @@ class NetworkManager {
         return parsedCityArray
     }
     
-    func geopositionCity(for location: CLLocationCoordinate2D, context: NSManagedObjectContext) async -> City? {
+    func geopositionCity(for location: CLLocationCoordinate2D, context: NSManagedObjectContext) async -> CityDataProviding? {
         let url = "\(String(.baseURL))/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.languageURLKey)"
         
         let json = await self.getJSON(from: url)
@@ -113,11 +113,11 @@ class NetworkManager {
     
     //MARK: - Parsing functions
     
-    private func parseHourlyForecast(for context: NSManagedObjectContext, data: Any?) -> [HourlyForecast]? {
+    private func parseHourlyForecast(for context: NSManagedObjectContext, data: Any?) -> [HourlyForecastProviding]? {
         
         guard let dataArray = data as? [[String : Any]] else { return nil }
         
-        var hourlyForecastArray: [HourlyForecast] = []
+        var hourlyForecastArray: [HourlyForecastProviding] = []
         
         for dataDictionary in dataArray {
             guard let hourlyForecastItem = HourlyForecast(for: context, data: dataDictionary) else { continue }
@@ -126,11 +126,11 @@ class NetworkManager {
         return hourlyForecastArray
     }
     
-    private func parseDailyForecast(for context: NSManagedObjectContext, data: Any?) -> [DailyForecast]? {
+    private func parseDailyForecast(for context: NSManagedObjectContext, data: Any?) -> [DailyForecastProviding]? {
         
         guard let dataArray = (data as? [String : Any])?[String(.dailyForecast)] as? [[String : Any]] else { return nil }
         
-        var dailyForecastArray: [DailyForecast] = []
+        var dailyForecastArray: [DailyForecastProviding] = []
         
         for dataDictionary in dataArray {
             guard let dailyForecastItem = DailyForecast(for: context, data: dataDictionary) else { continue }
@@ -139,11 +139,11 @@ class NetworkManager {
         return dailyForecastArray
     }
     
-    private func parseCityAutocompleteArray(from data: Any?, context: NSManagedObjectContext) -> [City]? {
+    private func parseCityAutocompleteArray(from data: Any?, context: NSManagedObjectContext) -> [CityDataProviding]? {
         
         guard let dataArray = data as? [[String : Any]] else { return nil }
         
-        var autocompletedCitiesArray = [City]()        
+        var autocompletedCitiesArray = [CityDataProviding]()
         
         for dataDictionary in dataArray {
             if let key = dataDictionary[String(.cityID)] as? String,
@@ -158,7 +158,7 @@ class NetworkManager {
         return autocompletedCitiesArray
     }
     
-    private func parseGeopositionCity(from data: Any?, context: NSManagedObjectContext) -> City? {
+    private func parseGeopositionCity(from data: Any?, context: NSManagedObjectContext) -> CityDataProviding? {
         
         guard let dataDictionary = data as? [String : Any] else { return nil }
         guard let key = dataDictionary[String(.cityID)] as? String else { return nil }

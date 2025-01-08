@@ -9,17 +9,17 @@ import Foundation
 import UIKit
 import CoreData
 
-class WeatherInfoViewModel: NSObject {
+class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
     
     // MARK: - Properties
     
     weak var delegate: WeatherInfoViewDelegate?
     
-    let city: City
+    let city: CityDataProviding
     
-    let currentWeather: Bindable<CurrentWeather?>
-    let hourlyForecast: Bindable<[HourlyForecast]?>
-    let dailyForecast: Bindable<[DailyForecast]?>
+    let currentWeather: Bindable<CurrentWeatherProviding?>
+    let hourlyForecast: Bindable<[HourlyForecastProviding]?>
+    let dailyForecast: Bindable<[DailyForecastProviding]?>
     
     let refreshTimeout: TimeInterval = 600
     
@@ -31,12 +31,12 @@ class WeatherInfoViewModel: NSObject {
     
     // MARK: - Initializers
     
-    init(city: City) {
+    init(city: CityDataProviding) {
         self.city = city
         
         self.currentWeather = Bindable(city.currentWeather)
-        self.hourlyForecast = Bindable(city.hourlyForecast?.array as? [HourlyForecast])
-        self.dailyForecast = Bindable(city.dailyForecast?.array as? [DailyForecast])
+        self.hourlyForecast = Bindable(city.hourlyForecast?.array as? [HourlyForecastProviding])
+        self.dailyForecast = Bindable(city.dailyForecast?.array as? [DailyForecastProviding])
         
         let isImperial = UserDefaults.standard.bool(forKey: String(.temperatureUnitSetting))
         self.isImperial = Bindable(isImperial)
@@ -67,7 +67,7 @@ class WeatherInfoViewModel: NSObject {
         UserDefaults.standard.addObserver(self, forKeyPath: String(.temperatureUnitSetting), options: [.new], context: nil)
     }
     
-    func refreshWeather(isForcedUpdate: Bool = false) {
+    func refreshWeather(isForcedUpdate: Bool) {
         
         let lastUpdated = self.city.lastUpdated
         
@@ -129,16 +129,16 @@ class WeatherInfoViewModel: NSObject {
     
     // MARK: - CRUD
     
-    func updateData(_ data: CurrentWeather, context: NSManagedObjectContext) {
+    func updateData(_ data: CurrentWeatherProviding, context: NSManagedObjectContext) {
         
         self.safePerformAndSave(context) {
             
-            let city = try? context.existingObject(with: self.city.objectID) as? City
+            let city = try? context.existingObject(with: self.city.objectID) as? CityDataProviding
             
             self.delete(object: city?.currentWeather, at: context)
             
             self.currentWeather.value = data
-            self.currentWeather.value?.city = city
+            (self.currentWeather.value as? CityManagedEntity)?.city = city as? City
             
             city?.lastUpdated.currentWeather = Date()
         } completion: {
@@ -149,35 +149,35 @@ class WeatherInfoViewModel: NSObject {
         
     }
     
-    func updateData(_ data: [HourlyForecast], context: NSManagedObjectContext) {
+    func updateData(_ data: [HourlyForecastProviding], context: NSManagedObjectContext) {
         
         self.safePerformAndSave(context) {
             
-            let city = try? context.existingObject(with: self.city.objectID) as? City
+            let city = try? context.existingObject(with: self.city.objectID) as? CityDataProviding
             
             if let array = city?.hourlyForecast?.array, !array.isEmpty {
                 array.forEach({ self.delete(object: $0, at: context) })
             }
             
             self.hourlyForecast.value = data
-            self.hourlyForecast.value?.forEach { $0.city = city }
+            self.hourlyForecast.value?.forEach { ($0 as? CityManagedEntity)?.city = city as? City }
             
             city?.lastUpdated.hourlyForecast = Date()
         }
     }
     
-    func updateData(_ data: [DailyForecast], context: NSManagedObjectContext) {
+    func updateData(_ data: [DailyForecastProviding], context: NSManagedObjectContext) {
         
         self.safePerformAndSave(context) {
             
-            let city = try? context.existingObject(with: self.city.objectID) as? City
+            let city = try? context.existingObject(with: self.city.objectID) as? CityDataProviding
             
             if let array = city?.dailyForecast?.array, !array.isEmpty {
                 array.forEach({ self.delete(object: $0, at: context) })
             }
             
             self.dailyForecast.value = data
-            self.dailyForecast.value?.forEach { $0.city = city }
+            self.dailyForecast.value?.forEach { ($0 as? CityManagedEntity)?.city = city as? City }
             
             city?.lastUpdated.dailyForecast = Date()
             

@@ -4,22 +4,24 @@ class WeatherInfoView: UIView {
     
     // MARK: - Properties
         
-    let viewModel: WeatherInfoViewModel
+    let viewModel: WeatherInfoViewModelProtocol
         
     private let verticalSpacing: CGFloat = 30
     private let innerOffset: CGFloat = 20
         
-    private let currentWeatherView = CurrentWeatherView.instanceFromNib()
-    
+    private let currentWeatherView: CurrentWeatherView
     private let hourlyForecastContainer: HourlyForecastView
     private let dailyForecastContainer: DailyForecastView
             
     // MARK: - Initializers
     
-    init(viewModel: WeatherInfoViewModel) {
+    init(viewModel: WeatherInfoViewModelProtocol) {
         self.viewModel = viewModel
+        
+        self.currentWeatherView = CurrentWeatherView.instanceFromNib()
         self.hourlyForecastContainer = HourlyForecastView(verticalSpacing: self.verticalSpacing, innerOffset: self.innerOffset)
         self.dailyForecastContainer = DailyForecastView(verticalSpacing: self.verticalSpacing)
+        
         super.init(frame: .zero)
         
         self.configure()
@@ -60,7 +62,7 @@ class WeatherInfoView: UIView {
         self.configureHourlyForecast()
         self.configureDailyForecast()
         
-        self.viewModel.refreshWeather()
+        self.viewModel.refreshWeather(isForcedUpdate: false)
     }
     
     func refreshWeather() {
@@ -120,7 +122,7 @@ class WeatherInfoView: UIView {
     
     // MARK: - UI data update functions
         
-    private func updateCurrentWeather(_ currentWeather: CurrentWeather?) {
+    private func updateCurrentWeather(_ currentWeather: CurrentWeatherProviding?) {
         guard let data = currentWeather else { return }
         
         let temperature = Temperature(temperatureCelsius: data.temperatureCelsius,

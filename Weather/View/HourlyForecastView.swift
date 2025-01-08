@@ -12,18 +12,16 @@ class HourlyForecastView: UIScrollView {
     let verticalSpacing: CGFloat
     let innerOffset: CGFloat
     
-    private var hourlyForecastViews: [OneHourView]
+    private var hourlyForecastViews: [OneHourView] = (0..<12).map { _ in
+        let view = OneHourView.instanceFromNib()
+        view.configure()
+        return view
+    }
 
     init(verticalSpacing: CGFloat, innerOffset: CGFloat) {
         self.verticalSpacing = verticalSpacing
         self.innerOffset = innerOffset
-        
-        self.hourlyForecastViews = (0..<12).map { _ in
-            let view = OneHourView.instanceFromNib()
-            view.configure()
-            return view
-        }
-        
+                
         super.init(frame: .zero)
         
         self.configure()
@@ -62,7 +60,7 @@ class HourlyForecastView: UIScrollView {
                                                                  constant: -self.innerOffset).isActive = true
     }
     
-    func updateForecast(_ hourlyForecast: [HourlyForecast]?, isImperial: Bool) {
+    func updateForecast(_ hourlyForecast: [HourlyForecastProviding]?, isImperial: Bool) {
                 
         guard let data = hourlyForecast,
               data.count == self.hourlyForecastViews.count else { return }

@@ -10,7 +10,7 @@ import CoreData
 
 class CitiesListViewController: UIViewController {
     
-    private let viewModel: CitiesListViewModel
+    private let viewModel: CitiesListViewModelProtocol
     weak var delegate: CitiesListViewControllerDelegate?
 
     private let citiesListTableView = UITableView()
@@ -36,7 +36,7 @@ class CitiesListViewController: UIViewController {
         
     // MARK: - Initializers
     
-    init(viewModel: CitiesListViewModel) {
+    init(viewModel: CitiesListViewModelProtocol) {
         self.viewModel = viewModel
         
         super.init(nibName: nil, bundle: nil)
@@ -51,7 +51,7 @@ class CitiesListViewController: UIViewController {
     // MARK: - IBActions
 
     @IBAction private func goToSearchScreen() {
-        let isSearchRoot = self.viewModel.isListEmpty ? true : false
+        let isSearchRoot = self.viewModel.isEmpty ? true : false
         let searchScreen = SearchScreenViewController(isRoot: isSearchRoot,
                                                       viewModel: self.viewModel.createSearchScreenViewModel())
         if isSearchRoot {
@@ -115,7 +115,7 @@ extension CitiesListViewController: UITableViewDelegate {
         if editingStyle == .delete {
             self.viewModel.removeCityAt(indexPath.row)
         }
-        if self.viewModel.isListEmpty {
+        if self.viewModel.isEmpty {
             self.goToSearchScreen()
         }
     }
@@ -133,9 +133,8 @@ extension CitiesListViewController: UITableViewDragDelegate, UITableViewDropDele
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         
-        let item = self.viewModel.city(at: indexPath.row) 
-        
-        guard !item.isLocated else { return [] }
+        guard let item = self.viewModel.city(at: indexPath.row),
+              !item.isLocated else { return [] }
         
         let itemProvider = NSItemProvider(object: item.name as NSString)
         let dragItem = UIDragItem(itemProvider: itemProvider)

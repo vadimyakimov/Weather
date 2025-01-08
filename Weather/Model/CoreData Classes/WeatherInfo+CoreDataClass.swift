@@ -2,7 +2,7 @@ import Foundation
 import CoreData
 
 
-public class WeatherInfo: NSManagedObject {
+public class WeatherInfo: NSManagedObject, WeatherInfoProviding {
     
     override public init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
         super.init(entity: entity, insertInto: context)
@@ -26,7 +26,7 @@ public class WeatherInfo: NSManagedObject {
         self.weatherText = weatherText
     }
     
-    func fahrenheitFromCelsius(_ celsius: Double) -> Int16 {
+    private func fahrenheitFromCelsius(_ celsius: Double) -> Int16 {
         let fahrenheit = ((9 * celsius) / 5) + 32
         return Int16(round(fahrenheit))
     }

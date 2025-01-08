@@ -18,6 +18,9 @@
 		DD1B00D02CFE350700D761C6 /* SearchScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD1B00CF2CFE350700D761C6 /* SearchScreenViewModel.swift */; };
 		DD240CEC27B27BA800FF6F77 /* WeatherInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD240CEB27B27BA800FF6F77 /* WeatherInfoView.swift */; };
 		DD2B31412CFF0D1D007154ED /* CitiesPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2B31402CFF0D1D007154ED /* CitiesPageViewController.swift */; };
+		DD39723A2D2E74AD0089450F /* Protocols Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3972392D2E74A70089450F /* Protocols Model.swift */; };
+		DD39723C2D2EB4E30089450F /* Protocols ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD39723B2D2EB4DB0089450F /* Protocols ViewModel.swift */; };
+		DD39723E2D2EC4C40089450F /* GeoDetectingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD39723D2D2EC4C30089450F /* GeoDetectingState.swift */; };
 		DD405D6A279BEED20083C2F2 /* CityViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD405D69279BEED20083C2F2 /* CityViewControllerDelegate.swift */; };
 		DD423AF327B5365900CF4E25 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = DD423AF527B5365900CF4E25 /* Localizable.strings */; };
 		DD427A3F2D16E9480062FCD0 /* BackgroundGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD427A3E2D16E9480062FCD0 /* BackgroundGradient.swift */; };
@@ -78,6 +81,9 @@
 		DD1B00CF2CFE350700D761C6 /* SearchScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchScreenViewModel.swift; sourceTree = "<group>"; };
 		DD240CEB27B27BA800FF6F77 /* WeatherInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherInfoView.swift; sourceTree = "<group>"; };
 		DD2B31402CFF0D1D007154ED /* CitiesPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitiesPageViewController.swift; sourceTree = "<group>"; };
+		DD3972392D2E74A70089450F /* Protocols Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Protocols Model.swift"; sourceTree = "<group>"; };
+		DD39723B2D2EB4DB0089450F /* Protocols ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Protocols ViewModel.swift"; sourceTree = "<group>"; };
+		DD39723D2D2EC4C30089450F /* GeoDetectingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoDetectingState.swift; sourceTree = "<group>"; };
 		DD405D69279BEED20083C2F2 /* CityViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityViewControllerDelegate.swift; sourceTree = "<group>"; };
 		DD423AF427B5365900CF4E25 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		DD423AF627B5365D00CF4E25 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -191,10 +197,9 @@
 		DD2B31422CFF0D5C007154ED /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				DDDED8072796B257009C621C /* SearchScreenViewModelDelegate.swift */,
-				DDE67CEE2D15BFBF006F114B /* CitiesListViewControllerDelegate.swift */,
-				DD405D69279BEED20083C2F2 /* CityViewControllerDelegate.swift */,
-				DD01952D2CFDBB2B009C1366 /* WeatherInfoViewDelegate.swift */,
+				DD3972392D2E74A70089450F /* Protocols Model.swift */,
+				DD39723B2D2EB4DB0089450F /* Protocols ViewModel.swift */,
+				DD3972382D2E6CF40089450F /* Delegates */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -212,6 +217,17 @@
 				DDEE8422279B6E7300F17C1E /* OneDayView.swift */,
 			);
 			path = XIBs;
+			sourceTree = "<group>";
+		};
+		DD3972382D2E6CF40089450F /* Delegates */ = {
+			isa = PBXGroup;
+			children = (
+				DDDED8072796B257009C621C /* SearchScreenViewModelDelegate.swift */,
+				DDE67CEE2D15BFBF006F114B /* CitiesListViewControllerDelegate.swift */,
+				DD405D69279BEED20083C2F2 /* CityViewControllerDelegate.swift */,
+				DD01952D2CFDBB2B009C1366 /* WeatherInfoViewDelegate.swift */,
+			);
+			path = Delegates;
 			sourceTree = "<group>";
 		};
 		DDA571C327DB57E6007A67CA /* Extensions */ = {
@@ -239,6 +255,7 @@
 		DDB49C162D207B6B003295BA /* Enum */ = {
 			isa = PBXGroup;
 			children = (
+				DD39723D2D2EC4C30089450F /* GeoDetectingState.swift */,
 				DDB49C1B2D207C06003295BA /* StorageKey.swift */,
 				DDB49C192D207B9D003295BA /* FetchingStringKeys.swift */,
 				DDB49C172D207B83003295BA /* ParsingStringKeys.swift */,
@@ -253,10 +270,10 @@
 				DD54FE5A27C383D90059B7B3 /* City+CoreDataProperties.swift */,
 				DD54FE6227C383D90059B7B3 /* CurrentWeather+CoreDataClass.swift */,
 				DD54FE5D27C383D90059B7B3 /* CurrentWeather+CoreDataProperties.swift */,
-				DD54FE6327C383D90059B7B3 /* DailyForecast+CoreDataClass.swift */,
-				DD54FE5F27C383D90059B7B3 /* DailyForecast+CoreDataProperties.swift */,
 				DD54FE6027C383D90059B7B3 /* HourlyForecast+CoreDataClass.swift */,
 				DD54FE6427C383D90059B7B3 /* HourlyForecast+CoreDataProperties.swift */,
+				DD54FE6327C383D90059B7B3 /* DailyForecast+CoreDataClass.swift */,
+				DD54FE5F27C383D90059B7B3 /* DailyForecast+CoreDataProperties.swift */,
 				DD54FE5C27C383D90059B7B3 /* LastUpdated+CoreDataClass.swift */,
 				DD54FE5E27C383D90059B7B3 /* LastUpdated+CoreDataProperties.swift */,
 				DD54FE6127C383D90059B7B3 /* WeatherInfo+CoreDataClass.swift */,
@@ -461,6 +478,7 @@
 				DD0195362CFDE0FC009C1366 /* Collection+extension.swift in Sources */,
 				DD54FE6727C383D90059B7B3 /* City+CoreDataClass.swift in Sources */,
 				DD54FE6D27C383D90059B7B3 /* WeatherInfo+CoreDataClass.swift in Sources */,
+				DD39723E2D2EC4C40089450F /* GeoDetectingState.swift in Sources */,
 				DDEE841F279B543B00F17C1E /* OneHourView.swift in Sources */,
 				DD54FE6C27C383D90059B7B3 /* HourlyForecast+CoreDataClass.swift in Sources */,
 				DD91F08D2D03331600243307 /* HourlyForecastView.swift in Sources */,
@@ -470,9 +488,11 @@
 				DDDCF71C27BDAC7C00CDD70A /* Cities.xcdatamodeld in Sources */,
 				DDC59EF527B00E970089647C /* CityTableViewCell.swift in Sources */,
 				DD54FE6B27C383D90059B7B3 /* DailyForecast+CoreDataProperties.swift in Sources */,
+				DD39723A2D2E74AD0089450F /* Protocols Model.swift in Sources */,
 				DD01952E2CFDBB2B009C1366 /* WeatherInfoViewDelegate.swift in Sources */,
 				DDE67CF12D15BFDF006F114B /* CitiesListViewModel.swift in Sources */,
 				DDF9A05027D9D8E800623939 /* NetworkManager.swift in Sources */,
+				DD39723C2D2EB4E30089450F /* Protocols ViewModel.swift in Sources */,
 				DDE67CF32D15BFFD006F114B /* CitiesListViewController.swift in Sources */,
 				DD54FE6E27C383D90059B7B3 /* CurrentWeather+CoreDataClass.swift in Sources */,
 				DDF00A162D19EEB400C34560 /* Temperature.swift in Sources */,
@@ -657,9 +677,8 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -692,9 +711,8 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

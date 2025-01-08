@@ -11,7 +11,7 @@ class SearchScreenViewController: UIViewController {
     
     // MARK: - Properties
     
-    private var viewModel: SearchScreenViewModel
+    private var viewModel: SearchScreenViewModelProtocol
     
     private let isRoot: Bool
     
@@ -37,7 +37,7 @@ class SearchScreenViewController: UIViewController {
     
     // MARK: - Initializers
     
-    init(isRoot: Bool = false, viewModel: SearchScreenViewModel) {
+    init(isRoot: Bool = false, viewModel: SearchScreenViewModelProtocol) {
         self.viewModel = viewModel
         self.isRoot = isRoot
         super.init(nibName: nil, bundle: nil)
@@ -156,7 +156,7 @@ class SearchScreenViewController: UIViewController {
         let errorMessage = "Check if your location is allowed in the settings, or try again later".localized()
         
         self.alertController = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
-        var alert = self.alertController
+        let alert = self.alertController
         
         let settingsAction = UIAlertAction(title: "Settings".localized(), style: .default) { action in
             if let bundleId = Bundle.main.bundleIdentifier,
@@ -217,7 +217,7 @@ extension SearchScreenViewController: UITableViewDataSource {
         if indexPath.section == 0 {
             cell.configure(width: width, text: "My location".localized(), isLocation: true)
         } else {
-            guard let autocompletedCity = self.viewModel.getCity(atIndexPath: indexPath) else { return UITableViewCell() }
+            guard let autocompletedCity = self.viewModel.city(at: indexPath.row) else { return UITableViewCell() }
             cell.configure(width: width, text: autocompletedCity.name)
         }
         return cell

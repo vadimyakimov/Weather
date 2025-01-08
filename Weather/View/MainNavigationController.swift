@@ -11,10 +11,18 @@ class MainNavigationController: UINavigationController {
     
     // MARK: - Properties
     
-    private let viewModel = MainNavigationViewModel()
+    private let viewModel: MainNavigationViewModelProtocol
     
-    @objc dynamic var string: String?
+    // MARK: - Initializers
     
+    init(viewModel: MainNavigationViewModelProtocol) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
         
     // MARK: - Lifecycle
     
@@ -45,8 +53,8 @@ class MainNavigationController: UINavigationController {
     // MARK: - Navigation funcs
     
     private func createRootViewController() -> UIViewController {
-        if self.viewModel.isSearchRoot {
-            let searchScreen = SearchScreenViewController(isRoot: self.viewModel.isSearchRoot,
+        if self.viewModel.isEmpty {
+            let searchScreen = SearchScreenViewController(isRoot: self.viewModel.isEmpty,
                                                           viewModel: self.viewModel.createSearchScreenViewModel())
             return searchScreen
         } else {

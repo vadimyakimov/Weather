@@ -11,7 +11,7 @@ class CityViewController: UIViewController {
 
     // MARK: - Properties
     
-    let viewModel: CityViewModel
+    let viewModel: CityViewModelProtocol
     
     weak var delegate: CityViewControllerDelegate?
 
@@ -28,7 +28,7 @@ class CityViewController: UIViewController {
 
     // MARK: - Initializers
 
-    init(viewModel: CityViewModel, topOffset: CGFloat) {
+    init(viewModel: CityViewModelProtocol, topOffset: CGFloat) {
         self.viewModel = viewModel
         self.weatherInfoView = WeatherInfoView(viewModel: self.viewModel.createWeatherInfoViewModel())
         self.topOffset = topOffset

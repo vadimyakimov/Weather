@@ -6,14 +6,14 @@
 //
 import CoreData
 
-class MainNavigationViewModel {
+class MainNavigationViewModel: MainNavigationViewModelProtocol {
     
     // MARK: - Properties
     
     private let coreData = CitiesCoreDataStack()
     private let frc: NSFetchedResultsController<City>
         
-    var isSearchRoot: Bool {
+    var isEmpty: Bool {
         return self.frc.fetchedObjects?.isEmpty ?? true
     }
     
@@ -33,11 +33,11 @@ class MainNavigationViewModel {
        
     // MARK: - Create view models
         
-    func createCitiesPageViewModel() -> CitiesPageViewModel {
+    func createCitiesPageViewModel() -> CitiesPageViewModelProtocol {
         return CitiesPageViewModel(fetchedResultsController: self.frc)
     }
     
-    func createSearchScreenViewModel() -> SearchScreenViewModel {
+    func createSearchScreenViewModel() -> SearchScreenViewModelProtocol {
         return SearchScreenViewModel(fetchedResultsController: self.frc)
     }
 }

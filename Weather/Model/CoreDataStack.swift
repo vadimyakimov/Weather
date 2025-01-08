@@ -1,12 +1,10 @@
-import Foundation
 import CoreData
-
 
 class CitiesCoreDataStack {
         
     // MARK: - Core Data stack
     
-    private lazy var persistentContainer: NSPersistentContainer = {
+    private let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: String(.coreDataContainerName))
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -16,16 +14,14 @@ class CitiesCoreDataStack {
         return container
     }()
         
-    var context: NSManagedObjectContext {
-        return self.persistentContainer.viewContext
-    }
+    lazy var context: NSManagedObjectContext = {
+        self.persistentContainer.viewContext
+    }()
 
-    let tempContext: NSManagedObjectContext
-          
-    // MARK: - Initializers
+    lazy var tempContext: NSManagedObjectContext = {
+        let tempContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        tempContext.parent = self.context
+        return tempContext
+    }()
     
-    init() {
-        self.tempContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        self.tempContext.parent = self.context
-    }
 }

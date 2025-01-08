@@ -13,7 +13,7 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Properties
 
-    private let viewModel: CitiesPageViewModel
+    private let viewModel: CitiesPageViewModelProtocol
 
     override var preferredStatusBarStyle: UIStatusBarStyle { return .lightContent }
 
@@ -68,7 +68,7 @@ class CitiesPageViewController: EMPageViewController {
     
     // MARK: - Initializers
     
-    init(viewModel: CitiesPageViewModel) {
+    init(viewModel: CitiesPageViewModelProtocol) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }

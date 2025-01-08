@@ -8,19 +8,19 @@
 import Foundation
 import CoreData
 
-class CitiesListViewModel: NSObject {
+class CitiesListViewModel: NSObject, CitiesListViewModelProtocol {
     
     // MARK: - Properties
         
     let frc: NSFetchedResultsController<City>
     
-    private var citiesList: [City] {
+    private var citiesList: [CityDataProviding] {
         self.frc.fetchedObjects ?? []
     }
     var hasLocatedCity: Bool {
         self.citiesList.first?.isLocated ?? false
     }
-    var isListEmpty: Bool {
+    var isEmpty: Bool {
         self.citiesList.isEmpty
     }
     var citiesCount: Int {
@@ -84,8 +84,8 @@ class CitiesListViewModel: NSObject {
     
     // MARK: - Flow funcs
     
-    func city(at index: Int) -> City {
-        return self.citiesList[index]
+    func city(at index: Int) -> CityDataProviding? {
+        return self.citiesList[safe: index]
     }
     
     func getIndexPathsArray(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) -> [IndexPath] {
@@ -103,7 +103,7 @@ class CitiesListViewModel: NSObject {
     
     // MARK: - Create view model
     
-    func createSearchScreenViewModel() -> SearchScreenViewModel {
+    func createSearchScreenViewModel() -> SearchScreenViewModelProtocol {
         return SearchScreenViewModel(fetchedResultsController: self.frc)
     }
 }

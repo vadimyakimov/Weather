@@ -2,7 +2,7 @@ import Foundation
 import CoreData
 
 
-public class DailyForecast: NSManagedObject {
+public class DailyForecast: NSManagedObject, DailyForecastProviding, CityManagedEntity {    
     
     override public init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
         super.init(entity: entity, insertInto: context)
@@ -16,7 +16,7 @@ public class DailyForecast: NSManagedObject {
          nightTemperatureCelsius: Double,
          nightWeatherIcon: Int,
          nightWeatherText: String) {
-               
+                       
         if let entity = NSEntityDescription.entity(forEntityName: String(DailyForecast.self), in: context) {
             super.init(entity: entity, insertInto: context)
         } else {
@@ -36,7 +36,7 @@ public class DailyForecast: NSManagedObject {
                                         weatherText: nightWeatherText)
     }
     
-    init?(for context: NSManagedObjectContext, data: [String : Any]) {
+    convenience init?(for context: NSManagedObjectContext, data: [String : Any]) {
         
         let temperatureDictionary = data[String(.temperature)] as? [String : Any]
         let temperatureMinimumDictionary = temperatureDictionary?[String(.minimum)] as? [String : Any]
@@ -54,23 +54,14 @@ public class DailyForecast: NSManagedObject {
         
         guard let epochDate = data[String(.dailyDate)] as? TimeInterval else { return nil }
         let date = Date(timeIntervalSince1970: epochDate)
-                
-        if let entity = NSEntityDescription.entity(forEntityName: String(DailyForecast.self), in: context) {
-            super.init(entity: entity, insertInto: context)
-        } else {
-            super.init(context: context)
-        }
         
-        self.forecastDate = date
-                
-        self.dayWeather = WeatherInfo(for: context,
-                                      temperatureCelsius: temperatureMaximumValue,
-                                      weatherIcon: dayIcon,
-                                      weatherText: dayText)
-        
-        self.nightWeather = WeatherInfo(for: context,
-                                        temperatureCelsius: temperatureMinimumValue,
-                                        weatherIcon: nightIcon,
-                                        weatherText: nightText)
+        self.init(for: context,
+                  forecastDate: date,
+                  dayTemperatureCelsius: temperatureMaximumValue,
+                  dayWeatherIcon: dayIcon,
+                  dayWeatherText: dayText,
+                  nightTemperatureCelsius: temperatureMinimumValue,
+                  nightWeatherIcon: nightIcon,
+                  nightWeatherText: nightText)
     }
 }

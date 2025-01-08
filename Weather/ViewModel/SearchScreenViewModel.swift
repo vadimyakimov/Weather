@@ -9,19 +9,13 @@ import Foundation
 import CoreLocation
 import CoreData
 
-enum GeoDetectingState {
-    case initial
-    case loading
-    case error
-}
-
-class SearchScreenViewModel: NSObject {
+class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
     
     // MARK: - Properties
     
     weak var delegate: SearchScreenViewControllerDelegate?
     
-    var citiesAutocompleteArray = Bindable([City]())
+    var citiesAutocompleteArray = Bindable([CityDataProviding]())
     var citiesCount: Int {
         get {
             return self.citiesAutocompleteArray.value.count
@@ -30,7 +24,7 @@ class SearchScreenViewModel: NSObject {
     
     private let frc: NSFetchedResultsController<City>
     private let tempContext: NSManagedObjectContext
-    private var savedCitiesList: [City]? {
+    private var savedCitiesList: [CityDataProviding]? {
         return self.frc.fetchedObjects
     }
     
@@ -51,7 +45,7 @@ class SearchScreenViewModel: NSObject {
     
     // MARK: - Save to Core Data
     
-    private func addNewCity(_ city: City) -> Int {
+    private func addNewCity(_ city: CityDataProviding) -> Int {
         
         let count = self.savedCitiesList?.count ?? 0
         
@@ -85,12 +79,12 @@ class SearchScreenViewModel: NSObject {
         if let currentWeather = city.currentWeather {
             context.delete(currentWeather)
         }
-        if let hourlyForecast = city.hourlyForecast?.array as? [HourlyForecast] {
+        if let hourlyForecast = city.hourlyForecast?.array as? [CityManagedEntity] {
             for item in hourlyForecast {
                 context.delete(item)
             }
         }
-        if let dailyForecast = city.dailyForecast?.array as? [DailyForecast] {
+        if let dailyForecast = city.dailyForecast?.array as? [CityManagedEntity] {
             for item in dailyForecast {
                 context.delete(item)
             }
@@ -136,9 +130,8 @@ class SearchScreenViewModel: NSObject {
         }
     }
     
-    func getCity(atIndexPath indexPath: IndexPath) -> City? {
-        guard indexPath.section == 1 else { return nil }
-        return self.citiesAutocompleteArray.value[safe: indexPath.row]
+    func city(at index: Int) -> CityDataProviding? {
+        return self.citiesAutocompleteArray.value[safe: index]
     }
     
     // MARK: - Detecting city funcs
@@ -147,7 +140,7 @@ class SearchScreenViewModel: NSObject {
         if indexPath.section == 0 {
             self.requestLocation()
         } else {
-            guard let city = self.getCity(atIndexPath: indexPath) else { return }
+            guard let city = self.city(at: indexPath.row) else { return }
             
             if let index = self.savedCitiesList?.firstIndex(where: { $0.key == city.key }) {
                 Task { [unowned self] in

@@ -7,13 +7,13 @@
 
 import CoreData
 
-class CitiesPageViewModel {
-    
+class CitiesPageViewModel: CitiesPageViewModelProtocol {
+  
     // MARK: - Properties
     
     let frc: NSFetchedResultsController<City>
     
-    private var citiesList: [City] {
+    private var citiesList: [CityDataProviding] {
         self.frc.fetchedObjects ?? []
     }
     
@@ -25,22 +25,15 @@ class CitiesPageViewModel {
     
     init(fetchedResultsController: NSFetchedResultsController<City>) {
         self.frc = fetchedResultsController
-//        self.frc
     }
-    
-    // MARK: - CRUD
         
-    func firstIndexInCityList(of city: City) -> Int? {
-        return self.citiesList.firstIndex(of: city)
-    }
-    
     // MARK: - Create view models
     
-    func createCityViewModel(withIndex index: Int) -> CityViewModel{
+    func createCityViewModel(withIndex index: Int) -> CityViewModelProtocol{
         return CityViewModel.init(city: self.citiesList[index])
     }
         
-    func createCitiesListViewModel() -> CitiesListViewModel {
+    func createCitiesListViewModel() -> CitiesListViewModelProtocol {
         return CitiesListViewModel(fetchedResultsController: self.frc)
     }
 }

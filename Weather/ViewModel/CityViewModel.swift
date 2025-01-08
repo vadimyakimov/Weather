@@ -7,25 +7,25 @@
 
 import Foundation
 
-class CityViewModel {
+class CityViewModel: CityViewModelProtocol {
     
-    private let city: City
+    private let city: CityDataProviding
     
     var cityName: String {
         self.city.name
     }
-    var isDayTime: Bool? {
-        self.city.currentWeather?.isDayTime
+    var isDayTime: Bool {
+        self.city.currentWeather?.isDayTime ?? true
     }
     var cityId: Int {
         Int(self.city.id)
     }
     
-    init(city: City) {
+    init(city: CityDataProviding) {
         self.city = city
     }
     
-    func createWeatherInfoViewModel() -> WeatherInfoViewModel {
+    func createWeatherInfoViewModel() -> WeatherInfoViewModelProtocol {
         return WeatherInfoViewModel(city: self.city)
     }
 }
