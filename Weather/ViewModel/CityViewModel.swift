@@ -33,16 +33,8 @@ class CityViewModel: CityViewModelProtocol {
     // MARK: - Create view models
     
     func createWeatherInfoViewModel() -> WeatherInfoViewModelProtocol {
-        
-        let backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        backgroundContext.parent = self.city.managedObjectContext
-        
-        let dataParser = ParsingManager(context: backgroundContext)
         let dataLoader = JSONLoader()
-        let APIKey = APIKeys().getRandomAPIKey()
-        
-        let networkManager = NetworkManager(dataParser: dataParser, dataLoader: dataLoader, APIKey: APIKey)
-        
-        return WeatherInfoViewModel(city: self.city, networkManager: networkManager, context: backgroundContext)
+        let APIKey = APIKeys().getRandomAPIKey()                
+        return WeatherInfoViewModel(city: self.city, dataLoader: dataLoader, APIKey: APIKey)
     }
 }

@@ -15,8 +15,8 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
     
     weak var delegate: WeatherInfoViewDelegate?
     
-    private let networkManager: WeatherProviding
-    private let context: NSManagedObjectContext
+    let dataLoader: JSONDataProviding
+    let APIKey: String
     
     private let city: CityDataProviding
     
@@ -34,10 +34,10 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
     
     // MARK: - Initializers
     
-    init(city: CityDataProviding, networkManager: WeatherProviding, context: NSManagedObjectContext) {
+    init(city: CityDataProviding, dataLoader: JSONDataProviding, APIKey: String) {
         self.city = city
-        self.networkManager = networkManager
-        self.context = context
+        self.dataLoader = dataLoader
+        self.APIKey = APIKey
         
         self.currentWeather = Bindable(city.currentWeather)
         self.hourlyForecast = Bindable(city.hourlyForecast?.array as? [HourlyForecastProviding])
@@ -100,35 +100,46 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
         }
     }
     
+    func createNetworkManagerWithNewContext() -> (WeatherProviding, NSManagedObjectContext) {
+        let backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        backgroundContext.parent = self.city.managedObjectContext
+        let dataParser = ParsingManager(context: backgroundContext)
+        let networkManager = NetworkManager(dataParser: dataParser, dataLoader: self.dataLoader, APIKey: self.APIKey)
+        return (networkManager, backgroundContext)
+    }
+    
     // MARK: - Fetching data from network
      
     private func fetchCurrentWeather() async {
-        if let currentWeather = await self.networkManager.getCurrentWeather(by: self.city.key) {
-            self.updateData(currentWeather)
+        let (networkManager, context) = self.createNetworkManagerWithNewContext()
+        if let currentWeather = await networkManager.getCurrentWeather(by: self.city.key) {
+            self.updateData(currentWeather, context: context)
         }
     }
     
     private func fetchHourlyForecast() async {
-        if let hourlyForecast = await self.networkManager.getHourlyForecast(by: self.city.key) {
-            self.updateData(hourlyForecast)
+        let (networkManager, context) = self.createNetworkManagerWithNewContext()
+        if let hourlyForecast = await networkManager.getHourlyForecast(by: self.city.key) {
+            self.updateData(hourlyForecast, context: context)
         }
     }
     
     private func fetchDailyForecast() async {
-        if let dailyForecast = await self.networkManager.getDailyForecast(by: self.city.key) {
-            self.updateData(dailyForecast)
+        let (networkManager, context) = self.createNetworkManagerWithNewContext()
+        if let dailyForecast = await networkManager.getDailyForecast(by: self.city.key) {
+            self.updateData(dailyForecast, context: context)
         }
     }
     
     // MARK: - CRUD
     
-    private func updateData(_ data: CurrentWeatherProviding) {
+    private func updateData(_ data: CurrentWeatherProviding, context: NSManagedObjectContext) {
         
-        self.safePerformAndSave {
+        self.safePerformAndSave(at: context) {
             
-            let city = try? self.context.existingObject(with: self.city.objectID) as? CityDataProviding
+            let city = try? context.existingObject(with: self.city.objectID) as? CityDataProviding
             
-            self.delete(object: city?.currentWeather)
+            self.delete(object: city?.currentWeather, at: context)
             
             self.currentWeather.value = data
             (self.currentWeather.value as? CityManagedEntity)?.city = city as? City
@@ -142,14 +153,14 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
         
     }
     
-    private func updateData(_ data: [HourlyForecastProviding]) {
+    private func updateData(_ data: [HourlyForecastProviding], context: NSManagedObjectContext) {
         
-        self.safePerformAndSave {
+        self.safePerformAndSave(at: context) {
             
-            let city = try? self.context.existingObject(with: self.city.objectID) as? CityDataProviding
+            let city = try? context.existingObject(with: self.city.objectID) as? CityDataProviding
             
             if let array = city?.hourlyForecast?.array, !array.isEmpty {
-                array.forEach({ self.delete(object: $0) })
+                array.forEach({ self.delete(object: $0, at: context) })
             }
             
             self.hourlyForecast.value = data
@@ -159,14 +170,14 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
         }
     }
     
-    private func updateData(_ data: [DailyForecastProviding]) {
+    private func updateData(_ data: [DailyForecastProviding], context: NSManagedObjectContext) {
         
-        self.safePerformAndSave {
+        self.safePerformAndSave(at: context) {
             
-            let city = try? self.context.existingObject(with: self.city.objectID) as? CityDataProviding
+            let city = try? context.existingObject(with: self.city.objectID) as? CityDataProviding
             
             if let array = city?.dailyForecast?.array, !array.isEmpty {
-                array.forEach({ self.delete(object: $0) })
+                array.forEach({ self.delete(object: $0, at: context) })
             }
             
             self.dailyForecast.value = data
@@ -177,15 +188,16 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
         }
     }
     
-    private func safePerformAndSave(block: @escaping () -> Void,
+    private func safePerformAndSave(at context: NSManagedObjectContext,
+                                    block: @escaping () -> Void,
                                     completion: (() -> Void)? = nil) {
                 
-        self.context.perform {
+        context.perform {
             
             block()
             
             do {
-                try self.context.save()
+                try context.save()
                 self.city.managedObjectContext?.performAndWait {
                     do {
                         try self.city.managedObjectContext?.save()
@@ -202,9 +214,9 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
         }
     }
     
-    private func delete(object: Any?) {
+    private func delete(object: Any?, at context: NSManagedObjectContext) {
         guard let object = object as? NSManagedObject else { return }
-        self.context.delete(object)
+        context.delete(object)
     }
     
 }
