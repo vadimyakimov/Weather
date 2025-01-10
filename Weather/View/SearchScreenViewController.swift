@@ -34,6 +34,12 @@ class SearchScreenViewController: UIViewController {
         self.registerForKeyboardNotifications()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        self.autocompleteSearchController.isActive = true
+    }
+    
     
     // MARK: - Initializers
     
@@ -118,7 +124,6 @@ class SearchScreenViewController: UIViewController {
         }
         
         self.navigationItem.hidesSearchBarWhenScrolling = false
-        self.autocompleteSearchController.isActive = true
     }
     
     private func addSearchTableView() {
