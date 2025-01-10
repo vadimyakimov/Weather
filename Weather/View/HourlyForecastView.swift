@@ -9,15 +9,19 @@ import UIKit
 
 class HourlyForecastView: UIScrollView {
     
-    let verticalSpacing: CGFloat
-    let innerOffset: CGFloat
+    // MARK: - Properties
+    
+    private let verticalSpacing: CGFloat
+    private let innerOffset: CGFloat
     
     private var hourlyForecastViews: [OneHourView] = (0..<12).map { _ in
         let view = OneHourView.instanceFromNib()
         view.configure()
         return view
     }
-
+    
+    // MARK: - Initializers
+    
     init(verticalSpacing: CGFloat, innerOffset: CGFloat) {
         self.verticalSpacing = verticalSpacing
         self.innerOffset = innerOffset
@@ -31,7 +35,9 @@ class HourlyForecastView: UIScrollView {
         fatalError()
     }
     
-    func configure() {
+    // MARK: - Funcs
+    
+    private func configure() {
         
         let oneHourViewSize = OneHourView.instanceFromNib().frame.size
                 

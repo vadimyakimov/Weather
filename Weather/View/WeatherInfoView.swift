@@ -34,7 +34,7 @@ class WeatherInfoView: UIView {
     
     // MARK: - Binding functions
     
-    func bindViewModel() {        
+    private func bindViewModel() {
         self.viewModel.currentWeather.bind { [weak self] data in
             guard let self = self else { return }
             self.updateCurrentWeather(data)
@@ -57,7 +57,7 @@ class WeatherInfoView: UIView {
     
     // MARK: - Configure functions
     
-    func configure() {
+    private func configure() {
         self.configureCurrentWearher()
         self.configureHourlyForecast()
         self.configureDailyForecast()

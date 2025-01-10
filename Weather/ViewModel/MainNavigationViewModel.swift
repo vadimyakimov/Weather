@@ -38,7 +38,17 @@ class MainNavigationViewModel: MainNavigationViewModelProtocol {
     }
     
     func createSearchScreenViewModel() -> SearchScreenViewModelProtocol {
-        return SearchScreenViewModel(fetchedResultsController: self.frc)
+        
+        let backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        backgroundContext.parent = self.frc.managedObjectContext
+        
+        let dataParser = ParsingManager(context: backgroundContext)
+        let dataLoader = JSONLoader()
+        let APIKey = APIKeys().getRandomAPIKey()
+        
+        let networkManager = NetworkManager(dataParser: dataParser, dataLoader: dataLoader, APIKey: APIKey)
+        
+        return SearchScreenViewModel(fetchedResultsController: self.frc, networkManager: networkManager)
     }
 }
 

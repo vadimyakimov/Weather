@@ -15,6 +15,8 @@ class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
     
     weak var delegate: SearchScreenViewControllerDelegate?
     
+    private let networkManager: CityProviding
+    
     var citiesAutocompleteArray = Bindable([CityDataProviding]())
     var citiesCount: Int {
         get {
@@ -23,7 +25,6 @@ class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
     }
     
     private let frc: NSFetchedResultsController<City>
-    private let tempContext: NSManagedObjectContext
     private var savedCitiesList: [CityDataProviding]? {
         return self.frc.fetchedObjects
     }
@@ -36,10 +37,9 @@ class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
     
     // MARK: - Initializer
     
-    init(fetchedResultsController: NSFetchedResultsController<City>) {
+    init(fetchedResultsController: NSFetchedResultsController<City>, networkManager: CityProviding) {
         self.frc = fetchedResultsController
-        self.tempContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        self.tempContext.parent = self.frc.managedObjectContext
+        self.networkManager = networkManager
         super.init()
     }
     
@@ -125,7 +125,7 @@ class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
                 try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
                 guard !Task.isCancelled else { return }
             
-                guard let citiesArray = await NetworkManager.shared.autocomplete(for: searchText, context: self.tempContext) else { return }
+            guard let citiesArray = await self.networkManager.autocomplete(for: searchText) else { return }
                 self.citiesAutocompleteArray.value = citiesArray
         }
     }
@@ -181,8 +181,7 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
         self.isLocationLoading.value = .initial
         
         Task { [unowned self] in
-            let city = await NetworkManager.shared.geopositionCity(for: location.coordinate,
-                                                                   context: self.tempContext)
+            let city = await self.networkManager.geopositionCity(for: location.coordinate)
             guard let city else { return }
             let index = self.addNewCity(city)
             await self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)

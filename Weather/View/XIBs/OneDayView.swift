@@ -64,11 +64,11 @@ class OneDayView: UIView {
                         
             await withTaskGroup(of: Void.self) { group in
                 group.addTask {
-                    let dayImage = await NetworkManager.shared.getImage(dayIcon)
+                    let dayImage = await ImageLoader.shared.getImage(dayIcon)
                     await self.setDayIcon(dayImage)
                 }
                 group.addTask {
-                    let nightImage = await NetworkManager.shared.getImage(nightIcon)
+                    let nightImage = await ImageLoader.shared.getImage(nightIcon)
                     await self.setNightIcon(nightImage)
                 }
             }

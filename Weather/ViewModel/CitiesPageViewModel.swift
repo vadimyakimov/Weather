@@ -11,7 +11,7 @@ class CitiesPageViewModel: CitiesPageViewModelProtocol {
   
     // MARK: - Properties
     
-    let frc: NSFetchedResultsController<City>
+    private let frc: NSFetchedResultsController<City>
     
     private var citiesList: [CityDataProviding] {
         self.frc.fetchedObjects ?? []

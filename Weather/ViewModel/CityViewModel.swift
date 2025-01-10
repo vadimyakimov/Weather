@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import CoreData
 
 class CityViewModel: CityViewModelProtocol {
+    
+    // MARK: - Properties
     
     private let city: CityDataProviding
     
@@ -21,11 +24,25 @@ class CityViewModel: CityViewModelProtocol {
         Int(self.city.id)
     }
     
+    // MARK: - Initializers
+    
     init(city: CityDataProviding) {
         self.city = city
     }
     
+    // MARK: - Create view models
+    
     func createWeatherInfoViewModel() -> WeatherInfoViewModelProtocol {
-        return WeatherInfoViewModel(city: self.city)
+        
+        let backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        backgroundContext.parent = self.city.managedObjectContext
+        
+        let dataParser = ParsingManager(context: backgroundContext)
+        let dataLoader = JSONLoader()
+        let APIKey = APIKeys().getRandomAPIKey()
+        
+        let networkManager = NetworkManager(dataParser: dataParser, dataLoader: dataLoader, APIKey: APIKey)
+        
+        return WeatherInfoViewModel(city: self.city, networkManager: networkManager, context: backgroundContext)
     }
 }

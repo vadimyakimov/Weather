@@ -55,7 +55,7 @@ class OneHourView: UIView {
         self.layer.cornerRadius = self.cornerRadius
         
         Task { [unowned self] in            
-            let image = await NetworkManager.shared.getImage(weatherIcon)
+            let image = await ImageLoader.shared.getImage(weatherIcon)
             self.setIcon(image)
         }
     }

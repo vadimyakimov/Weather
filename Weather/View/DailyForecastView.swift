@@ -9,14 +9,18 @@ import UIKit
 
 class DailyForecastView: UIView {
     
-    let dailyViewCornerRadius: CGFloat = 20
-    let verticalSpacing: CGFloat
+    // MARK: - Properties
+    
+    private let dailyViewCornerRadius: CGFloat = 20
+    private let verticalSpacing: CGFloat
     
     private var dailyForecastViews: [OneDayView] = (0..<5).map { _ in
         let view = OneDayView.instanceFronNib()
         view.configure()
         return view
     }
+    
+    // MARK: - Initializers
     
     init(verticalSpacing: CGFloat) {
         self.verticalSpacing = verticalSpacing
@@ -30,7 +34,9 @@ class DailyForecastView: UIView {
         fatalError()
     }
     
-    func configure() {
+    // MARK: - Funcs
+    
+    private func configure() {
                 
         self.clipsToBounds = true
         self.layer.cornerRadius = self.dailyViewCornerRadius

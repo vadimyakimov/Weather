@@ -15,12 +15,13 @@ class CityViewController: UIViewController {
     
     weak var delegate: CityViewControllerDelegate?
 
-    var weatherInfoView: WeatherInfoView
-    let cityRefreshControl = UIRefreshControl()
-    let topOffset: CGFloat
+    private var weatherInfoView: WeatherInfoView
+    private let cityRefreshControl = UIRefreshControl()
+    private let topOffset: CGFloat
     var changeGradientColor: ((CityViewController) -> Void)?
 
     // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
@@ -48,7 +49,7 @@ class CityViewController: UIViewController {
 
     // MARK: - IBActions
 
-    @IBAction func refreshWeatherInfo() {
+    @IBAction private func refreshWeatherInfo() {
         self.weatherInfoView.refreshWeather()
     }
 
@@ -89,7 +90,7 @@ class CityViewController: UIViewController {
         ])
     }
 
-    func addFade(to scrollView: UIScrollView) {
+    private func addFade(to scrollView: UIScrollView) {
         
         var alpha = scrollView.contentOffset.y
         if alpha < 15 {
@@ -107,6 +108,7 @@ class CityViewController: UIViewController {
     }
 }
 
+// MARK: - 
 // MARK: - Scroll View Delegate
 
 extension CityViewController: UIScrollViewDelegate {

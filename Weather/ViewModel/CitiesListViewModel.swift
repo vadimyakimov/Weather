@@ -88,22 +88,19 @@ class CitiesListViewModel: NSObject, CitiesListViewModelProtocol {
         return self.citiesList[safe: index]
     }
     
-    func getIndexPathsArray(from sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) -> [IndexPath] {
-        
-        let closedRange: ClosedRange<Int>
-        
-        if sourceIndexPath < destinationIndexPath {
-            closedRange = sourceIndexPath.row...destinationIndexPath.row
-        } else {
-            closedRange = destinationIndexPath.row...sourceIndexPath.row
-        }
-        
-        return Array(closedRange).map({ IndexPath(row: $0, section: sourceIndexPath.section) })
-    }
-    
     // MARK: - Create view model
     
     func createSearchScreenViewModel() -> SearchScreenViewModelProtocol {
-        return SearchScreenViewModel(fetchedResultsController: self.frc)
+        
+        let backgroundContext = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        backgroundContext.parent = self.frc.managedObjectContext
+        
+        let dataParser = ParsingManager(context: backgroundContext)
+        let dataLoader = JSONLoader()
+        let APIKey = APIKeys().getRandomAPIKey()
+        
+        let networkManager = NetworkManager(dataParser: dataParser, dataLoader: dataLoader, APIKey: APIKey)
+        
+        return SearchScreenViewModel(fetchedResultsController: self.frc, networkManager: networkManager)
     }
 }

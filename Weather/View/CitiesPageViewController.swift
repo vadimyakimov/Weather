@@ -135,10 +135,6 @@ class CitiesPageViewController: EMPageViewController {
 
         let cityViewController = CityViewController(viewModel: self.viewModel.createCityViewModel(withIndex: index),
                                                     topOffset: self.nameLabelHeight + self.pageControlHeight)
-//        cityViewController.view.backgroundColor = UIColor(red: CGFloat.random(in: 0...1),
-//                                                          green: CGFloat.random(in: 0...1),
-//                                                          blue: CGFloat.random(in: 0...1),
-//                                                          alpha: 1)
         
         cityViewController.delegate = self
         cityViewController.changeGradientColor = { [unowned self] controller in
