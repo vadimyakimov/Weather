@@ -79,6 +79,7 @@
 		DDE5DC8E2D311E4C00508430 /* ImageProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE5DC8D2D311E4C00508430 /* ImageProviding.swift */; };
 		DDE5DC902D311E5000508430 /* WeatherProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE5DC8F2D311E5000508430 /* WeatherProviding.swift */; };
 		DDE5DC922D311E5400508430 /* CityProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE5DC912D311E5400508430 /* CityProviding.swift */; };
+		DDE5DC942D31433500508430 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DDE5DC932D31433500508430 /* LaunchScreen.storyboard */; };
 		DDE67CEF2D15BFBF006F114B /* CitiesListViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE67CEE2D15BFBF006F114B /* CitiesListViewControllerDelegate.swift */; };
 		DDE67CF12D15BFDF006F114B /* CitiesListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE67CF02D15BFDF006F114B /* CitiesListViewModel.swift */; };
 		DDE67CF32D15BFFD006F114B /* CitiesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE67CF22D15BFFD006F114B /* CitiesListViewController.swift */; };
@@ -170,6 +171,7 @@
 		DDE5DC8D2D311E4C00508430 /* ImageProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProviding.swift; sourceTree = "<group>"; };
 		DDE5DC8F2D311E5000508430 /* WeatherProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherProviding.swift; sourceTree = "<group>"; };
 		DDE5DC912D311E5400508430 /* CityProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityProviding.swift; sourceTree = "<group>"; };
+		DDE5DC932D31433500508430 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DDE67CEE2D15BFBF006F114B /* CitiesListViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitiesListViewControllerDelegate.swift; sourceTree = "<group>"; };
 		DDE67CF02D15BFDF006F114B /* CitiesListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitiesListViewModel.swift; sourceTree = "<group>"; };
 		DDE67CF22D15BFFD006F114B /* CitiesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitiesListViewController.swift; sourceTree = "<group>"; };
@@ -302,6 +304,7 @@
 				DD423AF527B5365900CF4E25 /* Localizable.strings */,
 				DDFA990E278DFE850045A760 /* Assets.xcassets */,
 				DD427A442D1739F90062FCD0 /* Settings.bundle */,
+				DDE5DC932D31433500508430 /* LaunchScreen.storyboard */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -519,6 +522,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDE5DC942D31433500508430 /* LaunchScreen.storyboard in Resources */,
 				DDEE841D279B543200F17C1E /* OneHourView.xib in Resources */,
 				DD56D1D62D22DB83006FD154 /* GoogleService-Info.plist in Resources */,
 				DDFA990F278DFE850045A760 /* Assets.xcassets in Resources */,
