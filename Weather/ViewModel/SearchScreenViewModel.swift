@@ -70,9 +70,9 @@ class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
         return id
     }
     
-    private func deleteFirstCity() {
+    private func deleteCity(at index: Int) {
         
-        guard let city = self.frc.fetchedObjects?.first else { return }
+        guard let city = self.savedCitiesList?[index] else { return }
         
         let context = self.frc.managedObjectContext
         
@@ -97,7 +97,7 @@ class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
         guard let savedCitiesList = self.savedCitiesList else { return }
         
         if savedCitiesList.first?.isLocated == true {
-            self.deleteFirstCity()
+            self.deleteCity(at: 0)
         } else {
             savedCitiesList.forEach({ $0.id += 1 })
         }
@@ -183,6 +183,12 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
         Task { [unowned self] in
             let city = await self.networkManager.geopositionCity(for: location.coordinate)
             guard let city else { return }
+            
+            if let index = self.savedCitiesList?.firstIndex(where: { $0.key == city.key }) {
+                self.deleteCity(at: index)
+                self.savedCitiesList?.filter({ $0.id > index }).forEach({ $0.id -= 1 })
+            }
+            
             let index = self.addNewCity(city)
             await self.delegate?.searchScreenViewController(didDirectToCityWithIndex: index)
         }
