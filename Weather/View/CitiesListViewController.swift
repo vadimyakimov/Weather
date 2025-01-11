@@ -15,6 +15,8 @@ class CitiesListViewController: UIViewController {
 
     private let citiesListTableView = UITableView()
     
+    private var isContentChanged = false
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -32,6 +34,13 @@ class CitiesListViewController: UIViewController {
         } else {
             self.view.backgroundColor = .white
         }        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if self.isContentChanged {
+            delegate?.citiesListViewControllerDidChangeContent()
+        }
     }
         
     // MARK: - Initializers
@@ -179,8 +188,7 @@ extension CitiesListViewController: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
         guard self.citiesListTableView.window != nil else { return }
         self.citiesListTableView.endUpdates()
-        
-        delegate?.citiesListViewControllerDidChangeContent()
+        self.isContentChanged = true
     }
     
     func controller(_ controller: NSFetchedResultsController<any NSFetchRequestResult>,
