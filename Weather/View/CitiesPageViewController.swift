@@ -171,6 +171,7 @@ class CitiesPageViewController: EMPageViewController {
 
         if let index {
             self.pageControl.currentPage = index
+            self.pageControl.setNeedsLayout()
         }
     }
 
