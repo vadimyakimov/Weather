@@ -17,8 +17,8 @@
 - UIKit (no storyboard, code-first)
 - Core Data
 - Modern Concurrency
-- Cocoapods, Firebase
-- Crashlytics
+- Cocoapods
+- Firebase Crashlytics
 - XIB
 - SOLID
 - MVVm
