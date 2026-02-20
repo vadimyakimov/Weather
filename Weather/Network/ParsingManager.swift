@@ -3,19 +3,30 @@ import CoreData
 class ParsingManager: DataParsing {
     
     private let context: NSManagedObjectContext
+    private enum ParsingError: Error {
+        case currentWeather
+        case hourlyForecast
+        case dailyForecast
+    }
     
     init(context: NSManagedObjectContext) {
         self.context = context
     }
     
-    func parseCurrentWeather(from data: Any?) -> CurrentWeatherProviding? {
-        return CurrentWeather(for: self.context, data: data)
+    func parseCurrentWeather(from data: Any?) throws -> CurrentWeatherProviding {
+        let currentWeather = CurrentWeather(for: self.context, data: data)
+        guard let currentWeather else {
+            throw ParsingError.currentWeather
+        }
+        return currentWeather
     }
     
     
-    func parseHourlyForecast(from data: Any?) -> [HourlyForecastProviding]? {
+    func parseHourlyForecast(from data: Any?) throws -> [HourlyForecastProviding] {
         
-        guard let dataArray = data as? [[String : Any]] else { return nil }
+        guard let dataArray = data as? [[String : Any]] else {
+            throw ParsingError.hourlyForecast
+        }
         
         var hourlyForecastArray: [HourlyForecastProviding] = []
         
@@ -26,9 +37,11 @@ class ParsingManager: DataParsing {
         return hourlyForecastArray
     }
     
-    func parseDailyForecast(from data: Any?) -> [DailyForecastProviding]? {
-        
-        guard let dataArray = (data as? [String : Any])?[String(.dailyForecast)] as? [[String : Any]] else { return nil }
+    func parseDailyForecast(from data: Any?) throws -> [DailyForecastProviding] {
+                
+        guard let dataArray = (data as? [String : Any])?[String(.dailyForecast)] as? [[String : Any]] else {
+            throw ParsingError.dailyForecast
+        }
         
         var dailyForecastArray: [DailyForecastProviding] = []
         

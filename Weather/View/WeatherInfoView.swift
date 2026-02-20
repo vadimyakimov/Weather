@@ -61,7 +61,6 @@ class WeatherInfoView: UIView {
         self.configureCurrentWearher()
         self.configureHourlyForecast()
         self.configureDailyForecast()
-        
         self.viewModel.refreshWeather(isForcedUpdate: false)
     }
     
@@ -70,6 +69,12 @@ class WeatherInfoView: UIView {
         self.hourlyForecastContainer.startSkeleton()
         self.dailyForecastContainer.startSkeleton()
         self.viewModel.refreshWeather(isForcedUpdate: true)
+    }
+    
+    func stopSkeleton() {
+        self.currentWeatherView.stopSkeleton()
+        self.hourlyForecastContainer.stopSkeleton()
+        self.dailyForecastContainer.stopSkeleton()
     }
     
     private func configureCurrentWearher() {

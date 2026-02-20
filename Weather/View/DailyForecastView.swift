@@ -90,7 +90,11 @@ class DailyForecastView: UIView {
     }
     
     func startSkeleton() {
-        let _ = self.dailyForecastViews.map({ $0.startSkeleton() })
+        self.dailyForecastViews.forEach({ $0.startSkeleton() })
+    }
+    
+    func stopSkeleton() {
+        self.dailyForecastViews.forEach({ $0.stopSkeleton() })
     }
     
 }

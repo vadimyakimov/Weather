@@ -7,5 +7,5 @@
 
 
 protocol JSONDataProviding {
-    func getJSON(from urlString: String) async -> Any?
+    func getJSON(from urlString: String) async throws -> Any?
 }

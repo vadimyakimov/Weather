@@ -7,7 +7,7 @@
 
 
 protocol WeatherProviding {
-    func getCurrentWeather(by cityKey: String) async -> CurrentWeatherProviding?
-    func getHourlyForecast(by cityKey: String) async -> [HourlyForecastProviding]?
-    func getDailyForecast(by cityKey: String) async -> [DailyForecastProviding]?
+    func getCurrentWeather(by cityKey: String) async throws -> CurrentWeatherProviding
+    func getHourlyForecast(by cityKey: String) async throws -> [HourlyForecastProviding]
+    func getDailyForecast(by cityKey: String) async throws -> [DailyForecastProviding]
 }

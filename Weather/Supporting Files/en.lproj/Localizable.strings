@@ -1,6 +1,12 @@
 "en-us" = "en-us";
 "My location" = "My location";
+"Failed to load data for the city" = "Failed to load data for the city";
 "Failed to find your location" = "Failed to find your location";
+"Failed to load weather data" = "Failed to load weather data";
+"Check your internet connection, or try again later" = "Check your internet connection, or try again later";
 "Check if your location is allowed in the settings, or try again later" = "Check if your location is allowed in the settings, or try again later";
+"The most recently successfully loaded weather data will be displayed" = "The most recently successfully loaded weather data will be displayed";
+"OK" = "OK";
+"Try again" = "Try again";
 "Settings" = "Settings";
 "Cancel" = "Cancel";

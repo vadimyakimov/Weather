@@ -20,49 +20,49 @@ class NetworkManager: WeatherProviding, CityProviding {
     
     // MARK: - Server connection functions
     
-    func getCurrentWeather(by cityKey: String) async -> CurrentWeatherProviding? {
+    func getCurrentWeather(by cityKey: String) async throws -> CurrentWeatherProviding {
         
         let url = "\(String(.baseURL))/currentconditions/v1/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)"
         
-        let json = await self.dataLoader.getJSON(from: url)
-        let currentWeather = self.dataParser.parseCurrentWeather(from: json)
+        let json = try await self.dataLoader.getJSON(from: url)
+        let currentWeather = try self.dataParser.parseCurrentWeather(from: json)
         
         return currentWeather
     }
     
-    func getHourlyForecast(by cityKey: String) async -> [HourlyForecastProviding]? {
+    func getHourlyForecast(by cityKey: String) async throws -> [HourlyForecastProviding] {
         
         let url = "\(String(.baseURL))/forecasts/v1/hourly/12hour/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)&metric=true"
         
-        let json = await self.dataLoader.getJSON(from: url)
-        let hourlyForecast = self.dataParser.parseHourlyForecast(from: json)
+        let json = try await self.dataLoader.getJSON(from: url)
+        let hourlyForecast = try self.dataParser.parseHourlyForecast(from: json)
         return hourlyForecast
     }
     
-    func getDailyForecast(by cityKey: String) async -> [DailyForecastProviding]? {
+    func getDailyForecast(by cityKey: String) async throws -> [DailyForecastProviding] {
         
         let url = "\(String(.baseURL))/forecasts/v1/daily/5day/\(cityKey)?apikey=\(self.keyAccuAPI)&\(self.languageURLKey)&metric=true"
         
-        let json = await self.dataLoader.getJSON(from: url)
-        let dailyForecast = self.dataParser.parseDailyForecast(from: json)
+        let json = try await self.dataLoader.getJSON(from: url)
+        let dailyForecast = try self.dataParser.parseDailyForecast(from: json)
         return dailyForecast
     }
     
-    func autocomplete(for text: String) async -> [CityDataProviding]? {
+    func autocomplete(for text: String) async throws -> [CityDataProviding]? {
         
         guard let encodedText = (text as NSString).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else { return nil }
         
         let url = "\(String(.baseURL))/locations/v1/cities/autocomplete?apikey=\(self.keyAccuAPI)&q=\(encodedText)&\(self.languageURLKey)"
         
-        let json = await self.dataLoader.getJSON(from: url)
+        let json = try await self.dataLoader.getJSON(from: url)
         let parsedCityArray = self.dataParser.parseCityAutocompleteArray(from: json)
         return parsedCityArray
     }
     
-    func geopositionCity(for location: CLLocationCoordinate2D) async -> CityDataProviding? {
+    func geopositionCity(for location: CLLocationCoordinate2D) async throws -> CityDataProviding? {
         let url = "\(String(.baseURL))/locations/v1/cities/geoposition/search?apikey=\(self.keyAccuAPI)&q=\(location.latitude),\(location.longitude)&\(self.languageURLKey)"
         
-        let json = await self.dataLoader.getJSON(from: url)
+        let json = try await self.dataLoader.getJSON(from: url)
         let parsedCity = self.dataParser.parseGeopositionCity(from: json)
         return parsedCity
     }

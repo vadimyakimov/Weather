@@ -67,7 +67,7 @@ class CurrentWeatherView: UIView {
         self.showAnimatedSkeleton(usingColor: self.color(isDayTime: isDayTime))
     }
     
-    private func stopSkeleton() {
+    func stopSkeleton() {
         self.hideSkeleton()
     }
     

@@ -89,6 +89,10 @@ class HourlyForecastView: UIScrollView {
     }
     
     func startSkeleton() {
-        let _ = self.hourlyForecastViews.map({ $0.startSkeleton() })
+        self.hourlyForecastViews.forEach({ $0.startSkeleton() })
+    }
+    
+    func stopSkeleton() {
+        self.hourlyForecastViews.forEach({ $0.stopSkeleton() })
     }
 }

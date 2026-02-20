@@ -7,9 +7,9 @@
 
 
 protocol DataParsing {
-    func parseCurrentWeather(from data: Any?) -> CurrentWeatherProviding?
-    func parseHourlyForecast(from data: Any?) -> [HourlyForecastProviding]?
-    func parseDailyForecast(from data: Any?) -> [DailyForecastProviding]?
+    func parseCurrentWeather(from data: Any?) throws -> CurrentWeatherProviding
+    func parseHourlyForecast(from data: Any?) throws -> [HourlyForecastProviding]
+    func parseDailyForecast(from data: Any?) throws -> [DailyForecastProviding]
     
     func parseCityAutocompleteArray(from data: Any?) -> [CityDataProviding]?
     func parseGeopositionCity(from data: Any?) -> CityDataProviding?

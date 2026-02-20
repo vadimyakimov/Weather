@@ -8,6 +8,6 @@
 import CoreLocation
 
 protocol CityProviding {
-    func autocomplete(for text: String) async -> [CityDataProviding]?
-    func geopositionCity(for location: CLLocationCoordinate2D) async -> CityDataProviding?
+    func autocomplete(for text: String) async throws -> [CityDataProviding]?
+    func geopositionCity(for location: CLLocationCoordinate2D) async throws -> CityDataProviding?
 }

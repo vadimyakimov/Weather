@@ -16,7 +16,7 @@ class ImageLoader: ImageProviding {
     func getImage(_ iconNumber: Int) async -> UIImage? {
         
         let numberFormatted = String(format: "%02d", iconNumber)
-        let urlString = "https://developer.accuweather.com/sites/default/files/\(numberFormatted)-s.png"
+        let urlString = "https://apidev.accuweather.com/developers/Media/Default/WeatherIcons/\(numberFormatted)-s.png"
         guard let url = URL(string: urlString) else { return nil }
                 
         do {

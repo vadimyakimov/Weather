@@ -1,6 +1,12 @@
 "en-us" = "ru-ru";
 "My location" = "Моё местоположение";
+"Failed to load data for the city" = "Не удалось загрузить данные города";
 "Failed to find your location" = "Не удалось определить местоположение";
+"Failed to load weather data" = "Не удалось загрузить данные о погоде";
+"Check your internet connection, or try again later" = "Проверьте подключение к интернету или попробуйте позже";
 "Check if your location is allowed in the settings, or try again later" = "Проверьте, открыт ли доступ к местоположению в настройках, или попробуйте позже";
+"The most recently successfully loaded weather data will be displayed" = "Будут отображены последние успешно загруженные данные о погоде";
+"OK" = "ОК";
+"Try again" = "Попробовать снова";
 "Settings" = "Настройки";
 "Cancel" = "Отмена";

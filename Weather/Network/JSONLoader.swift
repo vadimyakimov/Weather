@@ -9,14 +9,10 @@ import Foundation
 
 class JSONLoader: JSONDataProviding {
     
-    func getJSON(from urlString: String) async -> Any? {
-        do {
-            guard let data = try await self.fetchRequest(from: urlString) else { return nil }
-            let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-            return json
-        } catch {
-            return nil
-        }
+    func getJSON(from urlString: String) async throws -> Any? {
+        guard let data = try await self.fetchRequest(from: urlString) else { return nil }
+        let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+        return json
     }
     
     private func fetchRequest(from urlString: String) async throws -> Data? {

@@ -72,9 +72,12 @@ class SearchScreenViewController: UIViewController {
                 self.setLoadingAnimation(false)
             case .loading:
                 self.setLoadingAnimation(true)
-            case .error:
+            case .errorWhileDetectingLocation:
                 self.setLoadingAnimation(false)
                 self.showLocationErrorAlert()
+            case .errorWhileLoadingData:
+                self.setLoadingAnimation(false)
+                self.showLoadingErrorAlert()
             }
         }
     }
@@ -156,6 +159,8 @@ class SearchScreenViewController: UIViewController {
         }
     }
     
+    // MARK: - Error funcs
+    
     private func showLocationErrorAlert() {
         let errorTitle = "Failed to find your location".localized()
         let errorMessage = "Check if your location is allowed in the settings, or try again later".localized()
@@ -177,6 +182,24 @@ class SearchScreenViewController: UIViewController {
         guard let alert else { return }
         self.present(alert, animated: true)
     }
+        
+    private func showLoadingErrorAlert() {
+        let errorTitle = "Failed to load data for the city".localized()
+        let errorMessage = "Check your internet connection, or try again later".localized()
+        
+        let alert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        
+        let retryAction = UIAlertAction(title: "Try again".localized(), style: .default) { [unowned self] _ in
+            self.viewModel.handleSelectedRow(at: IndexPath(row: 0, section: 0))
+        }
+        alert.addAction(retryAction)
+        
+        let cancelAction = UIAlertAction(title: "Cancel".localized(), style: .cancel, handler: nil)
+        alert.addAction(cancelAction)
+        
+        self.present(alert, animated: true)
+    }
+    
 }
 
 // MARK: -

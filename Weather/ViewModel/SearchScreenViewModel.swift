@@ -125,7 +125,10 @@ class SearchScreenViewModel: NSObject, SearchScreenViewModelProtocol {
                 try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
                 guard !Task.isCancelled else { return }
             
-            guard let citiesArray = await self.networkManager.autocomplete(for: searchText) else { return }
+            guard let citiesArray = try await self.networkManager.autocomplete(for: searchText) else {
+                self.isLocationLoading.value = .errorWhileLoadingData
+                return
+            }
                 self.citiesAutocompleteArray.value = citiesArray
         }
     }
@@ -174,15 +177,17 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         guard let location = manager.location else {
-            self.isLocationLoading.value = .error
+            self.isLocationLoading.value = .errorWhileDetectingLocation
             return
         }
         
         self.isLocationLoading.value = .initial
         
         Task { [unowned self] in
-            let city = await self.networkManager.geopositionCity(for: location.coordinate)
-            guard let city else { return }
+            guard let city = try await self.networkManager.geopositionCity(for: location.coordinate) else {
+                self.isLocationLoading.value = .errorWhileLoadingData
+                return
+            }
             
             if let index = self.savedCitiesList?.firstIndex(where: { $0.key == city.key }) {
                 self.deleteCity(at: index)
@@ -195,7 +200,7 @@ extension SearchScreenViewModel: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        self.isLocationLoading.value = .error
+        self.isLocationLoading.value = .errorWhileDetectingLocation
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {        

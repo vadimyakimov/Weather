@@ -77,26 +77,34 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
         let lastUpdated = self.city.lastUpdated
         
         Task { [unowned self] in
-            await withTaskGroup(of: Void.self) { group in
+            await withThrowingTaskGroup(of: Void.self) { group in
+                
                 if lastUpdated.currentWeather.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
                     group.addTask {
-                        await self.fetchCurrentWeather()
+                        try await self.fetchCurrentWeather()
                     }
                 }
-        
+                
                 if lastUpdated.hourlyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
                     group.addTask {
-                        await self.fetchHourlyForecast()
+                        try await self.fetchHourlyForecast()
                     }
                 }
-        
+                
                 if lastUpdated.dailyForecast.timeIntervalSinceNow < -self.refreshTimeout || isForcedUpdate {
-                    group.addTask { 
-                        await self.fetchDailyForecast()
+                    group.addTask {
+                        try await self.fetchDailyForecast()
                     }
+                }
+                
+                do {
+                    try await group.waitForAll()
+                    await self.delegate?.weatherInfoViewDidFinishUpdating(true)
+                } catch {
+                    await self.delegate?.weatherInfoViewDidFinishUpdating(false)
                 }
             }
-            await self.delegate?.weatherInfoViewDidFinishUpdating()
+                
         }
     }
     
@@ -110,25 +118,24 @@ class WeatherInfoViewModel: NSObject, WeatherInfoViewModelProtocol {
     
     // MARK: - Fetching data from network
      
-    private func fetchCurrentWeather() async {
+    private func fetchCurrentWeather() async throws {
         let (networkManager, context) = self.createNetworkManagerWithNewContext()
-        if let currentWeather = await networkManager.getCurrentWeather(by: self.city.key) {
-            self.updateData(currentWeather, context: context)
-        }
+        let currentWeather = try await networkManager.getCurrentWeather(by: self.city.key)
+        self.updateData(currentWeather, context: context)
+        
     }
     
-    private func fetchHourlyForecast() async {
+    private func fetchHourlyForecast() async throws {
         let (networkManager, context) = self.createNetworkManagerWithNewContext()
-        if let hourlyForecast = await networkManager.getHourlyForecast(by: self.city.key) {
-            self.updateData(hourlyForecast, context: context)
-        }
+        let hourlyForecast = try await networkManager.getHourlyForecast(by: self.city.key)
+        self.updateData(hourlyForecast, context: context)
     }
     
-    private func fetchDailyForecast() async {
+    private func fetchDailyForecast() async throws {
         let (networkManager, context) = self.createNetworkManagerWithNewContext()
-        if let dailyForecast = await networkManager.getDailyForecast(by: self.city.key) {
-            self.updateData(dailyForecast, context: context)
-        }
+        let dailyForecast = try await networkManager.getDailyForecast(by: self.city.key)
+        self.updateData(dailyForecast, context: context)
+        
     }
     
     // MARK: - CRUD

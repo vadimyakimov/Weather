@@ -106,6 +106,28 @@ class CityViewController: UIViewController {
         
         scrollView.layer.mask = gradient        
     }
+    
+    // MARK: - Error funcs
+    
+    private func showErrorAlert() {
+        let errorTitle = "Failed to load weather data".localized()
+        let errorMessage = "The most recently successfully loaded weather data will be displayed".localized()
+        
+        let alert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: .alert)
+        
+        let retryAction = UIAlertAction(title: "Try again".localized(), style: .default) { [unowned self] _ in
+            self.refreshWeatherInfo()
+        }
+        alert.addAction(retryAction)
+        
+        let cancelAction = UIAlertAction(title: "OK".localized(), style: .cancel) { [unowned self] _ in
+            self.cityRefreshControl.endRefreshing()
+            self.weatherInfoView.stopSkeleton()
+        }
+        alert.addAction(cancelAction)
+        
+        self.present(alert, animated: true)
+    }
 }
 
 // MARK: - 
@@ -123,8 +145,12 @@ extension CityViewController: UIScrollViewDelegate {
 
 extension CityViewController: WeatherInfoViewDelegate {
     
-    func weatherInfoViewDidFinishUpdating() {
+    func weatherInfoViewDidFinishUpdating(_ isSuccess: Bool) {
+        if isSuccess {
             self.cityRefreshControl.endRefreshing()
+        } else {
+            self.showErrorAlert()
+        }
     }
     
     func weatherInfoViewDidUpdateCurrentWeather() {

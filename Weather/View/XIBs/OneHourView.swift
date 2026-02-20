@@ -75,7 +75,7 @@ class OneHourView: UIView {
         self.showAnimatedGradientSkeleton(usingGradient: gradient)
     }
     
-    private func stopSkeleton() {
+    func stopSkeleton() {
         self.hideSkeleton()
     }
     
