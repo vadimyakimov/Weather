@@ -2,7 +2,6 @@
 /Pods
 .DS_Store
 /build
-/Weather/Supporting Files/APIKeys.swift
 /Weather.xcworkspace
 /Weather.xcodeproj/xcshareddata
 /Weather.xcodeproj/xcuserdata
