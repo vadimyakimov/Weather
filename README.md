@@ -7,7 +7,8 @@
 - When adding an already saved city, the app redirects to the existing page instead of creating a new one.  
 - Navigate between city pages via swiping, Page Control, or the city list.  
 - Reorder cities in the list using Drag & Drop.  
-- Custom animation for swiping between cities.  
+- Custom animation for swiping between cities.
+- The background changes depending on the time of day in the displayed city.
 - Skeleton view displayed while fetching data.  
 - Image caching for better performance.  
 - Localization available in English and Russian.  
