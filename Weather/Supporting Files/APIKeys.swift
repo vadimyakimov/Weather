@@ -10,9 +10,9 @@ import Foundation
 class APIKeys {
     
     let keys: [String] = [
-        "zpka_e6853d8530814235918de26dd973940a_94b2d220", // expires on Mar 7, 2026
-        "zpka_539441e800c74574ba635d773c2990a7_21888991", // expires on Mar 7, 2026
-        "zpka_484291e90a31439a95d81dce4ff1f7c1_a5807c76", // expires on Mar 7, 2026
+        "zpka_fb058e52d4e54d94b8496a4bb4e8f129_3b1b84bc", 
+        "zpka_77068d894e22447eb4327fe5f62f2be3_904169fa",
+        "zpka_96bce9c5d88646c48d887a346d01bc35_7240dedf",
     ]
     
     func getRandomAPIKey() -> String {
